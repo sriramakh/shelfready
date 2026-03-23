@@ -48,21 +48,32 @@ export default function SignupPage() {
 
       router.push("/dashboard");
       router.refresh();
-    } catch {
-      setError("An unexpected error occurred. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignup = async () => {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/callback`,
-      },
-    });
+    try {
+      setError("");
+      setLoading(true);
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/callback`,
+        },
+      });
+      if (authError) {
+        setError(authError.message);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google sign-up failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
