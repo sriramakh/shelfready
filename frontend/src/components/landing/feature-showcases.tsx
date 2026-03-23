@@ -12,6 +12,7 @@ import {
   Check,
   Hash,
   ArrowRight,
+  Image as ImageIcon,
 } from "lucide-react";
 
 // ── Real generated data (from MiniMax) ──────────────────────────────
@@ -379,6 +380,100 @@ function MultiPlatformShowcase() {
   );
 }
 
+function AdCreativesShowcase() {
+  const templates = [
+    { name: "Flash Sale", src: "/templates/flash_sale.png" },
+    { name: "Black Friday", src: "/templates/black_friday.png" },
+    { name: "Premium", src: "/templates/premium.png" },
+    { name: "New Arrival", src: "/templates/new_arrival.png" },
+  ];
+  const results = [
+    { name: "Flash Sale", src: "/showcase/creative_flash_sale.png" },
+    { name: "New Arrival", src: "/showcase/creative_new_arrival.png" },
+    { name: "Premium", src: "/showcase/creative_premium.png" },
+    { name: "Comparison", src: "/showcase/creative_comparison.png" },
+  ];
+
+  const [activeView, setActiveView] = useState<"templates" | "results">("templates");
+
+  return (
+    <div className="space-y-4">
+      {/* Toggle */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveView("templates")}
+          className={cn(
+            "text-xs font-semibold px-3 py-1.5 rounded-full transition-colors cursor-pointer",
+            activeView === "templates" ? "bg-primary text-white" : "bg-surface-alt text-text-muted hover:text-text"
+          )}
+        >
+          70+ Templates
+        </button>
+        <button
+          onClick={() => setActiveView("results")}
+          className={cn(
+            "text-xs font-semibold px-3 py-1.5 rounded-full transition-colors cursor-pointer",
+            activeView === "results" ? "bg-primary text-white" : "bg-surface-alt text-text-muted hover:text-text"
+          )}
+        >
+          Product Applied
+        </button>
+      </div>
+
+      {activeView === "templates" && (
+        <div className="space-y-3">
+          <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
+            <p className="text-xs text-text-muted">Pick any template style — the AI adapts it to your product with your custom messaging, offers, and branding.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {templates.map((t) => (
+              <div key={t.name} className="rounded-lg border border-border overflow-hidden group">
+                <div className="aspect-video overflow-hidden bg-surface-alt">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={t.src} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                </div>
+                <div className="p-1.5 text-center">
+                  <p className="text-[11px] font-semibold text-text">{t.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-text-muted text-center">+ 66 more templates across Sale, Launch, Lifestyle, Premium, Social, Industry categories</p>
+        </div>
+      )}
+
+      {activeView === "results" && (
+        <div className="space-y-3">
+          <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 flex items-center gap-3">
+            <div className="w-[60px] flex-shrink-0 rounded-md overflow-hidden border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/showcase/input.png" alt="Input" className="w-full h-auto" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Input: Bamboo Cutting Board</p>
+              <p className="text-xs text-text-muted">+ offer: &quot;25% off, Code CHOP25, Free Shipping&quot;</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {results.map((r) => (
+              <div key={r.name} className="rounded-lg border border-border overflow-hidden group">
+                <div className="aspect-video overflow-hidden bg-surface-alt">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={r.src} alt={r.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                </div>
+                <div className="p-1.5 text-center">
+                  <p className="text-[11px] font-semibold text-text">{r.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-text-muted text-center">Same product, custom messaging — applied to different template styles</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Export ──────────────────────────────────────────────────────
 
 const SHOWCASES = [
@@ -405,6 +500,14 @@ const SHOWCASES = [
     icon: Megaphone,
     gradient: "from-amber-500 to-orange-600",
     component: AdsShowcase,
+  },
+  {
+    id: "creatives",
+    title: "Ad Creatives + Templates",
+    subtitle: "70+ visual ad templates — upload your product, pick a style, get scroll-stopping creatives.",
+    icon: ImageIcon,
+    gradient: "from-rose-500 to-red-600",
+    component: AdCreativesShowcase,
   },
   {
     id: "research",

@@ -577,6 +577,122 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ===== AD CREATIVES SHOWCASE ===== */}
+      <section className="py-24 sm:py-32 bg-surface-alt/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
+              70+ Ad Templates
+            </p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
+              Scroll-Stopping Ad Creatives in Seconds
+            </h2>
+            <p className="mt-5 text-lg text-text-muted leading-relaxed">
+              Pick a template, upload your product, add your messaging — get
+              professional ad creatives ready for Facebook, Instagram, and Google.
+            </p>
+          </div>
+
+          {/* Template Collage Cloud */}
+          <div className="mb-16">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+              {[
+                "flash_sale", "black_friday", "new_arrival", "premium", "cyber_monday",
+                "summer_sale", "holiday_sale", "beauty_skincare", "fitness_energy", "tech_gadget",
+                "bogo", "clearance", "vip_access", "just_dropped", "testimonial",
+                "home_decor", "fashion_apparel", "food_drink", "garden_plant", "kids_toys",
+                "wellness_calm", "cozy_winter", "outdoor_adventure", "jewelry", "bestseller",
+                "bundle_deal", "countdown", "giveaway", "before_after", "award_winner",
+              ].map((id) => (
+                <div
+                  key={id}
+                  className="aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/templates/${id}.png`}
+                    alt={id.replace(/_/g, " ")}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-sm text-text-muted mt-4">
+              Flash Sale, Black Friday, New Arrival, Premium, Lifestyle, Beauty, Tech, Food, Fashion, and 60+ more
+            </p>
+          </div>
+
+          {/* Before/After: Template → Product Creative */}
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8">
+              <h3 className="text-xl sm:text-2xl font-bold text-secondary">
+                See How Templates Transform Your Product
+              </h3>
+              <p className="text-text-muted mt-2">
+                Same cutting board + different templates = unique ad creatives with custom messaging
+              </p>
+            </div>
+
+            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+              {/* Input product */}
+              <div className="flex-shrink-0 w-full max-w-[200px]">
+                <div className="rounded-2xl border-2 border-dashed border-primary/30 bg-white p-3 text-center">
+                  <div className="rounded-xl overflow-hidden border border-border mb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/showcase/input.png" alt="Product input" className="w-full h-auto" />
+                  </div>
+                  <p className="text-[11px] font-semibold text-text-muted">Your Product</p>
+                  <p className="text-[10px] text-text-muted">+ &quot;25% off, Code CHOP25&quot;</p>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex items-center justify-center flex-shrink-0">
+                <div className="hidden lg:flex items-center gap-2">
+                  <div className="w-12 h-[2px] bg-gradient-to-r from-primary/40 to-rose-400/40" />
+                  <ArrowRight className="h-5 w-5 text-primary/40" />
+                </div>
+                <div className="lg:hidden flex flex-col items-center gap-2 py-2">
+                  <div className="h-8 w-[2px] bg-gradient-to-b from-primary/40 to-rose-400/40" />
+                  <ChevronRight className="h-4 w-4 text-primary/40 rotate-90" />
+                </div>
+              </div>
+
+              {/* Output creatives */}
+              <div className="flex-1 w-full">
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Flash Sale", src: "/showcase/creative_flash_sale.png" },
+                    { label: "New Arrival", src: "/showcase/creative_new_arrival.png" },
+                    { label: "Premium", src: "/showcase/creative_premium.png" },
+                    { label: "Comparison", src: "/showcase/creative_comparison.png" },
+                  ].map((shot) => (
+                    <div
+                      key={shot.label}
+                      className="group rounded-2xl border border-border bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                    >
+                      <div className="aspect-video overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={shot.src}
+                          alt={`${shot.label} creative`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                      <div className="p-2.5 text-center">
+                        <p className="text-sm font-semibold text-secondary">{shot.label}</p>
+                        <p className="text-[10px] text-text-muted">Template applied</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== PRICING ===== */}
       <section id="pricing" className="py-24 sm:py-32 bg-surface-alt/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
