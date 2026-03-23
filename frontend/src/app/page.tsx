@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import FeatureShowcases from "@/components/landing/feature-showcases";
+import { TemplatePreviewModal } from "@/components/ui/template-preview-modal";
 import {
   Package,
   Image,
@@ -145,6 +146,7 @@ const planEntries = Object.entries(PLANS) as [
 
 export default function LandingPage() {
   const [yearly, setYearly] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<{ src: string; alt: string } | null>(null);
 
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -602,11 +604,16 @@ export default function LandingPage() {
                 "bogo", "clearance", "vip_access", "just_dropped", "testimonial",
                 "home_decor", "fashion_apparel", "food_drink", "garden_plant", "kids_toys",
                 "wellness_calm", "cozy_winter", "outdoor_adventure", "jewelry", "bestseller",
-                "bundle_deal", "countdown", "giveaway", "before_after", "award_winner", "min_white_space", "min_duo_tone", "pas_blush_pink", "pas_lavender", "pas_mint", "pas_rose_gold", "pas_cotton_candy", "pas_pistachio", "gz_neon_chaos", "gz_holographic", "gz_gradient_mesh", "gz_sticker_bomb", "gz_acid", "gz_vapor", "min_japanese", "pas_honey", "gz_bold_type", "pas_blossom",
+                "bundle_deal", "countdown", "giveaway", "before_after", "award_winner",
+                "min_white_space", "min_duo_tone", "pas_blush_pink", "pas_lavender", "pas_mint",
+                "pas_rose_gold", "pas_cotton_candy", "pas_pistachio", "gz_neon_chaos", "gz_holographic",
+                "gz_gradient_mesh", "gz_sticker_bomb", "gz_acid", "gz_vapor", "min_japanese",
+                "pas_honey", "gz_bold_type", "pas_blossom",
               ].map((id) => (
-                <div
+                <button
                   key={id}
-                  className="aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group"
+                  onClick={() => setPreviewTemplate({ src: `/templates/${id}.png`, alt: id.replace(/_/g, " ") })}
+                  className="aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -615,7 +622,7 @@ export default function LandingPage() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
                   />
-                </div>
+                </button>
               ))}
             </div>
             <p className="text-center text-sm text-text-muted mt-4">
@@ -1085,6 +1092,15 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Template Preview Modal */}
+      {previewTemplate && (
+        <TemplatePreviewModal
+          src={previewTemplate.src}
+          alt={previewTemplate.alt}
+          onClose={() => setPreviewTemplate(null)}
+        />
+      )}
     </div>
   );
 }

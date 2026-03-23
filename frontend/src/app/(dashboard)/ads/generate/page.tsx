@@ -25,6 +25,7 @@ import {
   FileText,
 } from "lucide-react";
 import Link from "next/link";
+import { TemplatePreviewModal } from "@/components/ui/template-preview-modal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const IS_DEMO =
@@ -120,6 +121,7 @@ export default function AdsGeneratePage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateCategory, setTemplateCategory] = useState("all");
   const [templatesExpanded, setTemplatesExpanded] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<{ src: string; alt: string } | null>(null);
   const [templateBase64Cache, setTemplateBase64Cache] = useState<Record<string, string>>({});
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState("");
@@ -753,17 +755,24 @@ export default function AdsGeneratePage() {
                   {CREATIVE_TEMPLATES.filter((t) =>
                     ["flash_sale", "new_arrival", "premium", "black_friday", "seasonal"].includes(t.id)
                   ).map((tpl) => (
-                    <button key={tpl.id} type="button" onClick={() => setSelectedTemplate(tpl.id)}
-                      className="flex-shrink-0 w-[155px] rounded-lg border border-border overflow-hidden hover:shadow-md hover:border-primary/30 transition-all cursor-pointer group">
-                      <div className="aspect-video overflow-hidden bg-surface-alt">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={tpl.preview} alt={tpl.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
-                      <div className="p-1.5 text-center">
-                        <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
-                      </div>
-                    </button>
+                    <div key={tpl.id} className="flex-shrink-0 w-[155px] rounded-lg border border-border overflow-hidden hover:shadow-md hover:border-primary/30 transition-all group relative">
+                      <button type="button" onClick={() => setSelectedTemplate(tpl.id)} className="w-full cursor-pointer">
+                        <div className="aspect-video overflow-hidden bg-surface-alt">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={tpl.preview} alt={tpl.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        </div>
+                        <div className="p-1.5 text-center">
+                          <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
+                        </div>
+                      </button>
+                      <button type="button"
+                        onClick={(e) => { e.stopPropagation(); setPreviewTemplate({ src: tpl.preview, alt: tpl.name }); }}
+                        className="absolute top-1.5 right-1.5 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
+                        title="Preview full size">
+                        <ImageIcon className="h-3 w-3" />
+                      </button>
+                    </div>
                   ))}
                   <button type="button" onClick={() => setTemplatesExpanded(true)}
                     className="flex-shrink-0 w-[155px] rounded-lg border-2 border-dashed border-border overflow-hidden hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2">
@@ -799,22 +808,30 @@ export default function AdsGeneratePage() {
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
                     {CREATIVE_TEMPLATES.filter((t) => templateCategory === "all" || t.category === templateCategory)
                       .map((tpl) => (
-                      <button key={tpl.id} type="button"
-                        onClick={() => { setSelectedTemplate(tpl.id); setTemplatesExpanded(false); }}
-                        className={cn(
-                          "rounded-lg border overflow-hidden transition-all cursor-pointer group text-left",
-                          selectedTemplate === tpl.id ? "ring-2 ring-primary border-primary shadow-md" : "border-border hover:shadow-sm",
-                        )}>
-                        <div className="aspect-video overflow-hidden bg-surface-alt">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={tpl.preview} alt={tpl.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                        </div>
-                        <div className="p-1.5">
-                          <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
-                          <p className="text-[10px] text-text-muted truncate">{tpl.description}</p>
-                        </div>
-                      </button>
+                      <div key={tpl.id} className={cn(
+                        "rounded-lg border overflow-hidden transition-all group text-left relative",
+                        selectedTemplate === tpl.id ? "ring-2 ring-primary border-primary shadow-md" : "border-border hover:shadow-sm",
+                      )}>
+                        <button type="button"
+                          onClick={() => { setSelectedTemplate(tpl.id); setTemplatesExpanded(false); }}
+                          className="w-full cursor-pointer">
+                          <div className="aspect-video overflow-hidden bg-surface-alt">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={tpl.preview} alt={tpl.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                          </div>
+                          <div className="p-1.5">
+                            <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
+                            <p className="text-[10px] text-text-muted truncate">{tpl.description}</p>
+                          </div>
+                        </button>
+                        <button type="button"
+                          onClick={(e) => { e.stopPropagation(); setPreviewTemplate({ src: tpl.preview, alt: tpl.name }); }}
+                          className="absolute top-1.5 right-1.5 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
+                          title="Preview full size">
+                          <ImageIcon className="h-3 w-3" />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -1062,6 +1079,15 @@ export default function AdsGeneratePage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Template Preview Modal */}
+      {previewTemplate && (
+        <TemplatePreviewModal
+          src={previewTemplate.src}
+          alt={previewTemplate.alt}
+          onClose={() => setPreviewTemplate(null)}
+        />
       )}
     </div>
   );
