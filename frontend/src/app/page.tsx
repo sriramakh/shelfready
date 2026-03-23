@@ -1096,8 +1096,7 @@ export default function LandingPage() {
       {/* Template Preview Modal */}
       {previewTemplate && (
         <TemplatePreviewModal
-          src={previewTemplate.src}
-          alt={previewTemplate.alt}
+          current={{ id: "", src: previewTemplate.src, name: previewTemplate.alt }}
           onClose={() => setPreviewTemplate(null)}
         />
       )}

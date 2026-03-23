@@ -121,7 +121,7 @@ export default function AdsGeneratePage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateCategory, setTemplateCategory] = useState("all");
   const [templatesExpanded, setTemplatesExpanded] = useState(false);
-  const [previewTemplate, setPreviewTemplate] = useState<{ src: string; alt: string } | null>(null);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const [templateBase64Cache, setTemplateBase64Cache] = useState<Record<string, string>>({});
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState("");
@@ -767,7 +767,7 @@ export default function AdsGeneratePage() {
                         </div>
                       </button>
                       <button type="button"
-                        onClick={(e) => { e.stopPropagation(); setPreviewTemplate({ src: tpl.preview, alt: tpl.name }); }}
+                        onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(tpl.id); }}
                         className="absolute top-1.5 right-1.5 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
                         title="Preview full size">
                         <ImageIcon className="h-3 w-3" />
@@ -826,7 +826,7 @@ export default function AdsGeneratePage() {
                           </div>
                         </button>
                         <button type="button"
-                          onClick={(e) => { e.stopPropagation(); setPreviewTemplate({ src: tpl.preview, alt: tpl.name }); }}
+                          onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(tpl.id); }}
                           className="absolute top-1.5 right-1.5 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
                           title="Preview full size">
                           <ImageIcon className="h-3 w-3" />
@@ -1081,14 +1081,28 @@ export default function AdsGeneratePage() {
         </div>
       )}
 
-      {/* Template Preview Modal */}
-      {previewTemplate && (
-        <TemplatePreviewModal
-          src={previewTemplate.src}
-          alt={previewTemplate.alt}
-          onClose={() => setPreviewTemplate(null)}
-        />
-      )}
+      {/* Template Preview Modal with navigation + selection */}
+      {previewTemplateId && (() => {
+        const tpl = CREATIVE_TEMPLATES.find((t) => t.id === previewTemplateId);
+        if (!tpl) return null;
+        const visible = CREATIVE_TEMPLATES.filter(
+          (t) => templateCategory === "all" || t.category === templateCategory
+        );
+        return (
+          <TemplatePreviewModal
+            current={{ id: tpl.id, src: tpl.preview, name: tpl.name, description: tpl.description }}
+            items={visible.map((t) => ({ id: t.id, src: t.preview, name: t.name, description: t.description }))}
+            selectedId={selectedTemplate}
+            onNavigate={(item) => setPreviewTemplateId(item.id)}
+            onSelect={(item) => {
+              setSelectedTemplate(item.id);
+              setPreviewTemplateId(null);
+              setTemplatesExpanded(false);
+            }}
+            onClose={() => setPreviewTemplateId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
