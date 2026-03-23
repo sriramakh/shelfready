@@ -39,7 +39,7 @@ tests/dual_image_test/
 tests/hybrid_comparison/
 
 # Sensitive
-*.txt
+backend/Webshare*.txt
 backend/.env
 searxng/settings.yml
 
