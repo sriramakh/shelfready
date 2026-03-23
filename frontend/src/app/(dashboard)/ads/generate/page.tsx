@@ -23,6 +23,7 @@ import {
   Camera,
   Download,
   FileText,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { TemplatePreviewModal } from "@/components/ui/template-preview-modal";
@@ -756,22 +757,29 @@ export default function AdsGeneratePage() {
                     ["flash_sale", "new_arrival", "premium", "black_friday", "seasonal"].includes(t.id)
                   ).map((tpl) => (
                     <div key={tpl.id} className="flex-shrink-0 w-[155px] rounded-lg border border-border overflow-hidden hover:shadow-md hover:border-primary/30 transition-all group relative">
-                      <button type="button" onClick={() => setSelectedTemplate(tpl.id)} className="w-full cursor-pointer">
-                        <div className="aspect-video overflow-hidden bg-surface-alt">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={tpl.preview} alt={tpl.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      <div className="aspect-video overflow-hidden bg-surface-alt relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={tpl.preview} alt={tpl.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        {/* Hover overlay with preview + select */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                          <button type="button"
+                            onClick={() => setPreviewTemplateId(tpl.id)}
+                            className="rounded-full bg-white shadow-lg p-2 text-secondary hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                            title="Preview full size">
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button type="button"
+                            onClick={() => setSelectedTemplate(tpl.id)}
+                            className="rounded-full bg-primary shadow-lg p-2 text-white hover:bg-primary-dark transition-colors cursor-pointer"
+                            title="Use this template">
+                            <Plus className="h-4 w-4" />
+                          </button>
                         </div>
-                        <div className="p-1.5 text-center">
-                          <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
-                        </div>
-                      </button>
-                      <button type="button"
-                        onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(tpl.id); }}
-                        className="absolute top-1.5 right-1.5 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
-                        title="Preview full size">
-                        <ImageIcon className="h-3 w-3" />
-                      </button>
+                      </div>
+                      <div className="p-1.5 text-center">
+                        <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
+                      </div>
                     </div>
                   ))}
                   <button type="button" onClick={() => setTemplatesExpanded(true)}
@@ -812,25 +820,30 @@ export default function AdsGeneratePage() {
                         "rounded-lg border overflow-hidden transition-all group text-left relative",
                         selectedTemplate === tpl.id ? "ring-2 ring-primary border-primary shadow-md" : "border-border hover:shadow-sm",
                       )}>
-                        <button type="button"
-                          onClick={() => { setSelectedTemplate(tpl.id); setTemplatesExpanded(false); }}
-                          className="w-full cursor-pointer">
-                          <div className="aspect-video overflow-hidden bg-surface-alt">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={tpl.preview} alt={tpl.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        <div className="aspect-video overflow-hidden bg-surface-alt relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={tpl.preview} alt={tpl.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                            <button type="button"
+                              onClick={() => setPreviewTemplateId(tpl.id)}
+                              className="rounded-full bg-white shadow-lg p-2 text-secondary hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                              title="Preview full size">
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button type="button"
+                              onClick={() => { setSelectedTemplate(tpl.id); setTemplatesExpanded(false); }}
+                              className="rounded-full bg-primary shadow-lg p-2 text-white hover:bg-primary-dark transition-colors cursor-pointer"
+                              title="Use this template">
+                              <Plus className="h-4 w-4" />
+                            </button>
                           </div>
-                          <div className="p-1.5">
-                            <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
-                            <p className="text-[10px] text-text-muted truncate">{tpl.description}</p>
-                          </div>
-                        </button>
-                        <button type="button"
-                          onClick={(e) => { e.stopPropagation(); setPreviewTemplateId(tpl.id); }}
-                          className="absolute top-1.5 right-1.5 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
-                          title="Preview full size">
-                          <ImageIcon className="h-3 w-3" />
-                        </button>
+                        </div>
+                        <div className="p-1.5">
+                          <p className="text-[11px] font-semibold text-text truncate">{tpl.name}</p>
+                          <p className="text-[10px] text-text-muted truncate">{tpl.description}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
