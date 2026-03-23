@@ -99,7 +99,7 @@ export default function BillingPage() {
                   <Badge variant="primary">Active</Badge>
                 </div>
                 <p className="text-sm text-text-muted mt-0.5">
-                  100 requests per 5-hour window &middot; 5 listings/month
+                  100 requests per 5-hour window &middot; 5 product listings/month
                 </p>
               </div>
             </div>

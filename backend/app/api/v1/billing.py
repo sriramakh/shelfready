@@ -19,9 +19,9 @@ from ...db.supabase_client import get_supabase
 router = APIRouter(prefix="/billing", tags=["billing"])
 
 PLAN_DETAILS = {
-    "starter": {"name": "Starter", "price_monthly": 15.0, "price_yearly": 144.0},
-    "pro": {"name": "Pro", "price_monthly": 39.0, "price_yearly": 374.0},
-    "business": {"name": "Business", "price_monthly": 99.0, "price_yearly": 950.0},
+    "starter": {"name": "Starter", "price_monthly": 29.0, "price_yearly": 278.0},
+    "pro": {"name": "Pro", "price_monthly": 79.0, "price_yearly": 758.0},
+    "business": {"name": "Business", "price_monthly": 149.0, "price_yearly": 1430.0},
 }
 
 

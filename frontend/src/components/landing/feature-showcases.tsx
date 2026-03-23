@@ -527,6 +527,23 @@ const SHOWCASES = [
   },
 ];
 
+function getGradientColors(gradient: string): { from: string; to: string } {
+  const colorMap: Record<string, string> = {
+    "blue-500": "#3b82f6", "blue-600": "#2563eb",
+    "pink-500": "#ec4899", "rose-600": "#e11d48",
+    "amber-500": "#f59e0b", "orange-600": "#ea580c",
+    "rose-500": "#f43f5e", "red-600": "#dc2626",
+    "emerald-500": "#10b981", "teal-600": "#0d9488",
+    "violet-500": "#8b5cf6", "purple-600": "#9333ea",
+  };
+  const fromMatch = gradient.match(/from-(\S+)/);
+  const toMatch = gradient.match(/to-(\S+)/);
+  return {
+    from: colorMap[fromMatch?.[1] ?? ""] ?? "#3b82f6",
+    to: colorMap[toMatch?.[1] ?? ""] ?? "#2563eb",
+  };
+}
+
 export default function FeatureShowcases() {
   const [activeShowcase, setActiveShowcase] = useState(0);
 
@@ -545,25 +562,35 @@ export default function FeatureShowcases() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Left: Feature selector tabs */}
-          <div className="lg:col-span-4 space-y-2">
+          <div className="lg:col-span-4 flex flex-col gap-2 min-h-[600px]">
             {SHOWCASES.map((showcase, i) => (
               <button
                 key={showcase.id}
                 onClick={() => setActiveShowcase(i)}
                 className={cn(
-                  "w-full text-left rounded-xl border p-4 transition-all duration-300 cursor-pointer group",
+                  "w-full text-left rounded-xl border p-4 transition-all duration-300 cursor-pointer group relative overflow-hidden",
                   activeShowcase === i
-                    ? "bg-white border-primary/30 shadow-lg shadow-primary/5"
+                    ? "bg-white border-transparent shadow-lg ring-1 ring-primary/20"
                     : "border-border hover:bg-white hover:shadow-sm"
                 )}
+                style={activeShowcase === i ? {
+                  boxShadow: "0 4px 24px -4px rgba(37, 99, 235, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.08)",
+                } : undefined}
               >
+                {/* Active tab left accent bar */}
+                {activeShowcase === i && (
+                  <div className={cn(
+                    "absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl bg-gradient-to-b",
+                    showcase.gradient
+                  )} />
+                )}
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "rounded-xl p-2.5 bg-gradient-to-br text-white transition-transform duration-200",
                     showcase.gradient,
-                    activeShowcase === i ? "scale-110" : "group-hover:scale-105"
+                    activeShowcase === i ? "scale-110 shadow-md" : "group-hover:scale-105"
                   )}>
                     <showcase.icon className="h-4 w-4" />
                   </div>
@@ -590,11 +617,23 @@ export default function FeatureShowcases() {
           </div>
 
           {/* Right: Active showcase content */}
-          <div className="lg:col-span-8">
-            <div className="rounded-2xl border border-border bg-white/50 p-6 min-h-[500px]">
-              <div className="flex items-center gap-3 mb-6">
+          <div className="lg:col-span-8 min-h-[600px]">
+            <div className="rounded-2xl border border-border bg-white/50 overflow-hidden min-h-[600px] h-full flex flex-col">
+              {/* Colored accent line at top matching active feature gradient */}
+              <div className={cn(
+                "h-1 w-full bg-gradient-to-r transition-all duration-500",
+                SHOWCASES[activeShowcase].gradient
+              )} />
+
+              {/* Header with colored background strip */}
+              <div className={cn(
+                "flex items-center gap-3 px-6 py-4 border-b border-border/50 bg-gradient-to-r",
+                `${SHOWCASES[activeShowcase].gradient.replace("from-", "from-").replace("to-", "to-")}`,
+              )} style={{
+                background: `linear-gradient(to right, ${getGradientColors(SHOWCASES[activeShowcase].gradient).from}08, ${getGradientColors(SHOWCASES[activeShowcase].gradient).to}05)`,
+              }}>
                 <div className={cn(
-                  "rounded-xl p-2 bg-gradient-to-br text-white",
+                  "rounded-xl p-2.5 bg-gradient-to-br text-white shadow-md",
                   SHOWCASES[activeShowcase].gradient
                 )}>
                   {(() => {
@@ -612,10 +651,17 @@ export default function FeatureShowcases() {
                 </div>
               </div>
 
-              {(() => {
-                const Component = SHOWCASES[activeShowcase].component;
-                return <Component />;
-              })()}
+              {/* Content with fade animation */}
+              <div
+                className="p-6 flex-1"
+                key={activeShowcase}
+                style={{ animation: "showcaseFadeIn 0.3s ease-out" }}
+              >
+                {(() => {
+                  const Component = SHOWCASES[activeShowcase].component;
+                  return <Component />;
+                })()}
+              </div>
             </div>
           </div>
         </div>

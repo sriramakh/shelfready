@@ -39,7 +39,7 @@ const planMeta: Record<
     badge: "Free",
     badgeColor: "bg-purple-50 text-slate-600",
     features: [
-      "3 product listings/month",
+      "5 product listings/month",
       "5 AI images (text-to-image)",
       "Basic ad copy",
       "Social media posts",
@@ -54,8 +54,8 @@ const planMeta: Record<
     badgeColor: "bg-blue-50 text-blue-600",
     features: [
       "50 product listings/month",
-      "50 AI images/month",
-      "Ad copy generation",
+      "100 AI images/month",
+      "Ad copy + visual creatives (160+ templates)",
       "Social media posts",
       "Competitor intelligence + market insights",
       "Priority support",
@@ -102,8 +102,8 @@ const comparisonRows: {
   feature: string;
   values: (string | boolean)[];
 }[] = [
-  { feature: "Product Listings", values: ["3/mo", "50/mo", "300/mo", "Unlimited"] },
-  { feature: "AI Images", values: ["5/mo", "50/mo", "300/mo", "1,000/mo"] },
+  { feature: "Product Listings", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
+  { feature: "AI Images", values: ["5/mo", "100/mo", "300/mo", "1,000/mo"] },
   {
     feature: "AI Photoshoots",
     values: ["\u2014", "10/mo (50 imgs)", "30/mo (150 imgs)", "100/mo (500 imgs)"],

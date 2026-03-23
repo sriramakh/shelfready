@@ -56,7 +56,7 @@ class ImageStyle(str, Enum):
 PLAN_QUOTAS = {
     PlanTier.FREE: {
         "requests_per_5h": 100,
-        "max_listings_per_month": 3,
+        "max_listings_per_month": 5,
         "max_images_per_month": 5,
         "max_photoshoots_per_month": 0,
         "research_enabled": False,
@@ -64,7 +64,7 @@ PLAN_QUOTAS = {
     PlanTier.STARTER: {
         "requests_per_5h": 2000,
         "max_listings_per_month": 50,
-        "max_images_per_month": 50,
+        "max_images_per_month": 100,
         "max_photoshoots_per_month": 10,
         "research_enabled": True,
     },
