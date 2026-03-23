@@ -1,0 +1,28 @@
+{
+  "variants": [
+    {
+      "headline": "Sustainable Kitchen Starts Here \ud83c\udf3f",
+      "primary_text": "Your plastic cutting boards are history. Upgrade to 100% organic bamboo that\u2019s knife-safe, naturally antimicrobial & stunning on any counter. New customer? Enjoy 20% OFF today!",
+      "description": "20% OFF for New Customers",
+      "cta": "Get My 20% OFF",
+      "variant_label": "A",
+      "angle": "Eco-conscious sustainability - appeal to environmental values and the satisfaction of replacing plastic"
+    },
+    {
+      "headline": "Cook Smarter, Not Harder \ud83d\udd2b",
+      "primary_text": "Ditch worn-out plastic for premium bamboo that protects your knives AND your health. Our 3-piece set is knife-safe, easy to clean & built to last years. 20% OFF for first-timers!",
+      "description": "3-Pc Set, Knife-Safe Bamboo",
+      "cta": "Save 20% Now",
+      "variant_label": "B",
+      "angle": "Functionality & quality - focus on kitchen performance, knife protection and durability"
+    },
+    {
+      "headline": "The Last Cutting Board Set \ud83c\udf1f",
+      "primary_text": "Finally, cutting boards that work as good as they look. Organic bamboo, knife-safe surface & perfect for every meal prep. New here? Take 20% OFF your first order of our bestseller!",
+      "description": "Premium 3-Piece Set, Only $27.99",
+      "cta": "Claim 20% OFF",
+      "variant_label": "C",
+      "angle": "Value/transition - position as a one-time purchase that solves all cutting board problems"
+    }
+  ]
+}

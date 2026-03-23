@@ -1,0 +1,31 @@
+-- ============================================================================
+-- ShelfReady - Seed File
+-- ============================================================================
+--
+-- No seed data is required for production. The database schema is fully
+-- defined by the migration files in supabase/migrations/.
+--
+-- Schema overview:
+--
+--   profiles            - App-specific user data extending auth.users
+--   subscriptions       - Local mirror of Stripe subscription state
+--   listings            - Product listings with AI-generated content
+--   generated_images    - AI-generated product images (storage refs)
+--   social_posts        - AI-generated social media posts
+--   ad_copies           - AI-generated ad copy variants
+--   usage_logs          - Per-request usage tracking for quota enforcement
+--   research_sessions   - Competitor/keyword research sessions
+--
+-- Storage:
+--   generated-images    - Public bucket for AI-generated product images
+--
+-- RLS is enabled on all tables. Authenticated users can only access their
+-- own data. The service_role (used by server-side API routes and webhooks)
+-- bypasses RLS for operations like subscription management and usage logging.
+--
+-- To add development seed data, insert rows here using known test UUIDs.
+-- Example:
+--
+--   INSERT INTO public.profiles (id, email, full_name, current_plan)
+--   VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com', 'Test User', 'pro');
+--

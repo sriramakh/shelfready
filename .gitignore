@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+.next/
+out/
+dist/
+build/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+coverage/
+.pytest_cache/
+htmlcov/
+
+# Test outputs
+tests/generated_images/
+tests/photoshoot_output/
+tests/creative_template_test/
+tests/generic_templates/
+tests/templated_creatives/
+tests/dual_image_test/
+tests/hybrid_comparison/
+
+# Sensitive
+*.txt
+backend/.env
+searxng/settings.yml
+
+# Misc
+*.log
+.vercel

@@ -1,0 +1,499 @@
+[
+  {
+    "id": "flash_sale",
+    "category": "sale",
+    "name": "Flash Sale",
+    "description": "Bold urgency-driven promo",
+    "preview": "/templates/flash_sale.png"
+  },
+  {
+    "id": "black_friday",
+    "category": "sale",
+    "name": "Black Friday",
+    "description": "Dark dramatic Black Friday",
+    "preview": "/templates/black_friday.png"
+  },
+  {
+    "id": "cyber_monday",
+    "category": "sale",
+    "name": "Cyber Monday",
+    "description": "Neon tech Cyber Monday",
+    "preview": "/templates/cyber_monday.png"
+  },
+  {
+    "id": "clearance",
+    "category": "sale",
+    "name": "Clearance",
+    "description": "Bold red clearance event",
+    "preview": "/templates/clearance.png"
+  },
+  {
+    "id": "bogo",
+    "category": "sale",
+    "name": "Buy One Get One",
+    "description": "Fun BOGO deal",
+    "preview": "/templates/bogo.png"
+  },
+  {
+    "id": "weekend_deal",
+    "category": "sale",
+    "name": "Weekend Deal",
+    "description": "Casual weekend sale",
+    "preview": "/templates/weekend_deal.png"
+  },
+  {
+    "id": "holiday_sale",
+    "category": "sale",
+    "name": "Holiday Sale",
+    "description": "Festive holiday promotion",
+    "preview": "/templates/holiday_sale.png"
+  },
+  {
+    "id": "summer_sale",
+    "category": "sale",
+    "name": "Summer Sale",
+    "description": "Bright summer promotion",
+    "preview": "/templates/summer_sale.png"
+  },
+  {
+    "id": "winter_sale",
+    "category": "sale",
+    "name": "Winter Sale",
+    "description": "Cool winter clearance",
+    "preview": "/templates/winter_sale.png"
+  },
+  {
+    "id": "spring_sale",
+    "category": "sale",
+    "name": "Spring Sale",
+    "description": "Fresh spring renewal",
+    "preview": "/templates/spring_sale.png"
+  },
+  {
+    "id": "back_to_school",
+    "category": "sale",
+    "name": "Back to School",
+    "description": "School supplies sale",
+    "preview": "/templates/back_to_school.png"
+  },
+  {
+    "id": "valentines",
+    "category": "sale",
+    "name": "Valentine's Day",
+    "description": "Romantic Valentine's promo",
+    "preview": "/templates/valentines.png"
+  },
+  {
+    "id": "mothers_day",
+    "category": "sale",
+    "name": "Mother's Day",
+    "description": "Heartfelt Mother's Day",
+    "preview": "/templates/mothers_day.png"
+  },
+  {
+    "id": "fathers_day",
+    "category": "sale",
+    "name": "Father's Day",
+    "description": "Classic Father's Day",
+    "preview": "/templates/fathers_day.png"
+  },
+  {
+    "id": "prime_day",
+    "category": "sale",
+    "name": "Prime Day Style",
+    "description": "Lightning deal format",
+    "preview": "/templates/prime_day.png"
+  },
+  {
+    "id": "free_shipping",
+    "category": "sale",
+    "name": "Free Shipping",
+    "description": "Free shipping promotion",
+    "preview": "/templates/free_shipping.png"
+  },
+  {
+    "id": "bundle_deal",
+    "category": "sale",
+    "name": "Bundle Deal",
+    "description": "Product bundle offer",
+    "preview": "/templates/bundle_deal.png"
+  },
+  {
+    "id": "last_chance",
+    "category": "sale",
+    "name": "Last Chance",
+    "description": "Urgency-driven closing",
+    "preview": "/templates/last_chance.png"
+  },
+  {
+    "id": "vip_access",
+    "category": "sale",
+    "name": "VIP Early Access",
+    "description": "Exclusive early access",
+    "preview": "/templates/vip_access.png"
+  },
+  {
+    "id": "refer_friend",
+    "category": "sale",
+    "name": "Refer a Friend",
+    "description": "Referral program promo",
+    "preview": "/templates/refer_friend.png"
+  },
+  {
+    "id": "new_arrival",
+    "category": "launch",
+    "name": "New Arrival",
+    "description": "Elegant product launch",
+    "preview": "/templates/new_arrival.png"
+  },
+  {
+    "id": "coming_soon",
+    "category": "launch",
+    "name": "Coming Soon",
+    "description": "Teaser announcement",
+    "preview": "/templates/coming_soon.png"
+  },
+  {
+    "id": "just_dropped",
+    "category": "launch",
+    "name": "Just Dropped",
+    "description": "Street-style drop",
+    "preview": "/templates/just_dropped.png"
+  },
+  {
+    "id": "preorder",
+    "category": "launch",
+    "name": "Pre-Order",
+    "description": "Pre-order now available",
+    "preview": "/templates/preorder.png"
+  },
+  {
+    "id": "limited_edition",
+    "category": "launch",
+    "name": "Limited Edition",
+    "description": "Scarcity-driven exclusivity",
+    "preview": "/templates/limited_edition.png"
+  },
+  {
+    "id": "collection_launch",
+    "category": "launch",
+    "name": "Collection Launch",
+    "description": "Full collection reveal",
+    "preview": "/templates/collection_launch.png"
+  },
+  {
+    "id": "seasonal",
+    "category": "lifestyle",
+    "name": "Seasonal Summer",
+    "description": "Vibrant summer lifestyle",
+    "preview": "/templates/seasonal.png"
+  },
+  {
+    "id": "cozy_winter",
+    "category": "lifestyle",
+    "name": "Cozy Winter",
+    "description": "Warm winter hygge",
+    "preview": "/templates/cozy_winter.png"
+  },
+  {
+    "id": "outdoor_adventure",
+    "category": "lifestyle",
+    "name": "Outdoor Adventure",
+    "description": "Rugged outdoor lifestyle",
+    "preview": "/templates/outdoor_adventure.png"
+  },
+  {
+    "id": "home_kitchen",
+    "category": "lifestyle",
+    "name": "Home & Kitchen",
+    "description": "Warm kitchen lifestyle",
+    "preview": "/templates/home_kitchen.png"
+  },
+  {
+    "id": "fitness_energy",
+    "category": "lifestyle",
+    "name": "Fitness & Energy",
+    "description": "High-energy fitness",
+    "preview": "/templates/fitness_energy.png"
+  },
+  {
+    "id": "wellness_calm",
+    "category": "lifestyle",
+    "name": "Wellness & Calm",
+    "description": "Peaceful wellness aesthetic",
+    "preview": "/templates/wellness_calm.png"
+  },
+  {
+    "id": "pet_love",
+    "category": "lifestyle",
+    "name": "Pet Lovers",
+    "description": "Heartwarming pet lifestyle",
+    "preview": "/templates/pet_love.png"
+  },
+  {
+    "id": "baby_nursery",
+    "category": "lifestyle",
+    "name": "Baby & Nursery",
+    "description": "Soft baby/parenting",
+    "preview": "/templates/baby_nursery.png"
+  },
+  {
+    "id": "travel_wanderlust",
+    "category": "lifestyle",
+    "name": "Travel & Wanderlust",
+    "description": "Aspirational travel",
+    "preview": "/templates/travel_wanderlust.png"
+  },
+  {
+    "id": "date_night",
+    "category": "lifestyle",
+    "name": "Date Night",
+    "description": "Romantic evening aesthetic",
+    "preview": "/templates/date_night.png"
+  },
+  {
+    "id": "premium",
+    "category": "luxury",
+    "name": "Premium Lifestyle",
+    "description": "Moody luxury aesthetic",
+    "preview": "/templates/premium.png"
+  },
+  {
+    "id": "luxury_gold",
+    "category": "luxury",
+    "name": "Luxury Gold",
+    "description": "Gold and black opulence",
+    "preview": "/templates/luxury_gold.png"
+  },
+  {
+    "id": "artisan_craft",
+    "category": "luxury",
+    "name": "Artisan Craft",
+    "description": "Handmade artisan quality",
+    "preview": "/templates/artisan_craft.png"
+  },
+  {
+    "id": "heritage_brand",
+    "category": "luxury",
+    "name": "Heritage Brand",
+    "description": "Timeless heritage feel",
+    "preview": "/templates/heritage_brand.png"
+  },
+  {
+    "id": "minimalist_luxury",
+    "category": "luxury",
+    "name": "Minimalist Luxury",
+    "description": "Clean high-end minimal",
+    "preview": "/templates/minimalist_luxury.png"
+  },
+  {
+    "id": "instagram_carousel",
+    "category": "social",
+    "name": "Carousel Slide",
+    "description": "Instagram carousel card",
+    "preview": "/templates/instagram_carousel.png"
+  },
+  {
+    "id": "testimonial",
+    "category": "social",
+    "name": "Customer Review",
+    "description": "Social proof testimonial",
+    "preview": "/templates/testimonial.png"
+  },
+  {
+    "id": "before_after",
+    "category": "social",
+    "name": "Before & After",
+    "description": "Transformation comparison",
+    "preview": "/templates/before_after.png"
+  },
+  {
+    "id": "how_to",
+    "category": "social",
+    "name": "How-To / Tutorial",
+    "description": "Step-by-step tutorial",
+    "preview": "/templates/how_to.png"
+  },
+  {
+    "id": "giveaway",
+    "category": "social",
+    "name": "Giveaway / Contest",
+    "description": "Social giveaway promotion",
+    "preview": "/templates/giveaway.png"
+  },
+  {
+    "id": "user_generated",
+    "category": "social",
+    "name": "UGC Style",
+    "description": "Authentic user-generated feel",
+    "preview": "/templates/user_generated.png"
+  },
+  {
+    "id": "poll_engagement",
+    "category": "social",
+    "name": "Poll / Quiz",
+    "description": "Interactive engagement post",
+    "preview": "/templates/poll_engagement.png"
+  },
+  {
+    "id": "countdown",
+    "category": "social",
+    "name": "Countdown Timer",
+    "description": "Launch countdown",
+    "preview": "/templates/countdown.png"
+  },
+  {
+    "id": "food_drink",
+    "category": "industry",
+    "name": "Food & Beverage",
+    "description": "Appetizing food brand",
+    "preview": "/templates/food_drink.png"
+  },
+  {
+    "id": "beauty_skincare",
+    "category": "industry",
+    "name": "Beauty & Skincare",
+    "description": "Clean beauty aesthetic",
+    "preview": "/templates/beauty_skincare.png"
+  },
+  {
+    "id": "tech_gadget",
+    "category": "industry",
+    "name": "Tech & Gadgets",
+    "description": "Modern tech product",
+    "preview": "/templates/tech_gadget.png"
+  },
+  {
+    "id": "fashion_apparel",
+    "category": "industry",
+    "name": "Fashion & Apparel",
+    "description": "Editorial fashion",
+    "preview": "/templates/fashion_apparel.png"
+  },
+  {
+    "id": "home_decor",
+    "category": "industry",
+    "name": "Home Decor",
+    "description": "Interior design aesthetic",
+    "preview": "/templates/home_decor.png"
+  },
+  {
+    "id": "jewelry",
+    "category": "industry",
+    "name": "Jewelry",
+    "description": "Elegant jewelry closeup",
+    "preview": "/templates/jewelry.png"
+  },
+  {
+    "id": "kids_toys",
+    "category": "industry",
+    "name": "Kids & Toys",
+    "description": "Colorful kids product",
+    "preview": "/templates/kids_toys.png"
+  },
+  {
+    "id": "sports_outdoor",
+    "category": "industry",
+    "name": "Sports & Outdoor",
+    "description": "Athletic action shot",
+    "preview": "/templates/sports_outdoor.png"
+  },
+  {
+    "id": "books_education",
+    "category": "industry",
+    "name": "Books & Education",
+    "description": "Intellectual aesthetic",
+    "preview": "/templates/books_education.png"
+  },
+  {
+    "id": "automotive",
+    "category": "industry",
+    "name": "Automotive",
+    "description": "Bold automotive accessories",
+    "preview": "/templates/automotive.png"
+  },
+  {
+    "id": "garden_plant",
+    "category": "industry",
+    "name": "Garden & Plants",
+    "description": "Green botanical aesthetic",
+    "preview": "/templates/garden_plant.png"
+  },
+  {
+    "id": "bestseller",
+    "category": "campaign",
+    "name": "Bestseller Badge",
+    "description": "Social proof bestseller",
+    "preview": "/templates/bestseller.png"
+  },
+  {
+    "id": "back_in_stock",
+    "category": "campaign",
+    "name": "Back in Stock",
+    "description": "Restock announcement",
+    "preview": "/templates/back_in_stock.png"
+  },
+  {
+    "id": "gift_guide",
+    "category": "campaign",
+    "name": "Gift Guide",
+    "description": "Curated gift guide",
+    "preview": "/templates/gift_guide.png"
+  },
+  {
+    "id": "subscribe_save",
+    "category": "campaign",
+    "name": "Subscribe & Save",
+    "description": "Subscription model promo",
+    "preview": "/templates/subscribe_save.png"
+  },
+  {
+    "id": "award_winner",
+    "category": "campaign",
+    "name": "Award Winner",
+    "description": "Award-winning product",
+    "preview": "/templates/award_winner.png"
+  },
+  {
+    "id": "early_bird",
+    "category": "campaign",
+    "name": "Early Bird",
+    "description": "Early access pricing",
+    "preview": "/templates/early_bird.png"
+  },
+  {
+    "id": "app_download",
+    "category": "tech",
+    "name": "App Download",
+    "description": "Modern dark tech-forward",
+    "preview": "/templates/app_download.png"
+  },
+  {
+    "id": "saas_tool",
+    "category": "tech",
+    "name": "SaaS Platform",
+    "description": "B2B software dashboard",
+    "preview": "/templates/saas_tool.png"
+  },
+  {
+    "id": "online_course",
+    "category": "tech",
+    "name": "Online Course",
+    "description": "E-learning platform",
+    "preview": "/templates/online_course.png"
+  },
+  {
+    "id": "crypto_fintech",
+    "category": "tech",
+    "name": "Fintech / Crypto",
+    "description": "Modern fintech aesthetic",
+    "preview": "/templates/crypto_fintech.png"
+  },
+  {
+    "id": "podcast_launch",
+    "category": "tech",
+    "name": "Podcast / Media",
+    "description": "Audio content promotion",
+    "preview": "/templates/podcast_launch.png"
+  }
+]
