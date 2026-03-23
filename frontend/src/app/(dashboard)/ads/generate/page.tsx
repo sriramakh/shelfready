@@ -29,9 +29,6 @@ import Link from "next/link";
 import { TemplatePreviewModal } from "@/components/ui/template-preview-modal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-const PREFIX = IS_DEMO ? "/api/v1/demo" : "/api/v1";
 
 type AdPlatform = keyof typeof AD_PLATFORMS;
 
@@ -242,7 +239,7 @@ export default function AdsGeneratePage() {
         }
       }
 
-      const resp = await fetch(`${API_URL}${PREFIX}/ads/creative`, {
+      const resp = await fetch(`${API_URL}/api/v1/demo/ads/creative`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

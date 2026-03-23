@@ -1,20 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
 export async function createClient() {
-  if (IS_DEMO) {
-    // Return a stub — middleware already skips auth in demo mode
-    return {
-      auth: {
-        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      },
-    } as unknown as ReturnType<typeof createServerClient>;
-  }
-
   const cookieStore = await cookies();
 
   return createServerClient(

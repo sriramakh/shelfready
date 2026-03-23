@@ -17,22 +17,14 @@ interface UsageBreakdown {
   percentage: number;
 }
 
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
 export default function UsagePage() {
   const { session } = useAuth();
   const [usage, setUsage] = useState<UsageCurrent | null>(null);
-  const [loading, setLoading] = useState(!IS_DEMO);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUsage() {
       if (!session?.access_token) {
-        setLoading(false);
-        return;
-      }
-      // Skip API calls in demo mode
-      if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
         setLoading(false);
         return;
       }

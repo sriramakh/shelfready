@@ -21,24 +21,16 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
 export default function ListingsPage() {
   const { session } = useAuth();
   const [listings, setListings] = useState<ListingResponse[]>([]);
-  const [loading, setLoading] = useState(!IS_DEMO);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchListings() {
       if (!session?.access_token) {
-        setLoading(false);
-        return;
-      }
-      // Skip API calls in demo mode
-      if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
         setLoading(false);
         return;
       }

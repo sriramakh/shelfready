@@ -21,20 +21,16 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setSaved(false);
 
     try {
-      if (!isDemo) {
-        const supabase = createClient();
-        await supabase.auth.updateUser({
-          data: { full_name: fullName },
-        });
-      }
+      const supabase = createClient();
+      await supabase.auth.updateUser({
+        data: { full_name: fullName },
+      });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {

@@ -1,7 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-const PREFIX = IS_DEMO ? "/api/v1/demo" : "/api/v1";
+const PREFIX = "/api/v1/demo";
 
 type FetchOptions = RequestInit & {
   token?: string;

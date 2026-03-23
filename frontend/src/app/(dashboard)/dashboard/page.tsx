@@ -124,15 +124,12 @@ function getGreeting(): string {
   return "Good evening";
 }
 
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
 /* ---------- Component ---------- */
 export default function DashboardPage() {
   const { user, session } = useAuth();
   const [usage, setUsage] = useState<UsageCurrent | null>(null);
   const [listings, setListings] = useState<ListingResponse[]>([]);
-  const [loading, setLoading] = useState(!IS_DEMO);
+  const [loading, setLoading] = useState(true);
 
   const displayName =
     user?.user_metadata?.full_name || user?.email?.split("@")[0] || "there";
@@ -141,11 +138,6 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       if (!session?.access_token) {
-        setLoading(false);
-        return;
-      }
-      // Skip API calls in demo mode
-      if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
         setLoading(false);
         return;
       }

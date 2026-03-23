@@ -28,9 +28,6 @@ import {
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const IS_DEMO =
-  process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-const PREFIX = IS_DEMO ? "/api/v1/demo" : "/api/v1";
 
 // ── Theme definitions ────────────────────────────────────────────────
 const THEMES = [
@@ -211,7 +208,7 @@ export default function ImageGeneratePage() {
     setGeneratingIndex(0);
 
     try {
-      const resp = await fetch(`${API_URL}${PREFIX}/photoshoot/generate`, {
+      const resp = await fetch(`${API_URL}/api/v1/demo/photoshoot/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

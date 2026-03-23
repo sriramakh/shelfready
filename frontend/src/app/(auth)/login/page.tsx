@@ -15,18 +15,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      if (isDemo) {
-        router.push("/dashboard");
-        return;
-      }
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithPassword({
         email,
@@ -48,10 +42,6 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    if (isDemo) {
-      router.push("/dashboard");
-      return;
-    }
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",

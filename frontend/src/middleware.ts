@@ -1,13 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
 export async function middleware(request: NextRequest) {
-  // Demo mode: skip all auth checks
-  if (DEMO_MODE) {
-    return NextResponse.next();
-  }
-
   // Production mode: check Supabase auth
   try {
     const { createServerClient } = await import("@supabase/ssr");
