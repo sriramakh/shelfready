@@ -22,6 +22,7 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,14 +31,14 @@ export default function SignupPage() {
 
     try {
       const supabase = createClient();
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
@@ -46,6 +47,13 @@ export default function SignupPage() {
         return;
       }
 
+      // If email confirmation is required, user won't have a session yet
+      if (data?.user && !data.session) {
+        setEmailSent(true);
+        return;
+      }
+
+      // If no confirmation required (shouldn't happen now but handle it)
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
@@ -124,6 +132,40 @@ export default function SignupPage() {
             <span className="text-xl font-bold text-secondary">ShelfReady</span>
           </div>
 
+          {emailSent ? (
+            <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-6">
+                <svg className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-secondary mb-2">Check your email</h2>
+              <p className="text-text-muted mb-2">
+                We&apos;ve sent a confirmation link to
+              </p>
+              <p className="text-primary font-semibold mb-6">{email}</p>
+              <p className="text-sm text-text-muted mb-6">
+                Click the link in the email to activate your account.
+                <br />
+                Don&apos;t see it? Check your spam folder.
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setEmailSent(false)}
+                  className="text-sm text-primary hover:underline cursor-pointer"
+                >
+                  Use a different email
+                </button>
+                <p className="text-xs text-text-muted">
+                  Already confirmed?{" "}
+                  <Link href="/login" className="text-primary hover:underline font-medium">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          ) : (
+          <>
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-secondary">Create your account</h2>
             <p className="mt-2 text-sm text-text-muted">
@@ -217,6 +259,8 @@ export default function SignupPage() {
               Privacy Policy
             </a>
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>
