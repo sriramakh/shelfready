@@ -507,7 +507,7 @@ export default function ImageGeneratePage() {
                     <p className="text-sm text-text-muted max-w-md">
                       Upload your product image, choose shot types, and get
                       professional photoshoot images. The AI automatically
-                      detects your product, chooses the right model gender, and
+                      detects your product, chooses the right model, and
                       creates context-appropriate scenes.
                     </p>
                   </CardBody>
@@ -549,7 +549,7 @@ export default function ImageGeneratePage() {
                         </p>
                       </div>
                       <Badge variant="primary">
-                        {photoshootResult.product_analysis.model_gender} model
+                        AI-selected model
                       </Badge>
                     </CardBody>
                   </Card>

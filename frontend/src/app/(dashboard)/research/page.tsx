@@ -71,7 +71,7 @@ export default function ResearchPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-secondary">
-            Competitor Research
+            Competitor Intelligence + Market Insights
           </h1>
           <p className="text-text-muted mt-1">
             Analyze competitors and find market opportunities

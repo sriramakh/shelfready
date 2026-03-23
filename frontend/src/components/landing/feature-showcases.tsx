@@ -408,7 +408,7 @@ const SHOWCASES = [
   },
   {
     id: "research",
-    title: "Competitor Intelligence",
+    title: "Competitor Intelligence + Market Insights",
     subtitle: "Live market research with keyword analysis and competitor profiling.",
     icon: Search,
     gradient: "from-emerald-500 to-teal-600",

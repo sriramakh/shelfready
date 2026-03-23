@@ -29,14 +29,8 @@ coverage/
 .pytest_cache/
 htmlcov/
 
-# Test outputs
-tests/generated_images/
-tests/photoshoot_output/
-tests/creative_template_test/
-tests/generic_templates/
-tests/templated_creatives/
-tests/dual_image_test/
-tests/hybrid_comparison/
+# Test outputs & scripts
+tests/
 
 # Sensitive
 backend/Webshare*.txt

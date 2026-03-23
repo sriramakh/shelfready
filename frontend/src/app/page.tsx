@@ -54,15 +54,15 @@ const features = [
   },
   {
     icon: Megaphone,
-    title: "Ad Copy Generator",
+    title: "Ad Copy + Creatives",
     description:
-      "A/B test-ready ad variants for Facebook and Google with proven conversion frameworks.",
+      "A/B test-ready ad copy and visual creatives with 70+ templates. Upload your product, pick a style, get scroll-stopping ads.",
     gradient: "from-amber-500 to-orange-400",
     bg: "bg-amber-500/10",
   },
   {
     icon: Search,
-    title: "Competitor Intelligence",
+    title: "Competitor Intelligence + Market Insights",
     description:
       "Live web search competitive analysis with keyword gaps and pricing insights.",
     gradient: "from-emerald-500 to-teal-400",
@@ -571,7 +571,7 @@ export default function LandingPage() {
           </div>
 
           <p className="text-center text-sm text-text-muted mt-12 max-w-2xl mx-auto">
-            AI automatically detects your product, chooses the right model gender,
+            AI automatically detects your product, chooses the right scene and model,
             and creates context-appropriate scenes — all from a single product photo.
           </p>
         </div>
@@ -883,7 +883,7 @@ export default function LandingPage() {
                   "AI Photoshoots",
                   "Ad Copy",
                   "Social Content",
-                  "Competitor Research",
+                  "Competitor Intelligence",
                 ].map((link) => (
                   <li key={link}>
                     <a
