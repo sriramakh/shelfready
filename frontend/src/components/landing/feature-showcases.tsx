@@ -438,7 +438,7 @@ function AdCreativesShowcase() {
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-text-muted text-center">+ 66 more templates across Sale, Launch, Lifestyle, Premium, Social, Industry categories</p>
+          <p className="text-[10px] text-text-muted text-center">+ 130+ more templates across Sale, Launch, Lifestyle, Premium, Social, Industry categories</p>
         </div>
       )}
 

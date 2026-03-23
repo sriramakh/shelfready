@@ -52,6 +52,9 @@ import allTemplates from "@/lib/creative-templates.json";
 
 const TEMPLATE_CATEGORIES = [
   { id: "all", name: "All" },
+  { id: "minimalist", name: "Minimalist" },
+  { id: "pastel", name: "Pastel" },
+  { id: "genz", name: "Gen Z / Bold" },
   { id: "sale", name: "Sale & Promo" },
   { id: "launch", name: "Product Launch" },
   { id: "lifestyle", name: "Lifestyle" },

@@ -582,7 +582,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              70+ Ad Templates
+              160+ Ad Templates
             </p>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
               Scroll-Stopping Ad Creatives in Seconds
@@ -602,7 +602,7 @@ export default function LandingPage() {
                 "bogo", "clearance", "vip_access", "just_dropped", "testimonial",
                 "home_decor", "fashion_apparel", "food_drink", "garden_plant", "kids_toys",
                 "wellness_calm", "cozy_winter", "outdoor_adventure", "jewelry", "bestseller",
-                "bundle_deal", "countdown", "giveaway", "before_after", "award_winner",
+                "bundle_deal", "countdown", "giveaway", "before_after", "award_winner", "min_white_space", "min_duo_tone", "pas_blush_pink", "pas_lavender", "pas_mint", "pas_rose_gold", "pas_cotton_candy", "pas_pistachio", "gz_neon_chaos", "gz_holographic", "gz_gradient_mesh", "gz_sticker_bomb", "gz_acid", "gz_vapor", "min_japanese", "pas_honey", "gz_bold_type", "pas_blossom",
               ].map((id) => (
                 <div
                   key={id}
@@ -619,7 +619,7 @@ export default function LandingPage() {
               ))}
             </div>
             <p className="text-center text-sm text-text-muted mt-4">
-              Flash Sale, Black Friday, New Arrival, Premium, Lifestyle, Beauty, Tech, Food, Fashion, and 60+ more
+              Flash Sale, Black Friday, New Arrival, Premium, Lifestyle, Beauty, Tech, Food, Fashion, and 130+ more
             </p>
           </div>
 

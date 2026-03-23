@@ -495,5 +495,656 @@
     "name": "Podcast / Media",
     "description": "Audio content promotion",
     "preview": "/templates/podcast_launch.png"
+  },
+  {
+    "id": "min_white_space",
+    "category": "minimalist",
+    "name": "White Space",
+    "description": "Ultra-clean white minimal",
+    "preview": "/templates/min_white_space.png"
+  },
+  {
+    "id": "min_mono_type",
+    "category": "minimalist",
+    "name": "Mono Typography",
+    "description": "Typography-only minimal",
+    "preview": "/templates/min_mono_type.png"
+  },
+  {
+    "id": "min_single_line",
+    "category": "minimalist",
+    "name": "Single Line",
+    "description": "One-line minimal statement",
+    "preview": "/templates/min_single_line.png"
+  },
+  {
+    "id": "min_grid_clean",
+    "category": "minimalist",
+    "name": "Grid Layout",
+    "description": "Swiss grid minimal",
+    "preview": "/templates/min_grid_clean.png"
+  },
+  {
+    "id": "min_float",
+    "category": "minimalist",
+    "name": "Floating Product",
+    "description": "Product floating in space",
+    "preview": "/templates/min_float.png"
+  },
+  {
+    "id": "min_border",
+    "category": "minimalist",
+    "name": "Thin Border",
+    "description": "Bordered minimal frame",
+    "preview": "/templates/min_border.png"
+  },
+  {
+    "id": "min_duo_tone",
+    "category": "minimalist",
+    "name": "Duo Tone",
+    "description": "Two-color minimal",
+    "preview": "/templates/min_duo_tone.png"
+  },
+  {
+    "id": "min_center",
+    "category": "minimalist",
+    "name": "Dead Center",
+    "description": "Perfectly centered minimal",
+    "preview": "/templates/min_center.png"
+  },
+  {
+    "id": "min_corner",
+    "category": "minimalist",
+    "name": "Corner Composition",
+    "description": "Product in corner minimal",
+    "preview": "/templates/min_corner.png"
+  },
+  {
+    "id": "min_line_art",
+    "category": "minimalist",
+    "name": "Line Art",
+    "description": "Thin line illustration style",
+    "preview": "/templates/min_line_art.png"
+  },
+  {
+    "id": "min_shadow",
+    "category": "minimalist",
+    "name": "Shadow Play",
+    "description": "Dramatic shadow minimal",
+    "preview": "/templates/min_shadow.png"
+  },
+  {
+    "id": "min_nude_tone",
+    "category": "minimalist",
+    "name": "Nude Tones",
+    "description": "Warm neutral minimal",
+    "preview": "/templates/min_nude_tone.png"
+  },
+  {
+    "id": "min_cut_out",
+    "category": "minimalist",
+    "name": "Clean Cutout",
+    "description": "Product cutout on white",
+    "preview": "/templates/min_cut_out.png"
+  },
+  {
+    "id": "min_type_stack",
+    "category": "minimalist",
+    "name": "Type Stack",
+    "description": "Stacked typography",
+    "preview": "/templates/min_type_stack.png"
+  },
+  {
+    "id": "min_arch",
+    "category": "minimalist",
+    "name": "Architectural",
+    "description": "Architectural minimal",
+    "preview": "/templates/min_arch.png"
+  },
+  {
+    "id": "min_paper",
+    "category": "minimalist",
+    "name": "Paper Texture",
+    "description": "Textured paper minimal",
+    "preview": "/templates/min_paper.png"
+  },
+  {
+    "id": "min_one_color",
+    "category": "minimalist",
+    "name": "One Color",
+    "description": "Monochrome accent",
+    "preview": "/templates/min_one_color.png"
+  },
+  {
+    "id": "min_stamp",
+    "category": "minimalist",
+    "name": "Stamp Mark",
+    "description": "Logo stamp minimal",
+    "preview": "/templates/min_stamp.png"
+  },
+  {
+    "id": "min_vertical",
+    "category": "minimalist",
+    "name": "Vertical Split",
+    "description": "Vertical divide minimal",
+    "preview": "/templates/min_vertical.png"
+  },
+  {
+    "id": "min_dot",
+    "category": "minimalist",
+    "name": "Dot Accent",
+    "description": "Single dot accent",
+    "preview": "/templates/min_dot.png"
+  },
+  {
+    "id": "min_overlap",
+    "category": "minimalist",
+    "name": "Subtle Overlap",
+    "description": "Overlapping elements",
+    "preview": "/templates/min_overlap.png"
+  },
+  {
+    "id": "min_rule_of_three",
+    "category": "minimalist",
+    "name": "Rule of Three",
+    "description": "Three elements only",
+    "preview": "/templates/min_rule_of_three.png"
+  },
+  {
+    "id": "min_transparent",
+    "category": "minimalist",
+    "name": "Near Invisible",
+    "description": "Almost invisible text",
+    "preview": "/templates/min_transparent.png"
+  },
+  {
+    "id": "min_negative",
+    "category": "minimalist",
+    "name": "Negative Space Art",
+    "description": "Clever negative space",
+    "preview": "/templates/min_negative.png"
+  },
+  {
+    "id": "min_japanese",
+    "category": "minimalist",
+    "name": "Japanese Minimal",
+    "description": "Zen Japanese aesthetic",
+    "preview": "/templates/min_japanese.png"
+  },
+  {
+    "id": "pas_blush_pink",
+    "category": "pastel",
+    "name": "Blush Pink",
+    "description": "Soft pink glow",
+    "preview": "/templates/pas_blush_pink.png"
+  },
+  {
+    "id": "pas_lavender",
+    "category": "pastel",
+    "name": "Lavender Dream",
+    "description": "Soft purple calm",
+    "preview": "/templates/pas_lavender.png"
+  },
+  {
+    "id": "pas_mint",
+    "category": "pastel",
+    "name": "Fresh Mint",
+    "description": "Cool mint green",
+    "preview": "/templates/pas_mint.png"
+  },
+  {
+    "id": "pas_peach",
+    "category": "pastel",
+    "name": "Warm Peach",
+    "description": "Peachy warm tones",
+    "preview": "/templates/pas_peach.png"
+  },
+  {
+    "id": "pas_baby_blue",
+    "category": "pastel",
+    "name": "Baby Blue",
+    "description": "Soft sky blue",
+    "preview": "/templates/pas_baby_blue.png"
+  },
+  {
+    "id": "pas_lemon",
+    "category": "pastel",
+    "name": "Lemon Sorbet",
+    "description": "Soft yellow sunshine",
+    "preview": "/templates/pas_lemon.png"
+  },
+  {
+    "id": "pas_coral",
+    "category": "pastel",
+    "name": "Soft Coral",
+    "description": "Coral pink warmth",
+    "preview": "/templates/pas_coral.png"
+  },
+  {
+    "id": "pas_sage",
+    "category": "pastel",
+    "name": "Sage Green",
+    "description": "Natural sage tones",
+    "preview": "/templates/pas_sage.png"
+  },
+  {
+    "id": "pas_lilac",
+    "category": "pastel",
+    "name": "Lilac Haze",
+    "description": "Dreamy lilac",
+    "preview": "/templates/pas_lilac.png"
+  },
+  {
+    "id": "pas_rose_gold",
+    "category": "pastel",
+    "name": "Rose Gold",
+    "description": "Rose gold luxury",
+    "preview": "/templates/pas_rose_gold.png"
+  },
+  {
+    "id": "pas_sky",
+    "category": "pastel",
+    "name": "Cotton Sky",
+    "description": "Airy sky pastels",
+    "preview": "/templates/pas_sky.png"
+  },
+  {
+    "id": "pas_vanilla",
+    "category": "pastel",
+    "name": "Warm Vanilla",
+    "description": "Creamy vanilla tones",
+    "preview": "/templates/pas_vanilla.png"
+  },
+  {
+    "id": "pas_bubblegum",
+    "category": "pastel",
+    "name": "Bubblegum Pop",
+    "description": "Playful bubblegum pink",
+    "preview": "/templates/pas_bubblegum.png"
+  },
+  {
+    "id": "pas_ocean",
+    "category": "pastel",
+    "name": "Ocean Breeze",
+    "description": "Soft teal ocean",
+    "preview": "/templates/pas_ocean.png"
+  },
+  {
+    "id": "pas_strawberry",
+    "category": "pastel",
+    "name": "Strawberry Cream",
+    "description": "Pink and cream duo",
+    "preview": "/templates/pas_strawberry.png"
+  },
+  {
+    "id": "pas_pistachio",
+    "category": "pastel",
+    "name": "Pistachio",
+    "description": "Soft green pistachio",
+    "preview": "/templates/pas_pistachio.png"
+  },
+  {
+    "id": "pas_dusty_rose",
+    "category": "pastel",
+    "name": "Dusty Rose",
+    "description": "Muted mauve pink",
+    "preview": "/templates/pas_dusty_rose.png"
+  },
+  {
+    "id": "pas_butter",
+    "category": "pastel",
+    "name": "Butter Yellow",
+    "description": "Warm butter soft",
+    "preview": "/templates/pas_butter.png"
+  },
+  {
+    "id": "pas_periwinkle",
+    "category": "pastel",
+    "name": "Periwinkle",
+    "description": "Blue-violet dreamy",
+    "preview": "/templates/pas_periwinkle.png"
+  },
+  {
+    "id": "pas_cotton_candy",
+    "category": "pastel",
+    "name": "Cotton Candy",
+    "description": "Pink and blue swirl",
+    "preview": "/templates/pas_cotton_candy.png"
+  },
+  {
+    "id": "pas_seafoam",
+    "category": "pastel",
+    "name": "Seafoam Mist",
+    "description": "Cool green-blue mist",
+    "preview": "/templates/pas_seafoam.png"
+  },
+  {
+    "id": "pas_champagne",
+    "category": "pastel",
+    "name": "Champagne Toast",
+    "description": "Soft gold celebration",
+    "preview": "/templates/pas_champagne.png"
+  },
+  {
+    "id": "pas_wisteria",
+    "category": "pastel",
+    "name": "Wisteria",
+    "description": "Soft purple floral",
+    "preview": "/templates/pas_wisteria.png"
+  },
+  {
+    "id": "pas_cloud",
+    "category": "pastel",
+    "name": "Cloud Nine",
+    "description": "White cloud softness",
+    "preview": "/templates/pas_cloud.png"
+  },
+  {
+    "id": "pas_tangerine",
+    "category": "pastel",
+    "name": "Soft Tangerine",
+    "description": "Light orange fresh",
+    "preview": "/templates/pas_tangerine.png"
+  },
+  {
+    "id": "pas_mauve",
+    "category": "pastel",
+    "name": "Soft Mauve",
+    "description": "Muted purple-pink",
+    "preview": "/templates/pas_mauve.png"
+  },
+  {
+    "id": "pas_rainbow",
+    "category": "pastel",
+    "name": "Pastel Rainbow",
+    "description": "Multi-pastel gradient",
+    "preview": "/templates/pas_rainbow.png"
+  },
+  {
+    "id": "pas_frost",
+    "category": "pastel",
+    "name": "Frost Blue",
+    "description": "Icy pastel blue",
+    "preview": "/templates/pas_frost.png"
+  },
+  {
+    "id": "pas_honey",
+    "category": "pastel",
+    "name": "Honey Gold",
+    "description": "Warm soft gold",
+    "preview": "/templates/pas_honey.png"
+  },
+  {
+    "id": "pas_shell",
+    "category": "pastel",
+    "name": "Shell Pink",
+    "description": "Iridescent shell pink",
+    "preview": "/templates/pas_shell.png"
+  },
+  {
+    "id": "pas_terracotta",
+    "category": "pastel",
+    "name": "Soft Terracotta",
+    "description": "Earthy warm clay",
+    "preview": "/templates/pas_terracotta.png"
+  },
+  {
+    "id": "pas_bluebell",
+    "category": "pastel",
+    "name": "Bluebell",
+    "description": "Soft blue-purple floral",
+    "preview": "/templates/pas_bluebell.png"
+  },
+  {
+    "id": "pas_guava",
+    "category": "pastel",
+    "name": "Guava Pink",
+    "description": "Tropical soft pink",
+    "preview": "/templates/pas_guava.png"
+  },
+  {
+    "id": "pas_morning_mist",
+    "category": "pastel",
+    "name": "Morning Mist",
+    "description": "Foggy soft neutrals",
+    "preview": "/templates/pas_morning_mist.png"
+  },
+  {
+    "id": "pas_iris",
+    "category": "pastel",
+    "name": "Iris Purple",
+    "description": "Soft vibrant purple",
+    "preview": "/templates/pas_iris.png"
+  },
+  {
+    "id": "pas_melon",
+    "category": "pastel",
+    "name": "Honeydew Melon",
+    "description": "Light green refresh",
+    "preview": "/templates/pas_melon.png"
+  },
+  {
+    "id": "pas_dusk",
+    "category": "pastel",
+    "name": "Dusk Pink",
+    "description": "Evening pastel warmth",
+    "preview": "/templates/pas_dusk.png"
+  },
+  {
+    "id": "pas_petal",
+    "category": "pastel",
+    "name": "Rose Petal",
+    "description": "Delicate rose layers",
+    "preview": "/templates/pas_petal.png"
+  },
+  {
+    "id": "pas_sunset_strip",
+    "category": "pastel",
+    "name": "Sunset Strip",
+    "description": "Horizontal pastel bands",
+    "preview": "/templates/pas_sunset_strip.png"
+  },
+  {
+    "id": "pas_oat",
+    "category": "pastel",
+    "name": "Oat Milk",
+    "description": "Warm creamy neutral",
+    "preview": "/templates/pas_oat.png"
+  },
+  {
+    "id": "pas_blossom",
+    "category": "pastel",
+    "name": "Cherry Blossom",
+    "description": "Japanese spring pink",
+    "preview": "/templates/pas_blossom.png"
+  },
+  {
+    "id": "pas_clay",
+    "category": "pastel",
+    "name": "Natural Clay",
+    "description": "Warm earth pastel",
+    "preview": "/templates/pas_clay.png"
+  },
+  {
+    "id": "pas_orchid",
+    "category": "pastel",
+    "name": "Wild Orchid",
+    "description": "Exotic pastel pink-purple",
+    "preview": "/templates/pas_orchid.png"
+  },
+  {
+    "id": "gz_neon_chaos",
+    "category": "genz",
+    "name": "Neon Chaos",
+    "description": "Chaotic neon energy",
+    "preview": "/templates/gz_neon_chaos.png"
+  },
+  {
+    "id": "gz_acid",
+    "category": "genz",
+    "name": "Acid Graphics",
+    "description": "Y2K acid design",
+    "preview": "/templates/gz_acid.png"
+  },
+  {
+    "id": "gz_gradient_mesh",
+    "category": "genz",
+    "name": "Gradient Mesh",
+    "description": "Bold gradient blobs",
+    "preview": "/templates/gz_gradient_mesh.png"
+  },
+  {
+    "id": "gz_brutalist",
+    "category": "genz",
+    "name": "Brutalist Web",
+    "description": "Anti-design brutalist",
+    "preview": "/templates/gz_brutalist.png"
+  },
+  {
+    "id": "gz_holographic",
+    "category": "genz",
+    "name": "Holographic",
+    "description": "Iridescent holo effect",
+    "preview": "/templates/gz_holographic.png"
+  },
+  {
+    "id": "gz_split_color",
+    "category": "genz",
+    "name": "Split Neon",
+    "description": "Hard split two neon colors",
+    "preview": "/templates/gz_split_color.png"
+  },
+  {
+    "id": "gz_meme_format",
+    "category": "genz",
+    "name": "Meme Style",
+    "description": "Meme-format ad",
+    "preview": "/templates/gz_meme_format.png"
+  },
+  {
+    "id": "gz_glitch",
+    "category": "genz",
+    "name": "Glitch Core",
+    "description": "Digital glitch aesthetic",
+    "preview": "/templates/gz_glitch.png"
+  },
+  {
+    "id": "gz_sticker_bomb",
+    "category": "genz",
+    "name": "Sticker Bomb",
+    "description": "Covered in stickers",
+    "preview": "/templates/gz_sticker_bomb.png"
+  },
+  {
+    "id": "gz_vapor",
+    "category": "genz",
+    "name": "Vaporwave",
+    "description": "Retro vaporwave aesthetic",
+    "preview": "/templates/gz_vapor.png"
+  },
+  {
+    "id": "gz_bold_type",
+    "category": "genz",
+    "name": "Giant Type",
+    "description": "Oversized bold typography",
+    "preview": "/templates/gz_bold_type.png"
+  },
+  {
+    "id": "gz_cutout",
+    "category": "genz",
+    "name": "Paper Cutout",
+    "description": "Collage paper cut style",
+    "preview": "/templates/gz_cutout.png"
+  },
+  {
+    "id": "gz_3d_text",
+    "category": "genz",
+    "name": "3D Inflate",
+    "description": "Puffy 3D inflated text",
+    "preview": "/templates/gz_3d_text.png"
+  },
+  {
+    "id": "gz_duotone",
+    "category": "genz",
+    "name": "Hard Duotone",
+    "description": "Two-color high contrast",
+    "preview": "/templates/gz_duotone.png"
+  },
+  {
+    "id": "gz_retro_pixel",
+    "category": "genz",
+    "name": "Pixel Art",
+    "description": "Retro pixel game style",
+    "preview": "/templates/gz_retro_pixel.png"
+  },
+  {
+    "id": "gz_gradient_text",
+    "category": "genz",
+    "name": "Gradient Text Fill",
+    "description": "Text with gradient fill",
+    "preview": "/templates/gz_gradient_text.png"
+  },
+  {
+    "id": "gz_x_marks",
+    "category": "genz",
+    "name": "X Pattern",
+    "description": "X marks and crosses",
+    "preview": "/templates/gz_x_marks.png"
+  },
+  {
+    "id": "gz_emoji_rain",
+    "category": "genz",
+    "name": "Emoji Overload",
+    "description": "Emoji-covered design",
+    "preview": "/templates/gz_emoji_rain.png"
+  },
+  {
+    "id": "gz_negative",
+    "category": "genz",
+    "name": "Photo Negative",
+    "description": "Inverted color scheme",
+    "preview": "/templates/gz_negative.png"
+  },
+  {
+    "id": "gz_90s_rave",
+    "category": "genz",
+    "name": "90s Rave",
+    "description": "Rave flyer aesthetic",
+    "preview": "/templates/gz_90s_rave.png"
+  },
+  {
+    "id": "gz_newspaper",
+    "category": "genz",
+    "name": "Newspaper Cut",
+    "description": "News headline style",
+    "preview": "/templates/gz_newspaper.png"
+  },
+  {
+    "id": "gz_thermal",
+    "category": "genz",
+    "name": "Thermal Vision",
+    "description": "Heat map color scheme",
+    "preview": "/templates/gz_thermal.png"
+  },
+  {
+    "id": "gz_receipt",
+    "category": "genz",
+    "name": "Receipt Style",
+    "description": "Receipt/ticket format",
+    "preview": "/templates/gz_receipt.png"
+  },
+  {
+    "id": "gz_aura",
+    "category": "genz",
+    "name": "Aura Gradient",
+    "description": "Spiritual aura colors",
+    "preview": "/templates/gz_aura.png"
+  },
+  {
+    "id": "gz_matrix",
+    "category": "genz",
+    "name": "Matrix Code",
+    "description": "Falling code aesthetic",
+    "preview": "/templates/gz_matrix.png"
   }
 ]
