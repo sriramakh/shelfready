@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import FeatureShowcases from "@/components/landing/feature-showcases";
 import { TemplatePreviewModal } from "@/components/ui/template-preview-modal";
@@ -147,6 +147,50 @@ const planEntries = Object.entries(PLANS) as [
 export default function LandingPage() {
   const [yearly, setYearly] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState<{ src: string; alt: string } | null>(null);
+  const [heroSlide, setHeroSlide] = useState(0);
+
+  const heroFeatures = [
+    {
+      label: "Product Photoshoot",
+      tag: "Upload → 5 Pro Shots",
+      image: "/showcase/studio.png",
+      accent: "from-violet-500 to-purple-600",
+      description: "Upload one photo, get studio, lifestyle, model, and in-context shots",
+    },
+    {
+      label: "Ad Creatives",
+      tag: "160+ Templates",
+      image: "/showcase/creative_flash_sale.png",
+      accent: "from-amber-500 to-orange-600",
+      description: "Pick a template, add your product — get scroll-stopping ad creatives",
+    },
+    {
+      label: "Listing Optimizer",
+      tag: "Amazon · Etsy · Shopify",
+      image: "/showcase/input.png",
+      accent: "from-blue-500 to-cyan-600",
+      description: "SEO-optimized titles, bullets, and descriptions for every marketplace",
+    },
+    {
+      label: "Social Content",
+      tag: "IG · Facebook · Pinterest",
+      image: "/showcase/model.png",
+      accent: "from-pink-500 to-rose-600",
+      description: "Captions, hashtags, and CTAs — platform-native and ready to post",
+    },
+    {
+      label: "Market Insights",
+      tag: "Live Competitive Intel",
+      image: "/showcase/outdoor.png",
+      accent: "from-emerald-500 to-teal-600",
+      description: "Keywords, competitor analysis, and pricing gaps — powered by real data",
+    },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => setHeroSlide((s) => (s + 1) % heroFeatures.length), 3500);
+    return () => clearInterval(timer);
+  }, [heroFeatures.length]);
 
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -171,6 +215,10 @@ export default function LandingPage() {
         .animate-gradient { animation: gradient-shift 8s ease infinite; background-size: 200% 200%; }
         .animate-shimmer { animation: shimmer 3s ease-in-out infinite; background-size: 200% 100%; }
         .animate-float { animation: float 6s ease-in-out infinite; }
+        @keyframes slide-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes progress-fill { from { width: 0%; } to { width: 100%; } }
+        .animate-slide-in { animation: slide-in 0.5s ease-out both; }
+        .animate-progress { animation: progress-fill 3.5s linear both; }
         .animate-fade-in-up { animation: fade-in-up 0.7s ease-out both; }
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
@@ -308,72 +356,91 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right — floating mockup */}
+            {/* Right — Feature Carousel */}
             <div className="animate-fade-in-up delay-200 hidden lg:block">
-              <div className="animate-float">
-                <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-500 shadow-2xl shadow-purple-500/10">
-                  <div className="rounded-3xl bg-white p-6 sm:p-8">
-                    {/* Fake browser bar */}
-                    <div className="flex items-center gap-2 mb-5">
-                      <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-400/80" />
-                        <div className="w-3 h-3 rounded-full bg-amber-400/80" />
-                        <div className="w-3 h-3 rounded-full bg-emerald-400/80" />
+              <div className="relative">
+                {/* Main showcase card */}
+                <div className="rounded-3xl bg-white border border-border/60 shadow-2xl shadow-neutral-900/[0.06] overflow-hidden">
+                  {/* Active feature image */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-neutral-50">
+                    {heroFeatures.map((feat, i) => (
+                      <div
+                        key={feat.label}
+                        className={`absolute inset-0 transition-all duration-500 ${
+                          heroSlide === i ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={feat.image}
+                          alt={feat.label}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Gradient overlay at bottom */}
+                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent" />
                       </div>
-                      <div className="flex-1 flex justify-center">
-                        <div className="bg-surface-alt rounded-lg border border-border px-4 py-1 text-xs text-text-muted">
-                          app.shelfready.ai
-                        </div>
-                      </div>
+                    ))}
+                    {/* Active label overlay */}
+                    <div className="absolute bottom-4 left-5 right-5 animate-slide-in" key={heroSlide}>
+                      <span className={`inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r ${heroFeatures[heroSlide].accent} px-3 py-1 text-[11px] font-bold text-white shadow-lg mb-2`}>
+                        <Sparkles className="h-3 w-3" />
+                        {heroFeatures[heroSlide].tag}
+                      </span>
+                      <p className="text-white text-sm font-semibold drop-shadow-lg">
+                        {heroFeatures[heroSlide].description}
+                      </p>
                     </div>
-                    {/* Content cards */}
-                    <div className="space-y-4">
-                      <div className="rounded-2xl bg-gradient-to-r from-primary/5 to-slate-50 border border-primary/10 p-5">
-                        <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
-                          AI-Generated Title
-                        </div>
-                        <p className="text-sm font-semibold text-secondary leading-snug">
-                          Premium Organic Cotton Baby Blanket - Ultra Soft
-                          Swaddle Wrap for Newborns, Breathable &amp;
-                          Hypoallergenic
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-xl bg-surface-alt border border-border p-4">
-                          <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
-                            SEO Score
-                          </div>
-                          <div className="text-2xl font-bold text-emerald-600">
-                            94
-                            <span className="text-xs font-medium text-text-muted">
-                              /100
-                            </span>
-                          </div>
-                        </div>
-                        <div className="rounded-xl bg-surface-alt border border-border p-4">
-                          <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
-                            Images Ready
-                          </div>
-                          <div className="text-2xl font-bold text-primary">
-                            5
-                            <span className="text-xs font-medium text-text-muted ml-1">
-                              photos
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {["organic baby blanket", "cotton swaddle", "newborn gift", "nursery"].map(
-                          (kw) => (
-                            <span
-                              key={kw}
-                              className="rounded-full bg-white border border-primary/20 px-3 py-1 text-xs font-medium text-primary/80"
-                            >
-                              {kw}
-                            </span>
-                          ),
-                        )}
-                      </div>
+                  </div>
+
+                  {/* Feature selector strip */}
+                  <div className="p-3 bg-white border-t border-border/40">
+                    <div className="flex gap-1.5">
+                      {heroFeatures.map((feat, i) => (
+                        <button
+                          key={feat.label}
+                          onClick={() => setHeroSlide(i)}
+                          className={`flex-1 text-left rounded-xl px-3 py-2.5 transition-all duration-300 cursor-pointer group ${
+                            heroSlide === i
+                              ? "bg-neutral-900 text-white shadow-md"
+                              : "bg-neutral-50 text-neutral-500 hover:bg-neutral-100"
+                          }`}
+                        >
+                          <p className={`text-[11px] font-bold truncate ${heroSlide === i ? "text-white" : "text-neutral-700"}`}>
+                            {feat.label}
+                          </p>
+                          {/* Progress bar */}
+                          {heroSlide === i && (
+                            <div className="mt-1.5 h-[2px] bg-white/20 rounded-full overflow-hidden">
+                              <div className="h-full bg-white/80 rounded-full animate-progress" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating stat badges */}
+                <div className="absolute -top-4 -right-4 bg-white rounded-2xl border border-border shadow-xl px-4 py-3 animate-float">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                      <Zap className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-secondary">30 seconds</p>
+                      <p className="text-[10px] text-text-muted">Avg. generation time</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-3 -left-3 bg-white rounded-2xl border border-border shadow-xl px-4 py-3 animate-float" style={{ animationDelay: "2s" }}>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                      <Camera className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-secondary">160+ templates</p>
+                      <p className="text-[10px] text-text-muted">Ad creatives library</p>
                     </div>
                   </div>
                 </div>

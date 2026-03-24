@@ -8,19 +8,37 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ShelfReady - AI Product Listings for E-commerce",
-  description:
-    "Generate optimized product listings, lifestyle images, ad copy, and social media content powered by AI",
+  title: {
+    default: "ShelfReady — AI Product Listings, Photoshoots & Ad Creatives for E-commerce",
+    template: "%s — ShelfReady",
+  },
+  description: "Generate optimized product listings, professional AI photoshoots, ad creatives with 160+ templates, social content, and competitive intelligence for Amazon, Etsy, and Shopify sellers.",
   keywords: [
-    "e-commerce",
-    "product listings",
-    "AI",
-    "Amazon",
-    "Etsy",
-    "Shopify",
-    "product images",
-    "ad copy",
+    "AI product listings", "Amazon listing optimization", "Etsy SEO", "Shopify product descriptions",
+    "AI product photography", "e-commerce photoshoots", "ad creative generator", "Facebook ad templates",
+    "social media content generator", "multi-platform e-commerce", "product marketing AI",
+    "Amazon A9 optimization", "Etsy tags strategy", "e-commerce tools",
   ],
+  metadataBase: new URL("https://shelfready.app"),
+  openGraph: {
+    type: "website",
+    siteName: "ShelfReady",
+    title: "ShelfReady — AI-Powered E-commerce Content Platform",
+    description: "Listings, photoshoots, ad creatives, social content — generated in seconds from a product description or photo.",
+    url: "https://shelfready.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ShelfReady — AI-Powered E-commerce Content Platform",
+    description: "Listings, photoshoots, ad creatives, social content — generated in seconds.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://shelfready.app",
+  },
 };
 
 export default function RootLayout({

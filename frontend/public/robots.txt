@@ -1,0 +1,28 @@
+# ShelfReady — AI E-commerce Content Platform
+# https://shelfready.app
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /listings
+Disallow: /images
+Disallow: /social
+Disallow: /ads
+Disallow: /research
+Disallow: /settings
+Disallow: /billing
+Disallow: /usage
+Disallow: /api/
+Disallow: /callback
+Disallow: /auth/
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Allow public pages
+Allow: /
+Allow: /pricing
+Allow: /login
+Allow: /signup
+Allow: /blog
+
+Sitemap: https://shelfready.app/sitemap.xml

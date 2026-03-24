@@ -1,0 +1,42 @@
+# ShelfReady — AI E-commerce Content Platform
+# https://shelfready.app
+
+> ShelfReady is an AI-powered platform that generates product listings, professional photoshoots, ad creatives, social media content, and competitive intelligence for e-commerce sellers on Amazon, Etsy, and Shopify.
+
+## What ShelfReady Does
+
+ShelfReady helps e-commerce sellers create retail-ready marketing content in seconds:
+
+- **AI Listing Optimizer**: Generates SEO-optimized product titles, bullet points, descriptions, and backend keywords for Amazon, Etsy, and Shopify.
+- **Product Photoshoot**: Upload one product photo → get 5 professional images (studio, lifestyle, with model, in-context, outdoor). AI automatically detects the product and selects appropriate scenes and models.
+- **Ad Creatives**: 160+ visual ad templates across categories (flash sale, new arrival, premium, seasonal, Gen Z, minimalist, pastel). Upload your product, pick a template, add messaging → get scroll-stopping ad creatives.
+- **Social Content Engine**: Platform-native posts with captions, hashtags, and CTAs for Instagram, Facebook, and Pinterest.
+- **Competitor Intelligence + Market Insights**: Live web search competitive analysis with keyword gaps, competitor profiling, and pricing insights.
+- **Multi-Platform Export**: Same product optimized differently for Amazon (keyword-dense), Etsy (story-driven), and Shopify (conversion-focused).
+
+## Pricing
+
+- Free: $0/month — 5 listings, 5 images
+- Starter: $29/month — 50 listings, 100 images, 10 photoshoots
+- Pro: $79/month — 300 listings, 300 images, 30 photoshoots
+- Business: $149/month — Unlimited listings, 1000 images, 100 photoshoots
+
+## Tech Stack
+
+- Frontend: Next.js, Tailwind CSS, TypeScript
+- Backend: Python FastAPI
+- AI: MiniMax M2.7-fast (text), Grok Imagine (images), GPT-4o-mini (research)
+- Database: Supabase (PostgreSQL)
+- Payments: LemonSqueezy (pending)
+- Hosting: Vercel (frontend), Railway (backend)
+
+## Target Audience
+
+E-commerce sellers on Amazon, Etsy, and Shopify who need professional product marketing content but can't afford agencies or don't have time to create it manually.
+
+## Links
+
+- Website: https://shelfready.app
+- Pricing: https://shelfready.app/pricing
+- Sign Up: https://shelfready.app/signup
+- Login: https://shelfready.app/login
