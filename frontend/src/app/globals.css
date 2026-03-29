@@ -4,15 +4,15 @@
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-primary-light: #3b82f6;
-  --color-secondary: #0f172a;
-  --color-accent: #f59e0b;
+  --color-secondary: #1e3a5f;
+  --color-accent: #2563eb;
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-surface: #ffffff;
-  --color-surface-alt: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-surface-alt: #f5f7fa;
+  --color-border: #dfe4ec;
+  --color-text: #0e1f33;
+  --color-text-muted: #5a6b80;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 

@@ -1,985 +1,687 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import FeatureShowcases from "@/components/landing/feature-showcases";
-import { TemplatePreviewModal } from "@/components/ui/template-preview-modal";
-import {
-  Package,
-  Image,
-  Share2,
-  Megaphone,
-  Search,
-  Layers,
-  Upload,
-  Sparkles,
-  ArrowRight,
-  Check,
-  Star,
-  Camera,
-  Zap,
-  Shield,
-  Clock,
-  ChevronRight,
-} from "lucide-react";
 import { PLANS } from "@/lib/constants";
+import allTemplates from "@/lib/creative-templates.json";
+import {
+  ArrowRight, Check, Star, Package, Camera, Megaphone,
+  Share2, Search, Layers, Sparkles, Play, ChevronRight, X,
+} from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/*  DATA                                                               */
-/* ------------------------------------------------------------------ */
-
-const features = [
+/* ── Data ──────────────────────────────────────────────────────────── */
+const TOOL_SLIDES = [
   {
-    icon: Package,
-    title: "AI Listing Optimizer",
-    description:
-      "Generate SEO-optimized titles, bullets, and descriptions for Amazon, Etsy, and Shopify.",
-    gradient: "from-blue-500 to-cyan-400",
-    bg: "bg-blue-500/10",
+    id: "listing", label: "Listing Optimizer", icon: Package, color: "#3b82f6", tag: "Amazon · Etsy · Shopify",
+    steps: ["Analyzing product keywords...", "Optimizing for A9 algorithm...", "Generating SEO title...", "Writing 5 bullet points...", "Creating HTML description...", "Extracting backend keywords..."],
+    output: {
+      type: "listing",
+      title: "Premium Organic Bamboo Cutting Board Set — 3 Piece Kitchen Chopping Boards with Deep Juice Grooves, Anti-Slip Rubber Feet, BPA-Free & Knife-Friendly, Eco-Friendly Gift for Home Chefs",
+      bullets: [
+        "VERSATILE 3-PIECE SET: Includes Large (18×12\"), Medium (14×10\"), and Small (10×7\") for every kitchen task",
+        "HEALTHIER COOKING: 100% organic moso bamboo, naturally antimicrobial, BPA-free and food-safe",
+        "MESS-FREE PREP: Deep juice grooves catch liquids, non-slip rubber feet keep boards stable",
+        "ECO-CONSCIOUS: Sustainable bamboo is biodegradable and renewable, recyclable packaging",
+        "PERFECT GIFT: Ideal for housewarming, weddings, holidays — dishwasher safe, oil occasionally",
+      ],
+      keywords: ["bamboo cutting board", "cutting board set 3 piece", "organic kitchen", "juice groove board", "eco kitchen tools", "knife friendly", "housewarming gift", "meal prep board"],
+      description: "<b>Elevate Your Kitchen</b><br>Transform meal prep with premium organic bamboo...",
+      platforms: { amazon: "A9 optimized · 200 char title", etsy: "13 long-tail tags · story description", shopify: "SEO meta · conversion copy" },
+    },
   },
   {
-    icon: Camera,
-    title: "Product Photoshoot",
-    description:
-      "Upload your product, get 5 professional photoshoot images with models, studio, and lifestyle scenes.",
-    gradient: "from-primary to-purple-400",
-    bg: "bg-purple-500/10",
+    id: "photoshoot", label: "Product Photoshoot", icon: Camera, color: "#8b5cf6", tag: "5 pro shots from 1 photo",
+    steps: ["Analyzing product shape & color...", "Detecting product category: kitchen...", "Selecting AI model: female, lifestyle...", "Generating studio shot...", "Generating lifestyle scene...", "Generating model + product shot..."],
+    output: {
+      type: "images",
+      images: [
+        { src: "/showcase/studio.png", label: "Studio" },
+        { src: "/showcase/model.png", label: "With Model" },
+        { src: "/showcase/outdoor.png", label: "Lifestyle" },
+        { src: "/showcase/context.png", label: "In Context" },
+      ],
+      input: "/showcase/input.png",
+    },
   },
   {
-    icon: Share2,
-    title: "Social Content Engine",
-    description:
-      "Create platform-perfect posts for Instagram, Facebook, and Pinterest with hashtags and CTAs.",
-    gradient: "from-pink-500 to-rose-400",
-    bg: "bg-pink-500/10",
+    id: "ads", label: "Ad Creatives", icon: Megaphone, color: "#f59e0b", tag: "160+ templates",
+    steps: ["Analyzing product for ad context...", "Matching template: Flash Sale...", "Compositing product into template...", "Adding text overlays: 25% OFF...", "Generating variant: New Arrival...", "Generating variant: Premium..."],
+    output: {
+      type: "creatives",
+      images: [
+        { src: "/showcase/creative_flash_sale.png", label: "Flash Sale" },
+        { src: "/showcase/creative_new_arrival.png", label: "New Arrival" },
+        { src: "/showcase/creative_premium.png", label: "Premium" },
+        { src: "/showcase/creative_comparison.png", label: "Comparison" },
+      ],
+      input: "/showcase/input.png",
+    },
   },
   {
-    icon: Megaphone,
-    title: "Ad Copy + Creatives",
-    description:
-      "A/B test-ready ad copy and visual creatives with 70+ templates. Upload your product, pick a style, get scroll-stopping ads.",
-    gradient: "from-amber-500 to-orange-400",
-    bg: "bg-amber-500/10",
+    id: "social", label: "Social Content", icon: Share2, color: "#ec4899", tag: "IG · FB · Pinterest",
+    steps: ["Crafting Instagram hook...", "Generating 25 tiered hashtags...", "Writing engagement CTA...", "Adapting for Facebook...", "Creating Pinterest pin description...", "Optimizing for each algorithm..."],
+    output: {
+      type: "social",
+      platforms: [
+        { name: "Instagram", handle: "@ecochop_kitchen", caption: "There's something magical about cooking with tools that love the planet back. 🌿\n\nOur bamboo cutting board set brings warmth and sustainability to your kitchen counter. Crafted from organic bamboo, these beauties are naturally antibacterial and gentle on your knives.", hashtags: "#ecokitchen #sustainableliving #bamboo #handmade #shopsmall #kitchenessentials #mealprep #organickitchen #ecofriendly #homecooking", cta: "🔗 Link in bio — 25% off with code CHOP25" },
+        { name: "Facebook", caption: "Is your plastic cutting board scratched up and harboring bacteria? Time to upgrade. 🪵\n\nOur organic bamboo set is naturally antimicrobial, knife-friendly, and actually looks good on your counter.", cta: "Shop now → Free shipping over $30" },
+        { name: "Pinterest", caption: "Premium Organic Bamboo Cutting Board Set — the eco-friendly kitchen essential every home cook needs. Deep juice grooves, anti-slip feet, and beautiful enough to display. Perfect housewarming gift.", cta: "Save this pin · Shop the set" },
+      ],
+    },
   },
   {
-    icon: Search,
-    title: "Competitor Intelligence + Market Insights",
-    description:
-      "Live web search competitive analysis with keyword gaps and pricing insights.",
-    gradient: "from-emerald-500 to-teal-400",
-    bg: "bg-emerald-500/10",
+    id: "research", label: "Market Insights", icon: Search, color: "#10b981", tag: "Live competitive intel",
+    steps: ["Searching DuckDuckGo for market data...", "Analyzing 72 search results...", "Identifying top 5 competitors...", "Extracting keyword gaps...", "Calculating pricing intelligence...", "Generating actionable recommendations..."],
+    output: {
+      type: "research",
+      analysis: "The bamboo cutting board market on Amazon is valued at $400-500M annually with 18-22% YoY growth in the eco-friendly segment.",
+      competitors: [
+        { name: "Lipper International", price: "$25-35", weakness: "No juice grooves" },
+        { name: "Bambu", price: "$40-55", weakness: "Single piece only" },
+        { name: "Royal Craft Wood", price: "$18-30", weakness: "Not organic certified" },
+      ],
+      keywords: ["bamboo cutting board", "eco kitchen", "organic cutting board set", "knife friendly board", "wooden chopping board", "housewarming gift kitchen", "BPA free cutting board", "juice groove board"],
+      opportunity: "No competitor combines organic certification + 3-piece set + juice grooves under $35",
+    },
   },
   {
-    icon: Layers,
-    title: "Multi-Platform Export",
-    description:
-      "One product, optimized differently for every marketplace — Amazon keywords, Etsy tags, Shopify SEO.",
-    gradient: "from-indigo-500 to-violet-400",
-    bg: "bg-indigo-500/10",
+    id: "multi", label: "Multi-Platform", icon: Layers, color: "#6366f1", tag: "1 product → 3 platforms",
+    steps: ["Generating Amazon A9-optimized listing...", "Adapting to Etsy storytelling format...", "Creating Shopify conversion copy...", "Extracting 13 Etsy long-tail tags...", "Writing Shopify meta description...", "Generating backend keywords..."],
+    output: {
+      type: "multiplatform",
+      platforms: [
+        { name: "Amazon", style: "Keyword-dense · A9 optimized", title: "Premium Organic Bamboo Cutting Board Set — 3 Piece with Juice Grooves & Anti-Slip Feet", detail: "200 char title · 5 CAPS bullets · HTML description · 15 backend keywords" },
+        { name: "Etsy", style: "Story-driven · 13 tags", title: "Handmade Bamboo Cutting Board Set | Organic Kitchen Gift | Eco-Friendly Chopping Board", detail: "140 char title · storytelling description · 13 long-tail tags" },
+        { name: "Shopify", style: "Conversion-focused · SEO meta", title: "EcoChop Bamboo Cutting Board Set | Organic Kitchen Essentials", detail: "60 char SEO title · meta description · landing page copy · 6 selling points" },
+      ],
+    },
   },
 ];
 
-const steps = [
-  {
-    num: "01",
-    title: "Describe or Upload",
-    description: "Enter product details or upload a photo.",
-    icon: Upload,
-  },
-  {
-    num: "02",
-    title: "AI Creates Everything",
-    description:
-      "Listings, images, ads, and social posts generated in seconds.",
-    icon: Sparkles,
-  },
-  {
-    num: "03",
-    title: "Launch & Sell",
-    description: "Export to your marketplace and start converting.",
-    icon: Zap,
-  },
-];
+/* ── 6-Tool Interactive Demo with Streaming ───────────────────────── */
+function ToolDemo() {
+  const [active, setActive] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [phase, setPhase] = useState<"streaming" | "output">("streaming");
+  const [streamStep, setStreamStep] = useState(0);
 
-const testimonials = [
-  {
-    quote:
-      "ShelfReady cut our listing creation time from 3 hours to 10 minutes. The AI photoshoot feature alone paid for the subscription in one day.",
-    name: "Sarah Chen",
-    role: "Founder",
-    company: "Bloom Naturals",
-    stars: 5,
-  },
-  {
-    quote:
-      "We went from 50 to 400 SKUs in two months without hiring a copywriter. The multi-platform export is a game-changer for us.",
-    name: "Marcus Rivera",
-    role: "Operations Lead",
-    company: "UrbanGear Co.",
-    stars: 5,
-  },
-  {
-    quote:
-      "The ad copy generator consistently outperforms our agency-written ads. We've seen a 38% lift in ROAS since switching.",
-    name: "Priya Sharma",
-    role: "E-commerce Director",
-    company: "Luxe Home Decor",
-    stars: 5,
-  },
-];
+  const tool = TOOL_SLIDES[active];
 
-const photoshootTypes = [
-  { label: "Studio", color: "from-blue-500/20 to-blue-600/10", icon: Camera },
-  { label: "Outdoor", color: "from-emerald-500/20 to-emerald-600/10", icon: Image },
-  { label: "With Model", color: "from-purple-500/20 to-purple-600/10", icon: Sparkles },
-  { label: "In Context", color: "from-amber-500/20 to-amber-600/10", icon: Layers },
-];
-
-const planEntries = Object.entries(PLANS) as [
-  keyof typeof PLANS,
-  (typeof PLANS)[keyof typeof PLANS],
-][];
-
-/* ------------------------------------------------------------------ */
-/*  PAGE                                                               */
-/* ------------------------------------------------------------------ */
-
-export default function LandingPage() {
-  const [yearly, setYearly] = useState(false);
-  const [previewTemplate, setPreviewTemplate] = useState<{ src: string; alt: string } | null>(null);
-  const [heroSlide, setHeroSlide] = useState(0);
-
-  const heroFeatures = [
-    {
-      label: "Product Photoshoot",
-      tag: "Upload → 5 Pro Shots",
-      image: "/showcase/studio.png",
-      accent: "from-violet-500 to-purple-600",
-      description: "Upload one photo, get studio, lifestyle, model, and in-context shots",
-    },
-    {
-      label: "Ad Creatives",
-      tag: "160+ Templates",
-      image: "/showcase/creative_flash_sale.png",
-      accent: "from-amber-500 to-orange-600",
-      description: "Pick a template, add your product — get scroll-stopping ad creatives",
-    },
-    {
-      label: "Listing Optimizer",
-      tag: "Amazon · Etsy · Shopify",
-      image: "/showcase/input.png",
-      accent: "from-blue-500 to-cyan-600",
-      description: "SEO-optimized titles, bullets, and descriptions for every marketplace",
-    },
-    {
-      label: "Social Content",
-      tag: "IG · Facebook · Pinterest",
-      image: "/showcase/model.png",
-      accent: "from-pink-500 to-rose-600",
-      description: "Captions, hashtags, and CTAs — platform-native and ready to post",
-    },
-    {
-      label: "Market Insights",
-      tag: "Live Competitive Intel",
-      image: "/showcase/outdoor.png",
-      accent: "from-emerald-500 to-teal-600",
-      description: "Keywords, competitor analysis, and pricing gaps — powered by real data",
-    },
-  ];
-
+  // Auto-advance tools
   useEffect(() => {
-    const timer = setInterval(() => setHeroSlide((s) => (s + 1) % heroFeatures.length), 3500);
-    return () => clearInterval(timer);
-  }, [heroFeatures.length]);
+    if (!autoPlay) return;
+    const t = setInterval(() => setActive((a) => (a + 1) % TOOL_SLIDES.length), 10000);
+    return () => clearInterval(t);
+  }, [autoPlay]);
+
+  // Streaming phase
+  useEffect(() => {
+    setPhase("streaming");
+    setStreamStep(0);
+    const steps = tool.steps.length;
+    // Stream each step
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    for (let i = 0; i < steps; i++) {
+      timers.push(setTimeout(() => setStreamStep(i + 1), 600 * (i + 1)));
+    }
+    // Switch to output after all steps
+    timers.push(setTimeout(() => setPhase("output"), 600 * steps + 400));
+    return () => timers.forEach(clearTimeout);
+  }, [active, tool.steps.length]);
+
+  const TIcon = tool.icon;
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
-      {/* ===== GLOBAL KEYFRAMES (injected once) ===== */}
-      <style>{`
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-gradient { animation: gradient-shift 8s ease infinite; background-size: 200% 200%; }
-        .animate-shimmer { animation: shimmer 3s ease-in-out infinite; background-size: 200% 100%; }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        @keyframes slide-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes progress-fill { from { width: 0%; } to { width: 100%; } }
-        .animate-slide-in { animation: slide-in 0.5s ease-out both; }
-        .animate-progress { animation: progress-fill 3.5s linear both; }
-        .animate-fade-in-up { animation: fade-in-up 0.7s ease-out both; }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-      `}</style>
-
-      {/* ===== NAVIGATION ===== */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-border/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20">
-                <Package className="h-4.5 w-4.5 text-white" />
-              </div>
-              <span className="text-xl font-bold tracking-tight text-secondary">
-                ShelfReady
-              </span>
-            </div>
-
-            <div className="hidden md:flex items-center gap-8">
-              {[
-                ["Features", "#features"],
-                ["How It Works", "#how-it-works"],
-                ["Photoshoots", "#photoshoots"],
-                ["Pricing", "#pricing"],
-                ["Testimonials", "#testimonials"],
-              ].map(([label, href]) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="text-sm font-medium text-text-muted hover:text-text transition-colors"
-                >
-                  {label}
-                </a>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="hidden sm:inline-flex text-sm font-medium text-text-muted hover:text-text transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
-              >
-                Start Free
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </div>
+    <section className="py-24 px-4 bg-white border-y border-neutral-200/60">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="text-center mb-14">
+          <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">See it in action</p>
+          <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Six AI tools. Real output.</h2>
+          <p className="mt-3 text-neutral-500 max-w-md mx-auto">Click any tool to watch ShelfReady generate content from a single product.</p>
         </div>
-      </nav>
 
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 animate-gradient opacity-[0.03]" />
-        {/* Dot pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.35]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #cbd5e1 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-          }}
-        />
-        {/* Glow orbs */}
-        <div className="absolute top-32 left-[10%] w-[500px] h-[500px] bg-blue-400/8 rounded-full blur-[100px]" />
-        <div className="absolute bottom-20 right-[5%] w-[600px] h-[600px] bg-purple-400/8 rounded-full blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-300/5 rounded-full blur-[100px]" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 sm:py-28">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left — copy */}
-            <div className="animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/5 border border-primary/10 px-4 py-1.5 mb-8">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-sm font-semibold text-primary">
-                  AI-Powered E-commerce Platform
-                </span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-secondary leading-[1.08]">
-                Your Products Deserve{" "}
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  Professional Marketing
-                </span>
-              </h1>
-
-              <p className="mt-6 text-lg sm:text-xl text-text-muted leading-relaxed max-w-xl">
-                AI-powered listings, photoshoots, ad copy, and social content
-                — everything e-commerce sellers need to scale, in one
-                platform.
-              </p>
-
-              {/* CTAs */}
-              <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
-                <Link
-                  href="/signup"
-                  className="group relative inline-flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-base font-bold text-white shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all overflow-hidden"
-                >
-                  {/* Shimmer overlay */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
-                  <span className="relative flex items-center gap-2">
-                    Start Free
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </Link>
-                <a
-                  href="#photoshoots"
-                  className="inline-flex items-center gap-2 rounded-2xl border-2 border-border bg-white px-8 py-4 text-base font-bold text-text hover:border-primary/30 hover:bg-primary/[0.02] transition-all hover:-translate-y-0.5"
-                >
-                  See It In Action
-                </a>
-              </div>
-
-              {/* Trust badges */}
-              <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-text-muted">
-                <span className="flex items-center gap-1.5">
-                  <Shield className="h-4 w-4 text-emerald-500" />
-                  No credit card required
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Zap className="h-4 w-4 text-amber-500" />
-                  7,500+ sellers
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                  4.9/5 rating
-                </span>
-              </div>
-            </div>
-
-            {/* Right — Feature Carousel */}
-            <div className="animate-fade-in-up delay-200 hidden lg:block">
-              <div className="relative">
-                {/* Main showcase card */}
-                <div className="rounded-3xl bg-white border border-border/60 shadow-2xl shadow-neutral-900/[0.06] overflow-hidden">
-                  {/* Active feature image */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-neutral-50">
-                    {heroFeatures.map((feat, i) => (
-                      <div
-                        key={feat.label}
-                        className={`absolute inset-0 transition-all duration-500 ${
-                          heroSlide === i ? "opacity-100 scale-100" : "opacity-0 scale-105"
-                        }`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={feat.image}
-                          alt={feat.label}
-                          className="w-full h-full object-cover"
-                        />
-                        {/* Gradient overlay at bottom */}
-                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent" />
-                      </div>
-                    ))}
-                    {/* Active label overlay */}
-                    <div className="absolute bottom-4 left-5 right-5 animate-slide-in" key={heroSlide}>
-                      <span className={`inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r ${heroFeatures[heroSlide].accent} px-3 py-1 text-[11px] font-bold text-white shadow-lg mb-2`}>
-                        <Sparkles className="h-3 w-3" />
-                        {heroFeatures[heroSlide].tag}
-                      </span>
-                      <p className="text-white text-sm font-semibold drop-shadow-lg">
-                        {heroFeatures[heroSlide].description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Feature selector strip */}
-                  <div className="p-3 bg-white border-t border-border/40">
-                    <div className="flex gap-1.5">
-                      {heroFeatures.map((feat, i) => (
-                        <button
-                          key={feat.label}
-                          onClick={() => setHeroSlide(i)}
-                          className={`flex-1 text-left rounded-xl px-3 py-2.5 transition-all duration-300 cursor-pointer group ${
-                            heroSlide === i
-                              ? "bg-neutral-900 text-white shadow-md"
-                              : "bg-neutral-50 text-neutral-500 hover:bg-neutral-100"
-                          }`}
-                        >
-                          <p className={`text-[11px] font-bold truncate ${heroSlide === i ? "text-white" : "text-neutral-700"}`}>
-                            {feat.label}
-                          </p>
-                          {/* Progress bar */}
-                          {heroSlide === i && (
-                            <div className="mt-1.5 h-[2px] bg-white/20 rounded-full overflow-hidden">
-                              <div className="h-full bg-white/80 rounded-full animate-progress" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating stat badges */}
-                <div className="absolute -top-4 -right-4 bg-white rounded-2xl border border-border shadow-xl px-4 py-3 animate-float">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                      <Zap className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-bold text-secondary">30 seconds</p>
-                      <p className="text-[10px] text-text-muted">Avg. generation time</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-3 -left-3 bg-white rounded-2xl border border-border shadow-xl px-4 py-3 animate-float" style={{ animationDelay: "2s" }}>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
-                      <Camera className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-bold text-secondary">160+ templates</p>
-                      <p className="text-[10px] text-text-muted">Ad creatives library</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== LOGO BAR ===== */}
-      <section className="py-14 border-y border-border/40 bg-surface-alt/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm font-semibold text-text-muted mb-10 uppercase tracking-wider">
-            Trusted by sellers on
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-14 gap-y-6">
-            {["Amazon", "Etsy", "Shopify", "eBay", "Walmart"].map((name) => (
-              <span
-                key={name}
-                className="text-2xl sm:text-3xl font-bold text-secondary/20 hover:text-secondary/80 transition-colors duration-300 cursor-default select-none"
-              >
-                {name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FEATURES GRID ===== */}
-      <section id="features" className="py-24 sm:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              Everything You Need
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
-              One platform, every tool
-            </h2>
-            <p className="mt-5 text-lg text-text-muted leading-relaxed">
-              From product research to listing optimization, images, social
-              posts, and ads — ShelfReady covers your entire e-commerce
-              content pipeline.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group relative rounded-2xl border border-border bg-white p-7 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300"
-              >
-                <div
-                  className={`inline-flex rounded-2xl p-3.5 mb-5 bg-gradient-to-br ${feature.gradient} shadow-lg`}
-                >
-                  <feature.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-secondary mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-text-muted leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== HOW IT WORKS ===== */}
-      <section
-        id="how-it-works"
-        className="py-24 sm:py-32 bg-surface-alt/50"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-20">
-            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              Simple Workflow
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
-              Three steps to better listings
-            </h2>
-            <p className="mt-5 text-lg text-text-muted leading-relaxed">
-              No design skills needed. No copywriting experience required.
-              Just describe your product and let AI do the rest.
-            </p>
-          </div>
-
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
-            {/* Connecting line (desktop) */}
-            <div className="hidden md:block absolute top-[60px] left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-primary/20 via-purple-400/30 to-purple-600/20" />
-
-            {steps.map((step, i) => (
-              <div key={step.num} className="relative text-center">
-                {/* Number badge */}
-                <div className="relative inline-flex mb-7">
-                  <div className="h-[120px] w-[120px] rounded-3xl bg-gradient-to-br from-primary/10 to-purple-400/10 flex items-center justify-center border border-primary/5">
-                    <step.icon className="h-12 w-12 text-primary" />
-                  </div>
-                  <span className="absolute -top-3 -right-3 h-9 w-9 rounded-full bg-gradient-to-br from-primary to-purple-600 text-white text-sm font-bold flex items-center justify-center shadow-lg shadow-primary/30">
-                    {step.num}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-secondary mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-text-muted leading-relaxed max-w-xs mx-auto">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FEATURE SHOWCASES (real AI output) ===== */}
-      <FeatureShowcases />
-
-      {/* ===== PRODUCT PHOTOSHOOT SHOWCASE ===== */}
-      <section id="photoshoots" className="py-24 sm:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              Killer Feature
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
-              Professional Photoshoots in 30 Seconds
-            </h2>
-            <p className="mt-5 text-lg text-text-muted leading-relaxed">
-              Upload your product photo — AI generates studio shots, lifestyle
-              scenes, and model images automatically.
-            </p>
-          </div>
-
-          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-            {/* Left: input product image */}
-            <div className="flex-shrink-0 w-full max-w-[280px]">
-              <div className="rounded-2xl border-2 border-dashed border-primary/30 bg-surface-alt/80 p-4 text-center">
-                <div className="rounded-xl overflow-hidden border border-border mb-3 bg-white">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/showcase/input.png"
-                    alt="Original product photo — bamboo cutting board"
-                    className="w-full h-auto"
-                  />
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <Upload className="h-4 w-4 text-primary/60" />
-                  <p className="text-sm font-semibold text-text-muted">
-                    Your Product Photo
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Arrow */}
-            <div className="flex items-center justify-center flex-shrink-0">
-              <div className="hidden lg:flex items-center gap-2">
-                <div className="w-16 h-[2px] bg-gradient-to-r from-primary/40 to-purple-400/40" />
-                <ArrowRight className="h-6 w-6 text-primary/40" />
-              </div>
-              <div className="lg:hidden flex flex-col items-center gap-2 py-2">
-                <div className="h-10 w-[2px] bg-gradient-to-b from-primary/40 to-purple-400/40" />
-                <ChevronRight className="h-5 w-5 text-primary/40 rotate-90" />
-              </div>
-            </div>
-
-            {/* Right: 2x2 real output grid */}
-            <div className="flex-1 w-full">
-              <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto lg:mx-0">
-                {[
-                  { label: "Studio", src: "/showcase/studio.png" },
-                  { label: "Outdoor", src: "/showcase/outdoor.png" },
-                  { label: "With Model", src: "/showcase/model.png" },
-                  { label: "In Context", src: "/showcase/context.png" },
-                ].map((shot) => (
-                  <div
-                    key={shot.label}
-                    className="group rounded-2xl border border-border bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                  >
-                    <div className="aspect-[4/3] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={shot.src}
-                        alt={`AI-generated ${shot.label} photoshoot`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="p-3 text-center">
-                      <p className="text-sm font-semibold text-secondary">
-                        {shot.label}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <p className="text-center text-sm text-text-muted mt-12 max-w-2xl mx-auto">
-            AI automatically detects your product, chooses the right scene and model,
-            and creates context-appropriate scenes — all from a single product photo.
-          </p>
-        </div>
-      </section>
-
-      {/* ===== AD CREATIVES SHOWCASE ===== */}
-      <section className="py-24 sm:py-32 bg-surface-alt/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              160+ Ad Templates
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
-              Scroll-Stopping Ad Creatives in Seconds
-            </h2>
-            <p className="mt-5 text-lg text-text-muted leading-relaxed">
-              Pick a template, upload your product, add your messaging — get
-              professional ad creatives ready for Facebook, Instagram, and Google.
-            </p>
-          </div>
-
-          {/* Template Collage Cloud */}
-          <div className="mb-16">
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
-              {[
-                "flash_sale", "black_friday", "new_arrival", "premium", "cyber_monday",
-                "summer_sale", "holiday_sale", "beauty_skincare", "fitness_energy", "tech_gadget",
-                "bogo", "clearance", "vip_access", "just_dropped", "testimonial",
-                "home_decor", "fashion_apparel", "food_drink", "garden_plant", "kids_toys",
-                "wellness_calm", "cozy_winter", "outdoor_adventure", "jewelry", "bestseller",
-                "bundle_deal", "countdown", "giveaway", "before_after", "award_winner",
-                "min_white_space", "min_duo_tone", "pas_blush_pink", "pas_lavender", "pas_mint",
-                "pas_rose_gold", "pas_cotton_candy", "pas_pistachio", "gz_neon_chaos", "gz_holographic",
-                "gz_gradient_mesh", "gz_sticker_bomb", "gz_acid", "gz_vapor", "min_japanese",
-                "pas_honey", "gz_bold_type", "pas_blossom",
-              ].map((id) => (
-                <button
-                  key={id}
-                  onClick={() => setPreviewTemplate({ src: `/templates/${id}.png`, alt: id.replace(/_/g, " ") })}
-                  className="aspect-video rounded-lg overflow-hidden border border-border/50 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/templates/${id}.png`}
-                    alt={id.replace(/_/g, " ")}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
-            </div>
-            <p className="text-center text-sm text-text-muted mt-4">
-              Flash Sale, Black Friday, New Arrival, Premium, Lifestyle, Beauty, Tech, Food, Fashion, and 130+ more
-            </p>
-          </div>
-
-          {/* Before/After: Template → Product Creative */}
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-8">
-              <h3 className="text-xl sm:text-2xl font-bold text-secondary">
-                See How Templates Transform Your Product
-              </h3>
-              <p className="text-text-muted mt-2">
-                Same cutting board + different templates = unique ad creatives with custom messaging
-              </p>
-            </div>
-
-            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-              {/* Input product */}
-              <div className="flex-shrink-0 w-full max-w-[200px]">
-                <div className="rounded-2xl border-2 border-dashed border-primary/30 bg-white p-3 text-center">
-                  <div className="rounded-xl overflow-hidden border border-border mb-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/showcase/input.png" alt="Product input" className="w-full h-auto" />
-                  </div>
-                  <p className="text-[11px] font-semibold text-text-muted">Your Product</p>
-                  <p className="text-[10px] text-text-muted">+ &quot;25% off, Code CHOP25&quot;</p>
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="flex items-center justify-center flex-shrink-0">
-                <div className="hidden lg:flex items-center gap-2">
-                  <div className="w-12 h-[2px] bg-gradient-to-r from-primary/40 to-rose-400/40" />
-                  <ArrowRight className="h-5 w-5 text-primary/40" />
-                </div>
-                <div className="lg:hidden flex flex-col items-center gap-2 py-2">
-                  <div className="h-8 w-[2px] bg-gradient-to-b from-primary/40 to-rose-400/40" />
-                  <ChevronRight className="h-4 w-4 text-primary/40 rotate-90" />
-                </div>
-              </div>
-
-              {/* Output creatives */}
-              <div className="flex-1 w-full">
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { label: "Flash Sale", src: "/showcase/creative_flash_sale.png" },
-                    { label: "New Arrival", src: "/showcase/creative_new_arrival.png" },
-                    { label: "Premium", src: "/showcase/creative_premium.png" },
-                    { label: "Comparison", src: "/showcase/creative_comparison.png" },
-                  ].map((shot) => (
-                    <div
-                      key={shot.label}
-                      className="group rounded-2xl border border-border bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                    >
-                      <div className="aspect-video overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={shot.src}
-                          alt={`${shot.label} creative`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="p-2.5 text-center">
-                        <p className="text-sm font-semibold text-secondary">{shot.label}</p>
-                        <p className="text-[10px] text-text-muted">Template applied</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PRICING ===== */}
-      <section id="pricing" className="py-24 sm:py-32 bg-surface-alt/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              Pricing
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="mt-5 text-lg text-text-muted leading-relaxed">
-              Start free and upgrade as you grow. All plans include core AI
-              features.
-            </p>
-          </div>
-
-          {/* Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-14">
-            <span
-              className={`text-sm font-semibold transition-colors ${
-                !yearly ? "text-secondary" : "text-text-muted"
-              }`}
-            >
-              Monthly
-            </span>
-            <button
-              onClick={() => setYearly(!yearly)}
-              className={`relative h-8 w-14 rounded-full transition-colors ${
-                yearly ? "bg-primary" : "bg-slate-200"
-              }`}
-              aria-label="Toggle yearly billing"
-            >
-              <span
-                className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                  yearly ? "translate-x-6" : "translate-x-0"
-                }`}
-              />
-            </button>
-            <span className="flex items-center gap-2">
-              <span
-                className={`text-sm font-semibold transition-colors ${
-                  yearly ? "text-secondary" : "text-text-muted"
-                }`}
-              >
-                Yearly
-              </span>
-              {yearly && (
-                <span className="rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-0.5">
-                  Save 20%
-                </span>
-              )}
-            </span>
-          </div>
-
-          {/* Plan Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {planEntries.map(([key, plan]) => {
-              const isPopular = "popular" in plan && plan.popular;
-              const monthlyEquivalent = yearly
-                ? Math.round(plan.priceYearly / 12)
-                : plan.priceMonthly;
-
+        <div className="grid lg:grid-cols-[280px_1fr] gap-4 items-stretch">
+          {/* Left — 6 Tool tabs */}
+          <div className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 lg:justify-between" style={{ height: "600px" }}>
+            {TOOL_SLIDES.map((t, i) => {
+              const Icon = t.icon;
               return (
-                <div
-                  key={key}
-                  className={`relative rounded-2xl flex flex-col ${
-                    isPopular
-                      ? "p-[2px] bg-gradient-to-b from-primary via-purple-400 to-purple-600 shadow-2xl shadow-primary/15 scale-[1.03] z-10"
-                      : ""
-                  }`}
-                >
-                  <div
-                    className={`relative rounded-2xl p-7 flex flex-col flex-1 ${
-                      isPopular
-                        ? "bg-white"
-                        : "border border-border bg-white"
-                    }`}
-                  >
-                    {isPopular && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                        <span className="rounded-full bg-gradient-to-r from-primary to-purple-600 px-4 py-1 text-xs font-bold text-white shadow-lg shadow-primary/25">
-                          Most Popular
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="mb-5">
-                      <h3 className="text-lg font-bold text-secondary">
-                        {plan.name}
-                      </h3>
-                      <div className="mt-3 flex items-baseline gap-1">
-                        <span className="text-4xl font-extrabold text-secondary">
-                          ${monthlyEquivalent}
-                        </span>
-                        {monthlyEquivalent > 0 && (
-                          <span className="text-sm text-text-muted font-medium">
-                            /mo
-                          </span>
-                        )}
-                      </div>
-                      {yearly && plan.priceYearly > 0 && (
-                        <p className="mt-1 text-xs text-text-muted">
-                          Billed ${plan.priceYearly}/year
-                        </p>
-                      )}
-                      {!yearly && plan.priceMonthly === 0 && (
-                        <p className="mt-1 text-xs text-text-muted">
-                          Free forever
-                        </p>
-                      )}
-                    </div>
-
-                    <ul className="space-y-3 mb-8 flex-1">
-                      {plan.features.map((feature) => (
-                        <li
-                          key={feature}
-                          className="flex items-start gap-2.5 text-sm text-text-muted"
-                        >
-                          <Check
-                            className={`h-4 w-4 flex-shrink-0 mt-0.5 ${
-                              isPopular ? "text-primary" : "text-emerald-500"
-                            }`}
-                          />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link
-                      href="/signup"
-                      className={`w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 ${
-                        isPopular
-                          ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
-                          : plan.priceMonthly === 0
-                            ? "bg-primary/5 text-primary hover:bg-purple-500/10 border border-primary/20"
-                            : "bg-secondary text-white hover:bg-secondary/90 shadow-md"
-                      }`}
-                    >
-                      {plan.priceMonthly === 0
-                        ? "Get Started Free"
-                        : "Start Free Trial"}
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </Link>
+                <button key={t.id} onClick={() => { setActive(i); setAutoPlay(false); }}
+                  className={`flex items-center gap-3 px-4 rounded-xl text-left transition-all cursor-pointer flex-shrink-0 lg:w-full lg:flex-1 ${
+                    active === i ? "bg-white border border-neutral-200 shadow-lg" : "hover:bg-neutral-50 border border-transparent"
+                  }`}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style={{ background: active === i ? t.color : "#f0f0f0" }}>
+                    <Icon className={`h-4 w-4 ${active === i ? "text-white" : "text-neutral-400"}`} />
                   </div>
-                </div>
+                  <div className="min-w-0 hidden lg:block">
+                    <p className={`text-[13px] font-bold truncate ${active === i ? "text-neutral-900" : "text-neutral-500"}`}>{t.label}</p>
+                    <p className="text-[11px] text-neutral-400 truncate">{t.tag}</p>
+                  </div>
+                </button>
               );
             })}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-text-muted">
-            <span className="flex items-center gap-1.5">
-              <Shield className="h-4 w-4 text-emerald-500" />
-              SSL security
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-blue-500" />
-              99.9% uptime
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Zap className="h-4 w-4 text-amber-500" />
-              Cancel anytime
-            </span>
+          {/* Right — Streaming output */}
+          <div>
+            <div className="bg-[#0c0c0c] rounded-2xl overflow-hidden shadow-2xl flex flex-col" style={{ height: "600px" }}>
+              {/* Header */}
+              <div className="px-4 py-2.5 flex items-center justify-between bg-[#141414] border-b border-white/5">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${tool.color}25` }}>
+                    <TIcon className="h-3.5 w-3.5" style={{ color: tool.color }} />
+                  </div>
+                  <span className="text-[13px] font-bold text-white">{tool.label}</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${tool.color}15`, color: tool.color }}>{tool.tag}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${phase === "streaming" ? "bg-amber-400 animate-pulse" : "bg-[#2563eb]"}`} />
+                  <span className="text-[10px] text-neutral-500 font-mono">{phase === "streaming" ? "generating..." : "complete"}</span>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 flex-1" key={active}>
+                {/* Input prompt */}
+                <div className="flex gap-2.5 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[10px]">👤</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/8 rounded-xl px-3.5 py-2.5 flex-1">
+                    <p className="text-[12px] text-neutral-400">Generate {tool.label.toLowerCase()} for: <span className="text-neutral-200">Organic Bamboo Cutting Board Set — 3-piece, juice grooves, anti-slip feet, $34.99</span></p>
+                  </div>
+                </div>
+
+                {/* Streaming steps */}
+                <div className="flex gap-2.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${tool.color}20` }}>
+                    <Sparkles className="h-3 w-3" style={{ color: tool.color }} />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    {/* Stream steps */}
+                    {phase === "streaming" && (
+                      <div className="space-y-1.5">
+                        {tool.steps.slice(0, streamStep).map((step, i) => (
+                          <p key={i} className="text-[11px] text-neutral-500 fade-slide" style={{ animationDelay: `${i * 0.05}s` }}>
+                            <span className="text-[#2563eb]">✓</span> {step}
+                          </p>
+                        ))}
+                        {streamStep < tool.steps.length && (
+                          <div className="flex items-center gap-1.5">
+                            {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-600 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Output */}
+                    {phase === "output" && (
+                      <div className="space-y-3 fade-slide">
+                        {/* Listing output */}
+                        {tool.output.type === "listing" && (
+                          <>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tool.color }}>Optimized Title</p>
+                              <p className="text-[13px] font-semibold text-neutral-200 leading-snug">{tool.output.title as string}</p>
+                            </div>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5 space-y-1.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tool.color }}>5 Bullet Points</p>
+                              {((tool.output as any).bullets || []).map((b: string, i: number) => (
+                                <p key={i} className="text-[11px] text-neutral-400 flex gap-1.5"><Check className="h-3 w-3 text-[#2563eb] flex-shrink-0 mt-0.5" />{b}</p>
+                              ))}
+                            </div>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: tool.color }}>Backend Keywords</p>
+                              <div className="flex flex-wrap gap-1">
+                                {((tool.output as any).keywords || []).map((k: string) => <span key={k} className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">{k}</span>)}
+                              </div>
+                            </div>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: tool.color }}>Platform Versions</p>
+                              <div className="grid grid-cols-3 gap-2">
+                                {Object.entries((tool.output as any).platforms || {}).map(([k, v]) => (
+                                  <div key={k} className="text-center">
+                                    <p className="text-[11px] font-bold text-neutral-300 capitalize">{k}</p>
+                                    <p className="text-[9px] text-neutral-500">{v as string}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Images output (photoshoot + creatives) */}
+                        {(tool.output.type === "images" || tool.output.type === "creatives") && (
+                          <>
+                            {/* Input indicator */}
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="w-10 h-10 rounded-lg border border-white/10 overflow-hidden flex-shrink-0">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={(tool.output as any).input} alt="Input" className="w-full h-full object-cover" />
+                              </div>
+                              <ArrowRight className="h-3 w-3 text-neutral-600" />
+                              <span className="text-[10px] text-neutral-500">AI transformed into:</span>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2">
+                              {((tool.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
+                                <div key={i} className="rounded-lg overflow-hidden border border-white/10 fade-slide" style={{ animationDelay: `${i * 0.12}s` }}>
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={img.src} alt={img.label} className="w-full object-cover" />
+                                  <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-400 font-medium">{img.label}</p></div>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Social output */}
+                        {tool.output.type === "social" && (
+                          <div className="space-y-2.5">
+                            {((tool.output as any).platforms || []).map((p: { name: string; handle?: string; caption: string; hashtags?: string; cta: string }, i: number) => (
+                              <div key={p.name} className="bg-white/5 border border-white/8 rounded-xl p-3 fade-slide" style={{ animationDelay: `${i * 0.15}s` }}>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${tool.color}15`, color: tool.color }}>{p.name}</span>
+                                  {p.handle && <span className="text-[10px] text-neutral-500">{p.handle}</span>}
+                                </div>
+                                <p className="text-[11px] text-neutral-400 leading-relaxed whitespace-pre-line">{p.caption.slice(0, 120)}...</p>
+                                {p.hashtags && <p className="text-[10px] text-blue-400 mt-1">{p.hashtags.slice(0, 80)}...</p>}
+                                <p className="text-[10px] text-neutral-500 mt-1.5 font-medium">{p.cta}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Research output */}
+                        {tool.output.type === "research" && (
+                          <>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tool.color }}>Market Analysis</p>
+                              <p className="text-[12px] text-neutral-400 leading-relaxed">{(tool.output as any).analysis}</p>
+                            </div>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: tool.color }}>Top Competitors</p>
+                              {((tool.output as any).competitors || []).map((c: { name: string; price: string; weakness: string }) => (
+                                <div key={c.name} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                                  <span className="text-[11px] font-semibold text-neutral-300">{c.name}</span>
+                                  <span className="text-[10px] text-neutral-500">{c.price}</span>
+                                  <span className="text-[10px] text-amber-400">{c.weakness}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: tool.color }}>Keywords ({((tool.output as any).keywords || []).length})</p>
+                              <div className="flex flex-wrap gap-1">
+                                {((tool.output as any).keywords || []).map((k: string) => <span key={k} className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">{k}</span>)}
+                              </div>
+                            </div>
+                            <div className="bg-[#2563eb]/10 border border-[#2563eb]/20 rounded-xl p-3">
+                              <p className="text-[10px] font-bold text-[#2563eb] uppercase tracking-wider mb-1">Opportunity</p>
+                              <p className="text-[11px] text-neutral-300">{(tool.output as any).opportunity}</p>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Multi-platform output */}
+                        {tool.output.type === "multiplatform" && (
+                          <div className="space-y-2.5">
+                            {((tool.output as any).platforms || []).map((p: { name: string; style: string; title: string; detail: string }, i: number) => (
+                              <div key={p.name} className="bg-white/5 border border-white/8 rounded-xl p-3.5 fade-slide" style={{ animationDelay: `${i * 0.15}s` }}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-[12px] font-bold text-white">{p.name}</span>
+                                  <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${tool.color}15`, color: tool.color }}>{p.style}</span>
+                                </div>
+                                <p className="text-[12px] text-neutral-300 leading-snug mb-1">{p.title}</p>
+                                <p className="text-[10px] text-neutral-500">{p.detail}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Streaming Hero Demo ───────────────────────────────────────────── */
+function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: number) => void; autoRef: React.MutableRefObject<boolean> }) {
+  const [phase, setPhase] = useState<"input" | "generating" | "output">("input");
+  const [genProgress, setGenProgress] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+  const current = TOOL_SLIDES[slide];
+
+  // Reset phases when slide changes
+  useEffect(() => {
+    setPhase("input");
+    setGenProgress(0);
+    setTypedChars(0);
+
+    // Phase 1: Show input for 1.6s
+    const t1 = setTimeout(() => setPhase("generating"), 1600);
+    // Phase 2: Generating animation for 4s
+    const t2 = setTimeout(() => setPhase("output"), 5600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [slide]);
+
+  // Progress bar during generating phase
+  useEffect(() => {
+    if (phase !== "generating") return;
+    const interval = setInterval(() => {
+      setGenProgress((p) => Math.min(p + 1, 100));
+    }, 40);
+    return () => clearInterval(interval);
+  }, [phase]);
+
+  // Typing effect for listing text
+  useEffect(() => {
+    if (phase !== "output" || current.output.type !== "listing") return;
+    const text = (current.output as any).title;
+    if (typedChars >= text.length) return;
+    const t = setTimeout(() => setTypedChars((c) => c + 1), 35);
+    return () => clearTimeout(t);
+  }, [phase, typedChars, current]);
+
+  return (
+    <div className="bg-[#0f0f0f] rounded-[20px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)] overflow-hidden">
+      {/* Terminal-style header */}
+      <div className="px-4 py-2.5 flex items-center gap-2 bg-[#1a1a1a]">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <div className="flex-1 text-center">
+          <span className="text-[11px] text-neutral-500 font-mono">ShelfReady AI</span>
+        </div>
+        <div className="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+      </div>
+
+      {/* Tool selector */}
+      <div className="px-3 pt-2.5 pb-1 flex gap-1 border-b border-white/5">
+        {TOOL_SLIDES.map((t, i) => (
+          <button key={t.label} onClick={() => { setSlide(i); autoRef.current = false; }}
+            className={`relative px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+              slide === i ? "text-white bg-white/10" : "text-neutral-500 hover:text-neutral-300"
+            }`}>
+            {t.label}
+            {slide === i && <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: t.color }} />}
+          </button>
+        ))}
+      </div>
+
+      {/* Content area */}
+      <div className="p-4 min-h-[330px]">
+        {/* Phase: Input */}
+        {phase === "input" && (
+          <div className="space-y-3 animate-[fadeSlide_0.3s_ease-out]">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-[#2563eb]/20 flex items-center justify-center">
+                <span className="text-[10px]">👤</span>
+              </div>
+              <span className="text-[12px] text-neutral-400">You</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
+              <p className="text-[13px] text-neutral-300 leading-relaxed">
+                Generate {current.label.toLowerCase()} for my organic bamboo cutting board set — 3-piece, juice grooves, anti-slip feet. Price $34.99. Target: home cooks.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Phase: Generating */}
+        {phase === "generating" && (
+          <div className="space-y-4 animate-[fadeSlide_0.3s_ease-out]">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: `${current.color}30` }}>
+                <Sparkles className="h-3 w-3" style={{ color: current.color }} />
+              </div>
+              <span className="text-[12px] text-neutral-400">ShelfReady AI</span>
+              <span className="text-[10px] text-neutral-600 ml-auto font-mono">generating...</span>
+            </div>
+
+            {/* Thinking dots */}
+            <div className="flex items-center gap-1.5 px-2">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="w-2 h-2 rounded-full bg-neutral-600 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
+              ))}
+            </div>
+
+            {/* Progress bar */}
+            <div className="bg-white/5 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] text-neutral-500">{current.label}</span>
+                <span className="text-[11px] font-mono" style={{ color: current.color }}>{genProgress}%</span>
+              </div>
+              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-75" style={{ width: `${genProgress}%`, background: current.color }} />
+              </div>
+            </div>
+
+            {/* Streaming tokens */}
+            <div className="bg-white/5 rounded-lg p-3 space-y-1.5">
+              {genProgress > 20 && <p className="text-[11px] text-neutral-500 animate-[fadeSlide_0.3s_ease-out]">✓ Analyzing product details...</p>}
+              {genProgress > 45 && <p className="text-[11px] text-neutral-500 animate-[fadeSlide_0.3s_ease-out]">✓ Optimizing for target audience...</p>}
+              {genProgress > 70 && <p className="text-[11px] animate-[fadeSlide_0.3s_ease-out]" style={{ color: current.color }}>⟳ Generating {current.label.toLowerCase()}...</p>}
+              {genProgress > 90 && <p className="text-[11px] text-neutral-500 animate-[fadeSlide_0.3s_ease-out]">✓ Finalizing output...</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Phase: Output */}
+        {phase === "output" && (
+          <div className="space-y-3 animate-[fadeSlide_0.4s_ease-out]">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: `${current.color}30` }}>
+                <Sparkles className="h-3 w-3" style={{ color: current.color }} />
+              </div>
+              <span className="text-[12px] text-neutral-400">ShelfReady AI</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto" style={{ background: `${current.color}20`, color: current.color }}>
+                {current.tag}
+              </span>
+            </div>
+
+            {/* Images — reveal one by one */}
+            {current.output.type === "images" && (
+              <div className="grid grid-cols-4 gap-2">
+                {((current.output as any).images || []).map((src: any, i: number) => (
+                  <div key={i} className="rounded-lg overflow-hidden border border-white/10 animate-[fadeSlide_0.4s_ease-out]" style={{ animationDelay: `${i * 0.15}s` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" className="w-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Listing — typing effect */}
+            {current.output.type === "listing" && (
+              <div className="space-y-2">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: current.color }}>Optimized Title</p>
+                  <p className="text-[13px] text-neutral-200 font-semibold leading-snug">
+                    {(current.output as any).title.slice(0, typedChars)}
+                    {typedChars < (current.output as any).title.length && <span className="inline-block w-0.5 h-4 bg-white/60 animate-pulse ml-0.5 align-middle" />}
+                  </p>
+                </div>
+                {typedChars >= (current.output as any).title.length && (current.output as any).bullets.map((b: string, i: number) => (
+                  <div key={i} className="flex gap-2 text-[12px] text-neutral-400 animate-[fadeSlide_0.3s_ease-out] px-1" style={{ animationDelay: `${i * 0.12}s` }}>
+                    <Check className="h-3.5 w-3.5 text-[#2563eb] flex-shrink-0 mt-0.5" />
+                    <span>{b}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Social — stream in */}
+            {current.output.type === "social" && (
+              <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-purple-600" />
+                  <span className="text-[12px] font-bold text-neutral-300">{((current.output as any).platforms?.[0])?.handle}</span>
+                  <span className="text-[9px] bg-pink-500/20 text-pink-400 font-bold px-1.5 py-0.5 rounded-full ml-auto">IG</span>
+                </div>
+                <p className="text-[12px] text-neutral-400 leading-relaxed">{((current.output as any).platforms?.[0])?.caption}</p>
+                <p className="text-[10px] text-blue-400 mt-2">{((current.output as any).platforms?.[0])?.hashtags}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const plans_data = [
+  { key: "starter", name: "Starter", price: PLANS.starter.priceMonthly, yearly: PLANS.starter.priceYearly, features: PLANS.starter.features.slice(0, 5), cta: "Start free trial" },
+  { key: "pro", name: "Pro", price: PLANS.pro.priceMonthly, yearly: PLANS.pro.priceYearly, features: PLANS.pro.features.slice(0, 6), popular: true, cta: "Start free trial" },
+  { key: "business", name: "Business", price: PLANS.business.priceMonthly, yearly: PLANS.business.priceYearly, features: PLANS.business.features.slice(0, 6), cta: "Start free trial" },
+];
+
+const templates = (allTemplates as { id: string; category: string; name: string; preview: string }[]);
+
+/* ── Page ──────────────────────────────────────────────────────────── */
+export default function Landing() {
+  const [annual, setAnnual] = useState(false);
+  const [slide, setSlide] = useState(0);
+  const [tplCat, setTplCat] = useState("all");
+  const [tplPreview, setTplPreview] = useState<string | null>(null);
+  const autoRef = useRef(true);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (autoRef.current) setSlide((s) => (s + 1) % TOOL_SLIDES.length);
+    }, 8000);
+    return () => clearInterval(t);
+  }, []);
+
+  const current = TOOL_SLIDES[slide];
+
+  return (
+    <div className="min-h-screen bg-[#fafaf9] text-neutral-900">
+      <style>{`
+        @keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+        @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .bar-anim{animation:bar 4s linear both;transform-origin:left}
+        .fade-slide{animation:fadeSlide .4s ease-out both}
+      `}</style>
+
+      {/* ── Nav ── */}
+      <nav className="fixed top-0 inset-x-0 z-50 bg-[#fafaf9]/80 backdrop-blur-2xl">
+        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-[10px] bg-[#2563eb] flex items-center justify-center">
+              <Package className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-[17px] font-bold tracking-[-0.02em]">ShelfReady</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-7 text-[14px] text-neutral-500 font-medium">
+            <a href="#demo" className="hover:text-neutral-900 transition-colors">Product</a>
+            <a href="#templates" className="hover:text-neutral-900 transition-colors">Templates</a>
+            <a href="#pricing" className="hover:text-neutral-900 transition-colors">Pricing</a>
+            <Link href="/blog" className="hover:text-neutral-900 transition-colors">Blog</Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-[14px] font-medium text-neutral-500 hover:text-neutral-900 hidden sm:block">Log in</Link>
+            <Link href="/signup" className="text-[14px] font-semibold bg-[#2563eb] text-white px-5 py-2 rounded-full hover:bg-[#1d4ed8] transition-colors">
+              Get started free
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* HERO — Headline left, Product demo right                      */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="pt-32 sm:pt-40 pb-4 px-6">
+        <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left */}
+          <div>
+            <div className="inline-flex items-center gap-2 bg-[#2563eb]/5 border border-[#2563eb]/15 rounded-full px-4 py-1.5 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+              <span className="text-[13px] font-semibold text-[#2563eb]">Now in public beta</span>
+            </div>
+
+            <h1 className="text-[clamp(2.4rem,5.5vw,3.75rem)] font-extrabold leading-[1.08] tracking-[-0.03em]">
+              Product in.
+              <br />
+              <span className="text-[#2563eb]">Sales content out.</span>
+            </h1>
+
+            <p className="mt-5 text-[17px] text-neutral-500 leading-[1.6] max-w-[440px]">
+              One photo or description → AI generates listings, professional photos, ad creatives, and social posts. For Amazon, Etsy, and Shopify.
+            </p>
+
+            <div className="mt-8 flex items-center gap-3">
+              <Link href="/signup" className="group flex items-center gap-2 bg-[#2563eb] text-white pl-5 pr-4 py-3 rounded-full text-[15px] font-semibold hover:bg-[#1d4ed8] transition-all shadow-[0_2px_20px_-4px_rgba(25,49,83,0.4)]">
+                Generate your first listing
+                <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            </div>
+
+            <div className="mt-6 flex items-center gap-5 text-[13px] text-neutral-400">
+              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#2563eb]" /> Free to start</span>
+              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#2563eb]" /> No credit card</span>
+              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#2563eb]" /> Cancel anytime</span>
+            </div>
+
+            {/* Mini social proof */}
+            <div className="mt-8 flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[1,2,3,4].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-[#fafaf9] bg-neutral-200" />)}
+              </div>
+              <div>
+                <div className="flex items-center gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}</div>
+                <p className="text-[12px] text-neutral-400">Loved by 10,000+ sellers</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right — Streaming AI Generation Demo */}
+          <div id="demo" className="relative hidden lg:block">
+            <HeroDemo slide={slide} setSlide={setSlide} autoRef={autoRef} />
+          </div>
+        </div>
+
+        {/* Logos */}
+        <div className="max-w-[1200px] mx-auto mt-20 pb-6 flex items-center justify-center gap-10 border-b border-neutral-200/60">
+          {["Amazon", "Etsy", "Shopify", "eBay", "Walmart"].map(n => (
+            <span key={n} className="text-[14px] font-bold tracking-tight text-neutral-300 hover:text-neutral-500 transition-colors cursor-default">{n}</span>
+          ))}
         </div>
       </section>
 
-      {/* ===== TESTIMONIALS ===== */}
-      <section id="testimonials" className="py-24 sm:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-sm font-bold text-primary mb-3 uppercase tracking-wider">
-              Social Proof
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-secondary tracking-tight">
-              Loved by sellers worldwide
-            </h2>
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* HOW IT WORKS                                                  */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-24 px-6">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">How it works</p>
+            <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Three steps. Under a minute.</h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-2xl border border-border bg-white p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-              >
-                {/* Stars */}
-                <div className="flex gap-0.5 mb-5">
-                  {Array.from({ length: t.stars }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-5 w-5 text-yellow-400 fill-yellow-400"
-                    />
-                  ))}
-                </div>
-
-                <blockquote className="text-sm text-text leading-relaxed flex-1">
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-
-                <div className="mt-6 pt-5 border-t border-border/60 flex items-center gap-3">
-                  {/* Avatar placeholder */}
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-400/20 flex items-center justify-center text-sm font-bold text-primary">
-                    {t.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { n: "01", t: "Describe or upload", d: "Enter product details or drop a photo.", img: "/showcase/input.png" },
+              { n: "02", t: "AI generates everything", d: "Listings, photos, ads, social — per platform.", img: "/showcase/studio.png" },
+              { n: "03", t: "Publish and sell", d: "Export to Amazon, Etsy, Shopify. Go live.", img: "/showcase/creative_flash_sale.png" },
+            ].map(s => (
+              <div key={s.n} className="group">
+                <div className="rounded-2xl overflow-hidden border border-neutral-200 bg-white hover:shadow-xl transition-shadow">
+                  <div className="aspect-[4/3] overflow-hidden bg-neutral-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.img} alt={s.t} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-secondary">
-                      {t.name}
-                    </p>
-                    <p className="text-xs text-text-muted">
-                      {t.role}, {t.company}
-                    </p>
+                  <div className="p-5">
+                    <span className="text-[11px] font-bold text-neutral-300 tracking-widest">{s.n}</span>
+                    <h3 className="text-[16px] font-bold tracking-[-0.01em] mt-1">{s.t}</h3>
+                    <p className="text-[14px] text-neutral-500 mt-1">{s.d}</p>
                   </div>
                 </div>
               </div>
@@ -988,184 +690,168 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== FINAL CTA ===== */}
-      <section className="py-24 sm:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-8 py-20 sm:px-16 sm:py-28 text-center overflow-hidden">
-            {/* Decorative orbs */}
-            <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]" />
-            <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px]" />
-            {/* Grid overlay */}
-            <div
-              className="absolute inset-0 opacity-[0.05]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-                backgroundSize: "60px 60px",
-              }}
-            />
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* 6-TOOL DEMO CAROUSEL                                          */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <ToolDemo />
 
-            <div className="relative">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white max-w-3xl mx-auto leading-tight tracking-tight">
-                Ready to Transform Your Product Marketing?
-              </h2>
-              <p className="mt-6 text-lg text-blue-200/80 max-w-xl mx-auto leading-relaxed">
-                Join 7,500+ e-commerce sellers using ShelfReady to create
-                professional listings and images.
-              </p>
-              <div className="mt-10">
-                <Link
-                  href="/signup"
-                  className="group relative inline-flex items-center gap-2 rounded-2xl bg-white px-10 py-4 text-base font-bold text-secondary hover:bg-blue-50 transition-all shadow-2xl hover:shadow-3xl hover:-translate-y-0.5 overflow-hidden"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-shimmer pointer-events-none" />
-                  <span className="relative flex items-center gap-2">
-                    Start Free — No Credit Card Required
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </Link>
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* CREATIVE TEMPLATES                                            */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section id="templates" className="py-24 px-6 bg-white border-y border-neutral-200/60">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+            <div>
+              <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">160+ ad templates</p>
+              <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Creatives that convert.</h2>
+              <p className="mt-2 text-neutral-500 max-w-md">Pick a template, upload your product, add your offer — get scroll-stopping ad creatives in seconds.</p>
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
+              {[{id:"all",l:"All"},{id:"sale",l:"Sale"},{id:"pastel",l:"Pastel"},{id:"minimalist",l:"Minimal"},{id:"genz",l:"Bold"},{id:"lifestyle",l:"Lifestyle"},{id:"luxury",l:"Premium"}].map(c => (
+                <button key={c.id} onClick={() => setTplCat(c.id)} className={`text-[12px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all ${tplCat === c.id ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-500 hover:text-neutral-900"}`}>{c.l}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Grid */}
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+            {templates.filter(t => tplCat === "all" || t.category === tplCat).slice(0, 32).map(t => (
+              <button key={t.id} onClick={() => setTplPreview(t.preview)} className="rounded-lg overflow-hidden border border-neutral-200 hover:shadow-lg hover:-translate-y-0.5 hover:border-[#2563eb]/40 transition-all cursor-pointer group">
+                <div className="aspect-video overflow-hidden bg-neutral-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={t.preview} alt={t.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Before → After */}
+          <div className="mt-12 bg-[#fafaf9] rounded-2xl border border-neutral-200 p-6 flex flex-col sm:flex-row items-center gap-5">
+            <div className="w-24 flex-shrink-0">
+              <div className="border-2 border-dashed border-neutral-300 rounded-xl p-2 bg-white">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/showcase/input.png" alt="Input" className="w-full rounded-md" />
               </div>
+              <p className="text-[10px] text-neutral-400 text-center mt-1 font-semibold">Your photo</p>
+            </div>
+            <ArrowRight className="h-5 w-5 text-neutral-300 flex-shrink-0 hidden sm:block" />
+            <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[{s:"/showcase/creative_flash_sale.png",l:"Flash Sale"},{s:"/showcase/creative_new_arrival.png",l:"New Arrival"},{s:"/showcase/creative_premium.png",l:"Premium"},{s:"/showcase/creative_comparison.png",l:"Comparison"}].map(c => (
+                <div key={c.l} className="rounded-lg overflow-hidden border border-neutral-200">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.s} alt={c.l} className="w-full" />
+                  <p className="text-[10px] text-neutral-500 text-center py-1 font-medium bg-white">{c.l}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="border-t border-border bg-surface-alt/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
-            {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Package className="h-4.5 w-4.5 text-white" />
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* SOCIAL PROOF                                                  */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-24 px-6 bg-neutral-900 text-white">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
+            {[{v:"30s",l:"Avg. time"},{v:"160+",l:"Ad templates"},{v:"6-in-1",l:"Platform"},{v:"$174",l:"Saved/mo"}].map(m => (
+              <div key={m.l} className="text-center">
+                <p className="text-[2.5rem] sm:text-[3rem] font-extrabold tracking-tight">{m.v}</p>
+                <p className="text-[13px] text-neutral-500 mt-1">{m.l}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {q:"Replaced 3 tools I was paying $120/month for. Photoshoots alone are worth it.",n:"Sarah M.",r:"Etsy · 4,200 sales"},
+              {q:"Generated my entire launch in 20 minutes — listings, images, ads, social. All of it.",n:"James K.",r:"Amazon FBA · 6 figures"},
+              {q:"The ad templates are better than what our agency made. And they're instant.",n:"Priya R.",r:"Shopify store owner"},
+            ].map(t => (
+              <div key={t.n} className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-5">
+                <div className="flex gap-0.5 mb-3">{[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}</div>
+                <p className="text-[14px] text-neutral-300 leading-relaxed">&ldquo;{t.q}&rdquo;</p>
+                <div className="mt-4"><p className="text-[13px] font-semibold">{t.n}</p><p className="text-[11px] text-neutral-500">{t.r}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* PRICING                                                       */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section id="pricing" className="py-24 px-6">
+        <div className="max-w-[1000px] mx-auto text-center">
+          <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Simple pricing</h2>
+          <p className="mt-2 text-neutral-500">Start free. Upgrade when you grow.</p>
+
+          <div className="mt-5 inline-flex items-center bg-neutral-100 rounded-full p-1">
+            <button onClick={() => setAnnual(false)} className={`text-[13px] font-semibold px-5 py-1.5 rounded-full cursor-pointer transition-all ${!annual ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-400"}`}>Monthly</button>
+            <button onClick={() => setAnnual(true)} className={`text-[13px] font-semibold px-5 py-1.5 rounded-full cursor-pointer transition-all flex items-center gap-1.5 ${annual ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-400"}`}>
+              Yearly <span className="text-[10px] text-[#2563eb] font-bold">-20%</span>
+            </button>
+          </div>
+
+          <div className="mt-10 grid md:grid-cols-3 gap-4 text-left">
+            {plans_data.map(p => (
+              <div key={p.key} className={`relative bg-white rounded-2xl p-6 transition-all ${p.popular ? "border-2 border-[#2563eb] shadow-[0_8px_40px_-12px_rgba(206,164,52,0.15)] scale-[1.02]" : "border border-neutral-200 hover:shadow-lg"}`}>
+                {p.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2563eb] text-[#1e3a5f] text-[11px] font-bold px-4 py-1 rounded-full">Most popular</div>}
+                <p className="text-[16px] font-bold">{p.name}</p>
+                <div className="mt-2 mb-4">
+                  <span className="text-[2.5rem] font-extrabold tracking-tight">${annual ? Math.round(p.yearly / 12) : p.price}</span>
+                  <span className="text-neutral-400 text-[14px]">/mo</span>
                 </div>
-                <span className="text-lg font-bold text-secondary">
-                  ShelfReady
-                </span>
+                <Link href="/signup" className={`block text-center py-2.5 rounded-xl text-[14px] font-semibold transition-all ${p.popular ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]" : "border border-neutral-200 text-neutral-700 hover:bg-neutral-50"}`}>{p.cta}</Link>
+                <ul className="mt-5 space-y-2">
+                  {p.features.map(f => <li key={f} className="flex items-start gap-2 text-[13px] text-neutral-600"><Check className="h-4 w-4 text-[#2563eb] flex-shrink-0 mt-0.5" />{f}</li>)}
+                </ul>
               </div>
-              <p className="text-sm text-text-muted leading-relaxed max-w-xs">
-                AI-powered tools to create, optimize, and scale your
-                e-commerce product listings.
-              </p>
-              {/* Social links */}
-              <div className="flex items-center gap-3 mt-6">
-                {["X", "LI", "YT"].map((s) => (
-                  <a
-                    key={s}
-                    href="#"
-                    className="h-8 w-8 rounded-lg bg-surface-alt border border-border flex items-center justify-center text-xs font-bold text-text-muted hover:text-primary hover:border-primary/20 transition-colors"
-                  >
-                    {s}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Product */}
-            <div>
-              <h4 className="text-sm font-bold text-secondary mb-4">
-                Product
-              </h4>
-              <ul className="space-y-2.5">
-                {[
-                  "Listing Optimizer",
-                  "AI Photoshoots",
-                  "Ad Copy",
-                  "Social Content",
-                  "Competitor Intelligence",
-                ].map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-sm text-text-muted hover:text-text transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="text-sm font-bold text-secondary mb-4">
-                Company
-              </h4>
-              <ul className="space-y-2.5">
-                {["About", "Blog", "Careers", "Contact"].map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-sm text-text-muted hover:text-text transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h4 className="text-sm font-bold text-secondary mb-4">
-                Support
-              </h4>
-              <ul className="space-y-2.5">
-                {["Help Center", "Contact Us", "Status Page"].map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-sm text-text-muted hover:text-text transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h4 className="text-sm font-bold text-secondary mb-4">
-                Legal
-              </h4>
-              <ul className="space-y-2.5">
-                {["Privacy Policy", "Terms of Service", "Cookie Policy"].map(
-                  (link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-sm text-text-muted hover:text-text transition-colors"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ),
-                )}
-              </ul>
-            </div>
+            ))}
           </div>
+          <p className="text-[13px] text-neutral-400 mt-6">Free plan available — 5 listings, 5 images. <Link href="/signup" className="text-[#2563eb] hover:underline font-medium">Start free →</Link></p>
+        </div>
+      </section>
 
-          <div className="mt-14 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-text-muted">
-              &copy; {new Date().getFullYear()} ShelfReady. All rights
-              reserved.
-            </p>
-            <div className="flex items-center gap-1.5 text-xs text-text-muted/70">
-              <Sparkles className="h-3 w-3" />
-              Built with AI
-            </div>
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* CTA                                                           */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-6 bg-[#0f172a]">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-[2rem] sm:text-[2.5rem] font-extrabold tracking-[-0.03em] text-white">Stop creating content manually.</h2>
+          <p className="mt-3 text-blue-100 text-[16px]">Let AI generate everything in under a minute.</p>
+          <Link href="/signup" className="group inline-flex items-center gap-2 mt-8 bg-white text-[#1e3a5f] px-8 py-3.5 rounded-full text-[15px] font-bold hover:bg-blue-50 transition-colors shadow-xl">
+            Generate your first listing <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+          <p className="mt-4 text-[13px] text-blue-200/60">Free. No credit card required.</p>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="py-10 px-6 border-t border-neutral-200/60 bg-[#fafaf9]">
+        <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2"><div className="h-6 w-6 rounded-md bg-[#2563eb] flex items-center justify-center"><Package className="h-3 w-3 text-white" /></div><span className="text-[13px] font-bold">ShelfReady</span></div>
+          <div className="flex items-center gap-6 text-[13px] text-neutral-400 font-medium">
+            <Link href="/pricing" className="hover:text-neutral-600">Pricing</Link>
+            <Link href="/blog" className="hover:text-neutral-600">Blog</Link>
+            <Link href="/login" className="hover:text-neutral-600">Log in</Link>
+            <Link href="/terms" className="hover:text-neutral-600">Terms</Link>
+            <Link href="/privacy" className="hover:text-neutral-600">Privacy</Link>
           </div>
+          <p className="text-[11px] text-neutral-300">© 2026 ShelfReady</p>
         </div>
       </footer>
 
-      {/* Template Preview Modal */}
-      {previewTemplate && (
-        <TemplatePreviewModal
-          current={{ id: "", src: previewTemplate.src, name: previewTemplate.alt }}
-          onClose={() => setPreviewTemplate(null)}
-        />
+      {/* Template preview modal */}
+      {tplPreview && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={() => setTplPreview(null)}>
+          <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setTplPreview(null)} className="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg cursor-pointer hover:bg-neutral-100"><X className="h-4 w-4" /></button>
+            <div className="rounded-2xl overflow-hidden shadow-2xl bg-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={tplPreview} alt="" className="w-full" />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
