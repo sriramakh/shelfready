@@ -153,9 +153,8 @@ export default function DashboardLayout({
               href="/dashboard"
               className="flex items-center gap-3 group"
             >
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600 via-primary to-purple-600 flex items-center justify-center shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200">
-                <Package className="h-[18px] w-[18px] text-white" />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-icon.png" alt="ShelfReady" className="h-9 w-9 rounded-xl shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200" />
               <div className="flex items-center gap-2">
                 <span className="text-[17px] font-bold tracking-tight text-secondary">
                   ShelfReady

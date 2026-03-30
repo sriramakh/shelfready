@@ -574,9 +574,8 @@ export default function Landing() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-[#fafaf9]/80 backdrop-blur-2xl">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-[10px] bg-[#2563eb] flex items-center justify-center">
-              <Package className="h-4 w-4 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded-[10px]" />
             <span className="text-[17px] font-bold tracking-[-0.02em]">ShelfReady</span>
           </Link>
           <div className="hidden md:flex items-center gap-7 text-[14px] text-neutral-500 font-medium">
@@ -829,7 +828,7 @@ export default function Landing() {
       {/* ── Footer ── */}
       <footer className="py-10 px-6 border-t border-neutral-200/60 bg-[#fafaf9]">
         <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2"><div className="h-6 w-6 rounded-md bg-[#2563eb] flex items-center justify-center"><Package className="h-3 w-3 text-white" /></div><span className="text-[13px] font-bold">ShelfReady</span></div>
+          <div className="flex items-center gap-2">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/logo-icon.png" alt="ShelfReady" className="h-6 w-6 rounded-md" /><span className="text-[13px] font-bold">ShelfReady</span></div>
           <div className="flex items-center gap-6 text-[13px] text-neutral-400 font-medium">
             <Link href="/pricing" className="hover:text-neutral-600">Pricing</Link>
             <Link href="/blog" className="hover:text-neutral-600">Blog</Link>

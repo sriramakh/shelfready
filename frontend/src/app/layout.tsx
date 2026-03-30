@@ -8,6 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   title: {
     default: "ShelfReady — AI Product Listings, Photoshoots & Ad Creatives for E-commerce",
     template: "%s — ShelfReady",

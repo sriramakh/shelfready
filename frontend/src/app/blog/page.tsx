@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package, ArrowRight, Calendar, Clock } from "lucide-react";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
 import posts from "../../../content/blog/posts.json";
 
 export const metadata = {
@@ -18,9 +18,8 @@ export default function BlogPage() {
       <nav className="border-b border-neutral-100 bg-white">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-neutral-900 flex items-center justify-center">
-              <Package className="h-3.5 w-3.5 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-7 w-7 rounded-lg" />
             <span className="font-semibold text-[15px]">ShelfReady</span>
           </Link>
           <Link href="/signup" className="text-[13px] font-medium bg-neutral-900 text-white px-4 py-1.5 rounded-lg hover:bg-neutral-800 transition-colors">

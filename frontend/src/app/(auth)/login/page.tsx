@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package } from "lucide-react";
+// Logo uses /logo-icon.png image
 
 export default function LoginPage() {
   const router = useRouter();
@@ -72,9 +72,8 @@ export default function LoginPage() {
         </div>
         <div className="relative flex flex-col justify-center px-16">
           <div className="flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-              <Package className="h-5 w-5 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur p-1" />
             <span className="text-2xl font-bold text-white">ShelfReady</span>
           </div>
           <h1 className="text-4xl font-bold text-white leading-tight mb-4">
@@ -91,9 +90,8 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-              <Package className="h-4 w-4 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded-lg" />
             <span className="text-xl font-bold text-secondary">ShelfReady</span>
           </div>
 

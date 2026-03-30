@@ -5,7 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package } from "lucide-react";
+// Logo uses /logo-icon.png image
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -47,9 +47,8 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-sm border border-border p-8">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-              <Package className="h-4 w-4 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded-lg" />
             <span className="text-xl font-bold text-secondary">ShelfReady</span>
           </div>
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Package, ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
 import posts from "../../../../content/blog/posts.json";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -62,9 +62,8 @@ export default async function BlogPost({ params }: Props) {
             <ArrowLeft className="h-4 w-4" /> Back to Blog
           </Link>
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-neutral-900 flex items-center justify-center">
-              <Package className="h-3 w-3 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-6 w-6 rounded-md" />
             <span className="font-semibold text-[14px]">ShelfReady</span>
           </Link>
         </div>

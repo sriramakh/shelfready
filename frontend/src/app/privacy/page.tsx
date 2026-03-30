@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
   title: "Privacy Policy",
@@ -15,9 +15,8 @@ export default function PrivacyPage() {
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-[#2563eb] flex items-center justify-center">
-              <Package className="h-3 w-3 text-white" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="ShelfReady" className="h-6 w-6 rounded-md" />
             <span className="font-semibold text-[14px]">ShelfReady</span>
           </Link>
         </div>
