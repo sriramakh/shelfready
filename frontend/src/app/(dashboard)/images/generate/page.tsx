@@ -208,7 +208,7 @@ export default function ImageGeneratePage() {
     setGeneratingIndex(0);
 
     try {
-      const prefix = session?.access_token ? "/api/v1" : "/api/v1/demo";
+      const prefix = "/api/v1";
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
 

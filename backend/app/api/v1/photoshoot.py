@@ -1,9 +1,9 @@
-"""Production photoshoot endpoint — wraps demo logic + persists to DB & Storage."""
+"""Production photoshoot endpoint — persists to DB & Supabase Storage."""
 
 import base64
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
@@ -11,7 +11,7 @@ from ...db.repositories import images_repo
 from ...models.enums import Feature, GenerationType
 from ...models.schemas import UserProfile
 from ...services.storage_service import upload_image
-from .demo import PhotoshootRequest, generate_photoshoot as _demo_photoshoot
+from ...services.photoshoot_service import PhotoshootRequest, generate_photoshoot
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +24,10 @@ async def generate_photoshoot_prod(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate AI photoshoot images — persists results to DB and Supabase Storage."""
-    
     await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
 
-    # Run the same generation logic as demo
-    result = await _demo_photoshoot(req)
+    result = await generate_photoshoot(req)
 
-    # Persist each successful image to Supabase Storage + DB
     saved_images = []
     for img in result["images"]:
         if not img.get("success") or not img.get("image_base64"):
@@ -39,11 +36,8 @@ async def generate_photoshoot_prod(
 
         try:
             image_bytes = base64.b64decode(img["image_base64"])
-            storage_path, public_url = await upload_image(
-                image_bytes, str(user.id), "png"
-            )
+            storage_path, public_url = await upload_image(image_bytes, str(user.id), "png")
 
-            # Save to generated_images table
             db_record = images_repo.create({
                 "user_id": str(user.id),
                 "prompt": img.get("prompt_used", ""),
@@ -51,11 +45,7 @@ async def generate_photoshoot_prod(
                 "public_url": public_url,
                 "aspect_ratio": req.aspect_ratio if img["theme"] != "model" else "3:4",
                 "image_type": img["theme"],
-                "metadata": {
-                    "source": "photoshoot",
-                    "product_name": result["product_analysis"].get("product_name", ""),
-                    "theme": img["theme"],
-                },
+                "metadata": {"source": "photoshoot", "product_name": result["product_analysis"].get("product_name", ""), "theme": img["theme"]},
             })
 
             img["id"] = db_record["id"]
@@ -66,17 +56,7 @@ async def generate_photoshoot_prod(
 
         saved_images.append(img)
 
-    # Consume quota
-    await quota_manager.consume(
-        str(user.id),
-        GenerationType.IMAGE,
-        Feature.IMAGE,
-        metadata={
-            "source": "photoshoot",
-            "themes": req.themes,
-            "product": result["product_analysis"].get("product_name", ""),
-        },
-    )
+    await quota_manager.consume(str(user.id), GenerationType.IMAGE, Feature.IMAGE, metadata={"source": "photoshoot", "themes": req.themes})
 
     result["images"] = saved_images
     return result

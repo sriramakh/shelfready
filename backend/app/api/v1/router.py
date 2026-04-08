@@ -1,11 +1,10 @@
 from fastapi import APIRouter
 from ...config import settings
-from . import ad_creative, ads, billing, demo, health, images, listings, photoshoot, research, social, usage, webhooks
+from . import ad_creative, ads, billing, health, images, listings, photoshoot, research, social, usage, webhooks
 
 api_router = APIRouter(prefix="/api/v1")
 
 api_router.include_router(health.router)
-api_router.include_router(demo.router)       # /api/v1/demo/*
 api_router.include_router(listings.router)    # /api/v1/listings/*
 api_router.include_router(images.router)
 api_router.include_router(social.router)

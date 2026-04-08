@@ -240,7 +240,7 @@ export default function AdsGeneratePage() {
         }
       }
 
-      const prefix = session?.access_token ? "/api/v1" : "/api/v1/demo";
+      const prefix = "/api/v1";
       const fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
       if (session?.access_token) fetchHeaders["Authorization"] = `Bearer ${session.access_token}`;
 

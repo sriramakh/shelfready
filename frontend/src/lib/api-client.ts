@@ -1,9 +1,8 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-// Authenticated users use production endpoints (persist to DB)
-// Unauthenticated / demo uses demo endpoints (no persistence)
-function getPrefix(token?: string): string {
-  return token ? "/api/v1" : "/api/v1/demo";
+// All API calls use production endpoints (auth required)
+function getPrefix(): string {
+  return "/api/v1";
 }
 
 type FetchOptions = RequestInit & {
@@ -21,7 +20,7 @@ class ApiError extends Error {
 
 async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
   const { token, ...fetchOptions } = options;
-  const prefix = getPrefix(token);
+  const prefix = getPrefix();
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
