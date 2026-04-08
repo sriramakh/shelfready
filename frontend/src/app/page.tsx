@@ -362,10 +362,10 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
     setGenProgress(0);
     setTypedChars(0);
 
-    // Phase 1: Show input for 0.4s
-    const t1 = setTimeout(() => setPhase("generating"), 400);
-    // Phase 2: Generating animation for 0.8s, then output
-    const t2 = setTimeout(() => setPhase("output"), 1200);
+    // Phase 1: Show input for 0.6s
+    const t1 = setTimeout(() => setPhase("generating"), 600);
+    // Phase 2: Generating animation for 1.4s, then output
+    const t2 = setTimeout(() => setPhase("output"), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [slide]);
 
@@ -374,7 +374,7 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
     if (phase !== "generating") return;
     const interval = setInterval(() => {
       setGenProgress((p) => Math.min(p + 1, 100));
-    }, 8);
+    }, 14);
     return () => clearInterval(interval);
   }, [phase]);
 
@@ -486,13 +486,14 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
               </span>
             </div>
 
-            {/* Images — reveal one by one */}
-            {current.output.type === "images" && (
+            {/* Images — photoshoots + creatives */}
+            {(current.output.type === "images" || current.output.type === "creatives") && (
               <div className="grid grid-cols-4 gap-2">
-                {((current.output as any).images || []).map((src: any, i: number) => (
+                {((current.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
                   <div key={i} className="rounded-lg overflow-hidden border border-white/10 animate-[fadeSlide_0.4s_ease-out]" style={{ animationDelay: `${i * 0.15}s` }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" className="w-full object-cover" />
+                    <img src={img.src} alt={img.label} className="w-full object-cover" />
+                    <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-400">{img.label}</p></div>
                   </div>
                 ))}
               </div>
@@ -527,6 +528,46 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
                 </div>
                 <p className="text-[12px] text-neutral-400 leading-relaxed">{((current.output as any).platforms?.[0])?.caption}</p>
                 <p className="text-[10px] text-blue-400 mt-2">{((current.output as any).platforms?.[0])?.hashtags}</p>
+              </div>
+            )}
+
+            {/* Research */}
+            {current.output.type === "research" && (
+              <div className="space-y-2">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: current.color }}>Market Analysis</p>
+                  <p className="text-[12px] text-neutral-400 leading-relaxed">{((current.output as any).analysis || "").slice(0, 180)}...</p>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: current.color }}>Top Competitors</p>
+                  {((current.output as any).competitors || []).slice(0, 3).map((c: { name: string; price: string; weakness: string }, i: number) => (
+                    <div key={i} className="flex items-center justify-between text-[11px] py-1 border-b border-white/5 last:border-0">
+                      <span className="text-neutral-300 font-medium">{c.name}</span>
+                      <span className="text-neutral-500">{c.price}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {((current.output as any).keywords || []).slice(0, 6).map((k: string) => (
+                    <span key={k} className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">{k}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Multi-platform */}
+            {current.output.type === "multiplatform" && (
+              <div className="space-y-2">
+                {((current.output as any).platforms || []).map((p: { name: string; style: string; title: string; detail: string }, i: number) => (
+                  <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-3 animate-[fadeSlide_0.3s_ease-out]" style={{ animationDelay: `${i * 0.12}s` }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${current.color}15`, color: current.color }}>{p.name}</span>
+                      <span className="text-[9px] text-neutral-500">{p.style}</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-300 font-medium">{p.title}</p>
+                    <p className="text-[9px] text-neutral-500 mt-0.5">{p.detail}</p>
+                  </div>
+                ))}
               </div>
             )}
           </div>
