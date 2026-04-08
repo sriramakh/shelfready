@@ -213,12 +213,12 @@ async def generate_ad_copy(
             {
                 "user_id": user_id,
                 "ad_platform": request.ad_platform.value,
-                "product_name": request.product_name,
                 "headline": variant.headline,
                 "primary_text": variant.primary_text,
                 "description": variant.description,
                 "cta": variant.cta,
                 "variant_label": variant.variant_label,
+                "target_audience": request.target_audience,
                 "listing_id": str(request.listing_id) if request.listing_id else None,
             }
         )

@@ -315,11 +315,9 @@ async def conduct_research(
     db_record = research_repo.create({
         "user_id": user_id,
         "query": request.query,
-        "platform": request.platform.value if request.platform else None,
         "analysis": full_analysis,
         "keywords_found": all_keywords,
         "competitors": competitors,
-        "search_results_count": len(all_results),
     })
 
     logger.info("Research %s complete: %d keywords, %d competitors, %d search results",

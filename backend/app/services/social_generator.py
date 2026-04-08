@@ -204,12 +204,9 @@ async def generate_social_post(
     db_data = {
         "user_id": user_id,
         "platform": request.platform.value,
-        "product_name": request.product_name,
         "caption": caption,
         "hashtags": hashtags,
         "cta_text": cta_text,
-        "image_url": image_url,
-        "tone": request.tone,
     }
 
     if request.listing_id is not None:
