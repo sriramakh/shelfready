@@ -18,7 +18,7 @@ FEATURE_LIMIT_KEY = {
 
 
 class QuotaManager:
-    """Monthly per-feature quota management."""
+    """Monthly (and lifetime) per-feature quota management."""
 
     async def get_monthly_feature_usage(self, user_id: str, feature: Feature) -> int:
         """Count how many times a feature was used this calendar month."""
@@ -37,16 +37,44 @@ class QuotaManager:
 
         return result.count or 0
 
+    async def get_lifetime_feature_usage(self, user_id: str, feature: Feature) -> int:
+        """Count total lifetime usage of a feature."""
+        supabase = get_supabase()
+
+        result = (
+            supabase.table("usage_logs")
+            .select("id", count="exact")
+            .eq("user_id", user_id)
+            .eq("feature", feature.value)
+            .execute()
+        )
+
+        return result.count or 0
+
     async def check_quota(
         self, user_id: str, plan: str, cost: int = 1, feature: Feature | None = None,
     ) -> None:
-        """Check if user has enough monthly quota for this feature. Raises if exceeded."""
+        """Check if user has enough quota for this feature. Raises if exceeded."""
         if not feature:
             return
 
         plan_tier = PlanTier(plan)
         plan_config = PLAN_QUOTAS[plan_tier]
 
+        # Check for lifetime limit first (e.g. free plan images)
+        lifetime_key = f"max_{feature.value}s_lifetime" if feature != Feature.IMAGE else "max_images_lifetime"
+        lifetime_limit = plan_config.get(lifetime_key)
+        if lifetime_limit is not None:
+            used = await self.get_lifetime_feature_usage(user_id, feature)
+            if used >= lifetime_limit:
+                raise QuotaExceededException(
+                    used=used, limit=lifetime_limit, remaining=0,
+                    message=f"Free plan limit of {lifetime_limit} images reached. Upgrade to Starter for 100 images/month.",
+                )
+            logger.debug("Lifetime check: user=%s feature=%s used=%d/%d", user_id, feature.value, used, lifetime_limit)
+            return
+
+        # Monthly limit
         limit_key = FEATURE_LIMIT_KEY.get(feature)
         if not limit_key:
             return
@@ -61,7 +89,7 @@ class QuotaManager:
         if monthly_limit == 0:
             feature_labels = {
                 Feature.LISTING: "Product listings",
-                Feature.IMAGE: "AI photoshoots",
+                Feature.IMAGE: "AI images",
                 Feature.SOCIAL: "Social posts",
                 Feature.AD: "Ad creatives",
                 Feature.RESEARCH: "Market research",
@@ -74,7 +102,6 @@ class QuotaManager:
 
         # Check monthly usage
         used = await self.get_monthly_feature_usage(user_id, feature)
-        remaining = max(0, monthly_limit - used)
 
         if used >= monthly_limit:
             raise QuotaExceededException(

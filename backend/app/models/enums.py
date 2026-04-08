@@ -56,7 +56,7 @@ class ImageStyle(str, Enum):
 PLAN_QUOTAS = {
     PlanTier.FREE: {
         "max_listings_per_month": 5,
-        "max_images_per_month": 5,
+        "max_images_lifetime": 5,  # lifetime cap, not monthly
         "max_photoshoots_per_month": 0,
         "max_social_per_month": 5,
         "max_ads_per_month": 5,
