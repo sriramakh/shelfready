@@ -2,12 +2,12 @@ from fastapi import HTTPException, status
 
 
 class QuotaExceededException(HTTPException):
-    def __init__(self, used: int, limit: int, remaining: int):
+    def __init__(self, used: int, limit: int, remaining: int, message: str | None = None):
         super().__init__(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail={
                 "error": "quota_exceeded",
-                "message": f"Quota exceeded. Used {used}/{limit} requests. {remaining} remaining.",
+                "message": message or f"Quota exceeded. Used {used}/{limit} requests. {remaining} remaining.",
                 "used": used,
                 "limit": limit,
                 "remaining": remaining,

@@ -25,7 +25,7 @@ async def generate_ad_creative_prod(
 ):
     """Generate visual ad creatives — persists results to DB and Supabase Storage."""
     cost = REQUEST_COSTS[GenerationType.IMAGE] * len(req.creative_sizes)
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.IMAGE)
 
     # Run the same generation logic as demo
     result = await _demo_creative(req)

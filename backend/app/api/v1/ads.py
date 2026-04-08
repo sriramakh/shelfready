@@ -25,7 +25,7 @@ async def create_ad_copy(
     """Generate ad copy variants for Facebook or Google ads."""
     cost = REQUEST_COSTS[GenerationType.TEXT]
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.AD)
 
     result = await generate_ad_copy(request, str(user.id))
 

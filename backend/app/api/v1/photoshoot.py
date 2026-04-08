@@ -25,7 +25,7 @@ async def generate_photoshoot_prod(
 ):
     """Generate AI photoshoot images — persists results to DB and Supabase Storage."""
     cost = REQUEST_COSTS[GenerationType.IMAGE] * len(req.themes)
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.IMAGE)
 
     # Run the same generation logic as demo
     result = await _demo_photoshoot(req)

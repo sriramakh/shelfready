@@ -29,7 +29,7 @@ async def search_competitors(
     # Research costs: 1 search + 1 text = 2 requests
     cost = REQUEST_COSTS[GenerationType.SEARCH] + REQUEST_COSTS[GenerationType.TEXT]
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.RESEARCH)
 
     result = await conduct_research(request, str(user.id))
 

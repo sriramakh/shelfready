@@ -28,7 +28,7 @@ async def create_listing(
     cost = REQUEST_COSTS[GenerationType.TEXT]
 
     # Check quota
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.LISTING)
 
     # Generate
     result = await generate_listing(request, str(user.id))
@@ -118,7 +118,7 @@ async def regenerate_listing(
         raise HTTPException(status_code=404, detail="Listing not found")
 
     cost = REQUEST_COSTS[GenerationType.TEXT]
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.LISTING)
 
     # Rebuild request from stored input
     request = ListingGenerateRequest(

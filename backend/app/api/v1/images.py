@@ -26,7 +26,7 @@ async def create_image(
     """Generate a lifestyle/product image using AI."""
     cost = REQUEST_COSTS[GenerationType.IMAGE]  # 75 requests
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.IMAGE)
 
     result = await generate_product_image(request, str(user.id))
 

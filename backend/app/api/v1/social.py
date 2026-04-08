@@ -27,7 +27,7 @@ async def create_social_post(
     image_cost = REQUEST_COSTS[GenerationType.IMAGE] if request.generate_image else 0
     total_cost = text_cost + image_cost
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, total_cost)
+    await quota_manager.check_quota(str(user.id), user.current_plan, total_cost, feature=Feature.SOCIAL)
 
     result = await generate_social_post(request, str(user.id))
 
