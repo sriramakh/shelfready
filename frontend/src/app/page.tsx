@@ -769,8 +769,10 @@ export default function Landing() {
             <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[{s:"/showcase/creative_flash_sale.png",l:"Flash Sale"},{s:"/showcase/creative_new_arrival.png",l:"New Arrival"},{s:"/showcase/creative_premium.png",l:"Premium"},{s:"/showcase/creative_comparison.png",l:"Comparison"}].map(c => (
                 <div key={c.l} className="rounded-lg overflow-hidden border border-neutral-200">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.s} alt={c.l} className="w-full" />
+                  <div className="aspect-square overflow-hidden bg-neutral-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.s} alt={c.l} className="w-full h-full object-cover" />
+                  </div>
                   <p className="text-[10px] text-neutral-500 text-center py-1 font-medium bg-white">{c.l}</p>
                 </div>
               ))}
