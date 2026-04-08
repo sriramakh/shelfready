@@ -2,7 +2,7 @@
   {
     "id": "espresso-maker",
     "name": "Portable Espresso Maker",
-    "image": "/showcase/input.png",
+    "image": "/showcase/usecase_espresso-maker_product.png",
     "category": "Kitchen Appliances",
     "price": "$54.99",
     "listing": {
@@ -116,11 +116,9 @@
     },
     "photoshoot": {
       "product_analysis": {
-        "product_name": "IKEA Bamboo Cutting Board",
+        "product_name": "Manual Coffee Grinder",
         "product_category": "Kitchenware",
-        "color": "natural bamboo",
-        "model_gender": "female",
-        "model_gender_reasoning": "Kitchen products like cutting boards typically target female demographics in home cooking scenarios based on common marketing trends."
+        "color": "Black"
       },
       "images": [
         {
@@ -157,7 +155,7 @@
   {
     "id": "magnetic-blocks",
     "name": "Kids Magnetic Building Blocks 120pc",
-    "image": "/showcase/input.png",
+    "image": "/showcase/usecase_magnetic-blocks_product.png",
     "category": "Toys & Games",
     "price": "$39.99",
     "listing": {
@@ -269,13 +267,48 @@
         }
       ]
     },
-    "photoshoot": null,
-    "creative": null
+    "photoshoot": {
+      "product_analysis": {
+        "product_name": "Magn\u78c1\u6027\u7a4d\u6728\u57ce\u5821",
+        "product_category": "\u5152\u7ae5\u6559\u80b2\u73a9\u5177",
+        "color": "\u591a\u8272"
+      },
+      "images": [
+        {
+          "theme": "studio",
+          "src": "/showcase/usecase_magnetic-blocks_studio.png"
+        },
+        {
+          "theme": "outdoor",
+          "src": "/showcase/usecase_magnetic-blocks_outdoor.png"
+        },
+        {
+          "theme": "model",
+          "src": "/showcase/usecase_magnetic-blocks_model.png"
+        },
+        {
+          "theme": "context",
+          "src": "/showcase/usecase_magnetic-blocks_context.png"
+        }
+      ]
+    },
+    "creative": {
+      "creatives": [
+        {
+          "size": "1080x1080",
+          "src": "/showcase/usecase_magnetic-blocks_creative_1080x1080.png"
+        },
+        {
+          "size": "1080x1920",
+          "src": "/showcase/usecase_magnetic-blocks_creative_1080x1920.png"
+        }
+      ]
+    }
   },
   {
     "id": "dog-treats",
     "name": "Organic Dog Treats \u2014 Sweet Potato & Chicken",
-    "image": "/showcase/input.png",
+    "image": "/showcase/usecase_dog-treats_product.png",
     "category": "Pet Supplies",
     "price": "$16.99",
     "listing": {
@@ -386,13 +419,48 @@
         }
       ]
     },
-    "photoshoot": null,
-    "creative": null
+    "photoshoot": {
+      "product_analysis": {
+        "product_name": "Dog Treats",
+        "product_category": "Pet Food",
+        "color": "brown"
+      },
+      "images": [
+        {
+          "theme": "studio",
+          "src": "/showcase/usecase_dog-treats_studio.png"
+        },
+        {
+          "theme": "outdoor",
+          "src": "/showcase/usecase_dog-treats_outdoor.png"
+        },
+        {
+          "theme": "model",
+          "src": "/showcase/usecase_dog-treats_model.png"
+        },
+        {
+          "theme": "context",
+          "src": "/showcase/usecase_dog-treats_context.png"
+        }
+      ]
+    },
+    "creative": {
+      "creatives": [
+        {
+          "size": "1080x1080",
+          "src": "/showcase/usecase_dog-treats_creative_1080x1080.png"
+        },
+        {
+          "size": "1080x1920",
+          "src": "/showcase/usecase_dog-treats_creative_1080x1920.png"
+        }
+      ]
+    }
   },
   {
     "id": "leather-wallet",
     "name": "Men's RFID-Blocking Leather Wallet",
-    "image": "/showcase/input.png",
+    "image": "/showcase/usecase_leather-wallet_product.png",
     "category": "Fashion Accessories",
     "price": "$42.00",
     "listing": {
@@ -496,7 +564,42 @@
         }
       ]
     },
-    "photoshoot": null,
-    "creative": null
+    "photoshoot": {
+      "product_analysis": {
+        "product_name": "Brown Leather Bifold Wallet",
+        "product_category": "Men's Accessories",
+        "color": "brown"
+      },
+      "images": [
+        {
+          "theme": "studio",
+          "src": "/showcase/usecase_leather-wallet_studio.png"
+        },
+        {
+          "theme": "outdoor",
+          "src": "/showcase/usecase_leather-wallet_outdoor.png"
+        },
+        {
+          "theme": "model",
+          "src": "/showcase/usecase_leather-wallet_model.png"
+        },
+        {
+          "theme": "context",
+          "src": "/showcase/usecase_leather-wallet_context.png"
+        }
+      ]
+    },
+    "creative": {
+      "creatives": [
+        {
+          "size": "1080x1080",
+          "src": "/showcase/usecase_leather-wallet_creative_1080x1080.png"
+        },
+        {
+          "size": "1080x1920",
+          "src": "/showcase/usecase_leather-wallet_creative_1080x1920.png"
+        }
+      ]
+    }
   }
 ]
