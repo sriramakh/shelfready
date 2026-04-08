@@ -6,6 +6,7 @@ import { api } from "@/lib/api-client";
 import { cn, sanitizeHtml } from "@/lib/utils";
 import { PLATFORMS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceeded";
 import { Input, Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -57,10 +58,9 @@ export default function NewListingPage() {
 
       setResult(data);
     } catch (err) {
+      const quota = getQuotaMessage(err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to generate listing. Please try again.",
+        quota || (err instanceof Error ? err.message : "Failed to generate listing. Please try again."),
       );
     } finally {
       setLoading(false);
@@ -161,11 +161,7 @@ export default function NewListingPage() {
                 onChange={(e) => setCategory(e.target.value)}
               />
 
-              {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                  {error}
-                </div>
-              )}
+              {error && <ErrorOrQuota error={error} />}
 
               <Button
                 type="submit"

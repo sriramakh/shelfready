@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceeded";
 import { Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -472,11 +473,7 @@ export default function ImageGeneratePage() {
                     })}
                   </div>
 
-                  {photoshootError && (
-                    <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
-                      {photoshootError}
-                    </div>
-                  )}
+                  {photoshootError && <ErrorOrQuota error={photoshootError} />}
 
                   <Button
                     onClick={handlePhotoshootGenerate}

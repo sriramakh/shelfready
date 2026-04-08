@@ -6,6 +6,7 @@ import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { AD_PLATFORMS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceeded";
 import { Input, Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -193,10 +194,9 @@ export default function AdsGeneratePage() {
 
       setCopyResult(data);
     } catch (err) {
+      const quotaMsg = getQuotaMessage(err);
       setCopyError(
-        err instanceof Error
-          ? err.message
-          : "Failed to generate ad copy. Please try again.",
+        quotaMsg || (err instanceof Error ? err.message : "Failed to generate ad copy. Please try again."),
       );
     } finally {
       setCopyLoading(false);
@@ -268,10 +268,9 @@ export default function AdsGeneratePage() {
       const data = (await resp.json()) as AdCreativeResponse;
       setCreativeResult(data);
     } catch (err) {
+      const quotaMsg = getQuotaMessage(err);
       setCreativeError(
-        err instanceof Error
-          ? err.message
-          : "Failed to generate ad creatives. Please try again.",
+        quotaMsg || (err instanceof Error ? err.message : "Failed to generate ad creatives. Please try again."),
       );
     } finally {
       setCreativeLoading(false);
@@ -443,9 +442,7 @@ export default function AdsGeneratePage() {
                 </div>
 
                 {copyError && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                    {copyError}
-                  </div>
+                  <ErrorOrQuota error={copyError} />
                 )}
 
                 <Button
@@ -938,9 +935,7 @@ export default function AdsGeneratePage() {
                 </p>
 
                 {creativeError && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-xs text-red-700">
-                    {creativeError}
-                  </div>
+                  <ErrorOrQuota error={creativeError} />
                 )}
 
                 <Button

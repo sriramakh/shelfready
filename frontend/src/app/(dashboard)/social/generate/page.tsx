@@ -6,6 +6,7 @@ import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { SOCIAL_PLATFORMS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceeded";
 import { Input, Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { CopyButton } from "@/components/shared/copy-button";
@@ -64,10 +65,9 @@ export default function SocialGeneratePage() {
 
       setResult(data);
     } catch (err) {
+      const quotaMsg = getQuotaMessage(err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to generate social content. Please try again.",
+        quotaMsg || (err instanceof Error ? err.message : "Failed to generate social content. Please try again."),
       );
     } finally {
       setLoading(false);
@@ -208,11 +208,7 @@ export default function SocialGeneratePage() {
                 </button>
               </div>
 
-              {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                  {error}
-                </div>
-              )}
+              {error && <ErrorOrQuota error={error} />}
 
               <Button
                 type="submit"
