@@ -40,8 +40,9 @@ export default function BillingPage() {
       if (data.checkout_url) {
         window.location.href = data.checkout_url;
       }
-    } catch {
-      alert("Failed to create checkout session. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      alert(`Failed to create checkout session: ${msg}`);
     } finally {
       setLoadingPlan(null);
     }

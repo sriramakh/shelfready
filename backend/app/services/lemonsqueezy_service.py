@@ -8,6 +8,7 @@ import hashlib
 import hmac
 import json
 import logging
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
@@ -46,14 +47,23 @@ def _ls_request(method: str, endpoint: str, data: dict | None = None) -> dict:
     url = f"{LS_API}{endpoint}"
     body = json.dumps(data).encode() if data else None
 
+    api_key = settings.lemonsqueezy_api_key
+    if not api_key:
+        raise RuntimeError("LEMONSQUEEZY_API_KEY is not configured")
+
     req = urllib.request.Request(url, data=body, method=method, headers={
-        "Authorization": f"Bearer {settings.lemonsqueezy_api_key}",
+        "Authorization": f"Bearer {api_key}",
         "Accept": "application/vnd.api+json",
         "Content-Type": "application/vnd.api+json",
     })
 
-    resp = urllib.request.urlopen(req)
-    return json.loads(resp.read())
+    try:
+        resp = urllib.request.urlopen(req)
+        return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode() if e.fp else ""
+        logger.error("LemonSqueezy API error %s %s: %s %s", method, endpoint, e.code, error_body[:500])
+        raise
 
 
 async def create_checkout_url(
@@ -114,8 +124,8 @@ async def create_checkout_url(
         logger.info("Created LemonSqueezy checkout for user %s, plan %s/%s", user_id, tier_lower, period_lower)
         return checkout_url
     except Exception as exc:
-        logger.error("LemonSqueezy checkout creation failed: %s", exc)
-        raise RuntimeError("Failed to create checkout session.") from exc
+        logger.error("LemonSqueezy checkout creation failed for %s/%s: %s", tier_lower, period_lower, exc)
+        raise RuntimeError(f"Failed to create checkout session: {exc}") from exc
 
 
 async def get_customer_portal_url(ls_customer_id: str) -> str:

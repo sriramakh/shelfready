@@ -57,12 +57,15 @@ async def create_checkout(
     if request.plan_tier not in PLAN_DETAILS:
         raise HTTPException(status_code=400, detail="Invalid plan tier")
 
-    checkout_url = await create_checkout_url(
-        user_id=str(user.id),
-        email=user.email,
-        plan_tier=request.plan_tier,
-        billing_period=request.billing_period,
-    )
+    try:
+        checkout_url = await create_checkout_url(
+            user_id=str(user.id),
+            email=user.email,
+            plan_tier=request.plan_tier,
+            billing_period=request.billing_period,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
 
     return CheckoutResponse(checkout_url=checkout_url)
 
