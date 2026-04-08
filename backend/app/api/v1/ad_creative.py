@@ -15,10 +15,10 @@ from ...services.creative_service import AdCreativeRequest, generate_ad_creative
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/ads", tags=["ad-creatives"])
+router = APIRouter(prefix="/creatives", tags=["ad-creatives"])
 
 
-@router.post("/creative")
+@router.post("/generate")
 async def generate_ad_creative_prod(
     req: AdCreativeRequest,
     user: UserProfile = Depends(get_current_user),

@@ -244,7 +244,7 @@ export default function AdsGeneratePage() {
       const fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
       if (session?.access_token) fetchHeaders["Authorization"] = `Bearer ${session.access_token}`;
 
-      const resp = await fetch(`${API_URL}${prefix}/ads/creative`, {
+      const resp = await fetch(`${API_URL}${prefix}/creatives/generate`, {
         method: "POST",
         headers: fetchHeaders,
         body: JSON.stringify({
