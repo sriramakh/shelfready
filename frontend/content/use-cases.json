@@ -1,0 +1,502 @@
+[
+  {
+    "id": "espresso-maker",
+    "name": "Portable Espresso Maker",
+    "image": "/showcase/input.png",
+    "category": "Kitchen Appliances",
+    "price": "$54.99",
+    "listing": {
+      "platform": "amazon",
+      "title": "Portable Espresso Maker - 18 Bar Manual Hand Press for Ground Coffee and Nespresso Pods, Travel Size with Carrying Case",
+      "bullets": [
+        "18-BAR PROFESSIONAL PRESSURE \u2014 Brew rich, caf\u00e9-quality espresso anywhere with this manual espresso maker delivering authentic 18-bar pressure for a perfect crema every time",
+        "NO ELECTRICITY NEEDED \u2014 Perfect travel companion with manual hand-press operation, no batteries or power outlet required so you can enjoy freshly brewed espresso on the go, at the campsite, or in your hotel room",
+        "COMPATIBLE WITH MULTIPLE PODS \u2014 Works seamlessly with Nespresso Original capsules and your favorite ground coffee, giving you the freedom to brew your way wherever your adventures take you",
+        "COMPACT AND LIGHTWEIGHT \u2014 Weighs just 0.9 lbs with included carrying case, fits easily in your backpack or luggage, making it the ideal portable espresso machine for travelers, hikers, and outdoor enthusiasts",
+        "EASY TO CLEAN \u2014 All removable parts are dishwasher safe for quick cleanup after your brew, so you spend less time maintaining and more time enjoying great coffee anywhere",
+        "INCLUDES EVERYTHING YOU NEED \u2014 Comes with travel carrying case, coffee scoop, and manual; backed by our satisfaction guarantee \u2014 add to cart and start your espresso journey today"
+      ],
+      "description": "<b>Your Perfect Brew, Anywhere You Go</b><br><br>Whether you are hiking through mountain trails, staying at a boutique hotel, or simply enjoying a quiet morning in your RV, this portable espresso maker delivers the rich, satisfying coffee you crave \u2014 no electricity required. Designed for coffee love",
+      "keywords": [
+        "hand press espresso",
+        "maker battery-free",
+        "travel coffee",
+        "portable manual",
+        "18barcamp espresso",
+        "coffee maker",
+        "ground nespresso",
+        "compatible portable",
+        "hiking camping",
+        "lightweight compact",
+        "carry case",
+        "0.9lb outdoor"
+      ]
+    },
+    "social": {
+      "platform": "instagram",
+      "caption": "Still drinking gas station coffee that tastes like regret?\n\nThose vending machine espressos aren't doing you any favors. What if you could pull actual espresso with 18 bars of pressure, using either ground coffee or your Nespresso pods, and the whole thing weighs under a pound?\n\nNo outlets needed. No batteries. Just you and a hand press.\n\nIt's become my entire travel coffee setup\u2014everything fits i",
+      "hashtags": [
+        "#coffeeaddicts",
+        "#coffeelovers",
+        "#espressolovers",
+        "#coffeeaddiction",
+        "#coffeeobsessed",
+        "#caffeinated",
+        "#coffee_time",
+        "#instacoffee",
+        "#coffeelife",
+        "#coffeedaily",
+        "#coffeemoment",
+        "#travelcoffee",
+        "#travelsetup",
+        "#travelessentials",
+        "#travelgear"
+      ],
+      "cta": "Save this for your next trip. Link in bio to grab one before your next red-eye."
+    },
+    "ads": {
+      "platform": "facebook",
+      "variants": [
+        {
+          "label": "social_proof",
+          "headline": "50K+ Travelers Can't Be Wrong",
+          "primary_text": "Join 50,000+ coffee lovers who never travel without this.\n\nReal espresso. Real freedom. Real game-changer.\n\nShop Now",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "urgency",
+          "headline": "Only 3 Left at This Price",
+          "primary_text": "Last chance to lock in this price on our best-selling portable espresso maker.\n\n18-bar pressure. Ground coffee or pods. Your next great cup is waiting.\n\nFree carrying case with your order today",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "benefit_driven",
+          "headline": "Espresso That Goes Where You Go",
+          "primary_text": "Your travel bag is about to become the best coffee shop you've ever been to.\n\n18-bar pressure. 0.9 lbs. Zero batteries needed. Barista-quality espresso anywhere.\n\nStop settling for gas station coffee",
+          "cta": "Shop Now"
+        }
+      ]
+    },
+    "research": {
+      "analysis": "The Portable Espresso Maker market represents a rapidly growing segment within the broader coffee equipment industry, with Amazon serving as the primary marketplace for these products. Based on search results indicating over 2,000 results for \"Portable Espresso Maker\" on Amazon, competition in this space is intense, with brands ranging from premium handcrafted manufacturers to budget-oriented Chinese manufacturers. Consumer demand is driven by the growing trend of mobile lifestyles, outdoor acti",
+      "keywords": [
+        "portable espresso maker",
+        "travel espresso machine",
+        "hand-powered espresso",
+        "battery-operated espresso",
+        "compact coffee maker",
+        "on-the-go coffee",
+        "espresso pressure bars",
+        "crema production",
+        "heat-up time",
+        "rechargeable battery"
+      ],
+      "competitors": [
+        {
+          "name": "WACACO",
+          "price": "$50-200",
+          "weakness": "Premium pricing, limited battery options in some models, plastic components in e"
+        },
+        {
+          "name": "Staresso",
+          "price": "$80-250",
+          "weakness": "Heavier than competitors, steeper learning curve, premium pricing tier"
+        },
+        {
+          "name": "Flarge",
+          "price": "$20-60",
+          "weakness": "Lower pressure output around 9 bars, limited durability claims, basic feature se"
+        },
+        {
+          "name": "Handpresso",
+          "price": "$100-300",
+          "weakness": "High price point, manual operation requires effort, limited availability"
+        }
+      ]
+    },
+    "photoshoot": {
+      "product_analysis": {
+        "product_name": "IKEA Bamboo Cutting Board",
+        "product_category": "Kitchenware",
+        "color": "natural bamboo",
+        "model_gender": "female",
+        "model_gender_reasoning": "Kitchen products like cutting boards typically target female demographics in home cooking scenarios based on common marketing trends."
+      },
+      "images": [
+        {
+          "theme": "studio",
+          "src": "/showcase/usecase_espresso-maker_studio.png"
+        },
+        {
+          "theme": "outdoor",
+          "src": "/showcase/usecase_espresso-maker_outdoor.png"
+        },
+        {
+          "theme": "model",
+          "src": "/showcase/usecase_espresso-maker_model.png"
+        },
+        {
+          "theme": "context",
+          "src": "/showcase/usecase_espresso-maker_context.png"
+        }
+      ]
+    },
+    "creative": {
+      "creatives": [
+        {
+          "size": "1080x1080",
+          "src": "/showcase/usecase_espresso-maker_creative_1080x1080.png"
+        },
+        {
+          "size": "1080x1920",
+          "src": "/showcase/usecase_espresso-maker_creative_1080x1920.png"
+        }
+      ]
+    }
+  },
+  {
+    "id": "magnetic-blocks",
+    "name": "Kids Magnetic Building Blocks 120pc",
+    "image": "/showcase/input.png",
+    "category": "Toys & Games",
+    "price": "$39.99",
+    "listing": {
+      "platform": "amazon",
+      "title": "Funntek 120pc Magnetic Building Blocks Set for Kids - STEM Learning Construction Toy for Boys Girls Ages 3-8 - Creative Building Play with Storage Bag",
+      "bullets": [
+        "120 PIECES ENDLESS POSSIBILITIES \u2014 Includes squares, triangles, wheels, windows, and doors for unlimited creative building options that keep kids engaged for hours",
+        "STRONG MAGNETS EASY TO USE \u2014 Precision-engineered magnetic connections snap together effortlessly and hold together firmly so structures stay intact during imaginative play",
+        "PREMIUM BPA-FREE ABS PLASTIC \u2014 Child-safe materials with reinforced magnetic connections withstand rough handling and active play while meeting strict safety standards for ages 3 and up",
+        "STEM LEARNING THROUGH PLAY \u2014 Open-ended building toy develops spatial reasoning, problem-solving, and creativity while encouraging collaborative play and social interaction",
+        "COMPATIBLE WITH MAJOR BRANDS \u2014 Works seamlessly with other magnetic tile sets you may already own; includes portable storage bag and step-by-step idea booklet for easy organization",
+        "RISK-FREE PURCHASE GUARANTEE \u2014 Unmatched value with 120 pieces at an affordable price point; if anything is missing or damaged, simply contact us for a free replacement"
+      ],
+      "description": "<b>Unlock endless creativity and learning with Funntek Magnetic Building Blocks</b><br><br>Designed for curious young minds, this 120-piece STEM toy set transforms ordinary playtime into extraordinary learning adventures. Watch your child build towers, cars, castles, and more while developing critic",
+      "keywords": [
+        "magnetic building",
+        "tiles toys",
+        "for kids children",
+        "construction stem",
+        "learning 3",
+        "year old 4",
+        "year old 5",
+        "year old 6",
+        "year old 7",
+        "year old 8",
+        "year old boys",
+        "girls developmental"
+      ]
+    },
+    "social": {
+      "platform": "instagram",
+      "caption": "You build the castle. They play for HOURS.\n\nMeanwhile you get a coffee that stays hot for more than 4 minutes.\n\nThis 120-piece magnetic set actually holds their attention because the pieces snap together on the first try \u2014 no screaming, no frustration, just them quietly building something amazing.\n\nSquares, triangles, wheels, windows, doors. Strong magnets. BPA-free plastic. Comes with a storage b",
+      "hashtags": [
+        "#kidsactivities",
+        "#kidsplay",
+        "#buildingblocks",
+        "#stemtoy",
+        "#stemtoysforkids",
+        "#magneticblocks",
+        "#toysforgirls",
+        "#toysforboys",
+        "#giftideasforkids",
+        "#momlife",
+        "#toddleractivities",
+        "#indooractivitiesforkids",
+        "#kidscrafts",
+        "#montessoriplay",
+        "#learningthroughplay"
+      ],
+      "cta": "Tap the link in bio to grab yours before the next screen-time meltdown hits."
+    },
+    "ads": {
+      "platform": "facebook",
+      "variants": [
+        {
+          "label": "social_proof",
+          "headline": "120-Piece Set Parents Rave About",
+          "primary_text": "50,000+ parents gave these blocks 5 stars.\nKids build castles, robots & learn STEM \u2014 while you get hours of quiet time. BPA-free magnets, fits other brands.",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "benefit_driven",
+          "headline": "Turn Quiet Time Into STEM Learning",
+          "primary_text": "Watch them build impossible castles \u2014 and actually learn something.\n120 pieces with strong magnets. BPA-free plastic. Compatible with major brands. Plus a storage bag so cleanup is done in seconds.",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "problem_solution",
+          "headline": "Strong Magnets. No More Falling Blocks",
+          "primary_text": "Tired of cheap blocks that won't stay together?\n120-piece set with real holding power. BPA-free, compatible with other brands, includes storage bag. Finally \u2014 a building set that lasts.",
+          "cta": "Shop Now"
+        }
+      ]
+    },
+    "research": {
+      "analysis": "The Kids Magnetic Building Blocks 120pc market on Amazon represents a highly competitive segment within the STEM toys category, with over 2,000 results for 'kids magnetic building blocks' alone, indicating significant consumer demand and market saturation. The 120-piece configuration appears to be a sweet spot for both value and variety, appealing to parents seeking comprehensive building sets without premium pricing. Major competitors in this space include Tytan Magnetic Tiles, which maintains ",
+      "keywords": [
+        "magnetic building blocks",
+        "magnetic tiles",
+        "120pc set",
+        "STEM toys",
+        "creative building toys",
+        "3D building blocks",
+        "magnetic force",
+        "child-safe design",
+        "fine motor skills",
+        "color recognition"
+      ],
+      "competitors": [
+        {
+          "name": "Magna-Tiles",
+          "price": "$80-120+",
+          "weakness": "Highest price point in category, limited budget accessibility, premium pricing m"
+        },
+        {
+          "name": "Tytan Magnetic Tiles",
+          "price": "$45-65",
+          "weakness": "Less brand prestige than Magna-Tiles, inconsistent quality reviews, faces intens"
+        },
+        {
+          "name": "Connetix",
+          "price": "$85-110+",
+          "weakness": "Premium pricing comparable to Magna-Tiles, newer brand with less market history,"
+        },
+        {
+          "name": "Picasso Tiles",
+          "price": "$25-45",
+          "weakness": "Lower magnetic strength reported, inconsistent quality control, shorter product "
+        }
+      ]
+    },
+    "photoshoot": null,
+    "creative": null
+  },
+  {
+    "id": "dog-treats",
+    "name": "Organic Dog Treats \u2014 Sweet Potato & Chicken",
+    "image": "/showcase/input.png",
+    "category": "Pet Supplies",
+    "price": "$16.99",
+    "listing": {
+      "platform": "amazon",
+      "title": "PawPure Organic Dog Treats Sweet Potato Chicken Grain Free Real Chicken #1 Ingredient 12oz",
+      "bullets": [
+        "100% USDA ORGANIC CERTIFIED \u2014 Made with real chicken as the #1 ingredient and wholesome sweet potato for a treat your dog will love",
+        "HEALTHY & SAFE INGREDIENTS \u2014 Grain-free formula with no artificial flavors, colors, or preservatives \u2014 just clean, simple ingredients you can trust",
+        "PREMIUM QUALITY CRAFTSMANSHIP \u2014 Oven-baked for a satisfying crunch dogs crave, produced in small batches in the USA for consistent quality",
+        "PERFECT FOR ALL DOGS \u2014 Ideal for dogs with sensitive stomachs, allergies, or pet parents seeking premium natural training rewards and daily treats",
+        "SATISFACTION GUARANTEED \u2014 12oz resealable bag locks in freshness. Vet recommended formula backed by our 100% happiness guarantee"
+      ],
+      "description": "<b>PawPure Organic Dog Treats</b> are crafted for health-conscious pet parents who demand more from what they feed their furry companions. Every batch starts with real chicken as the #1 ingredient, combined with nutrient-rich sweet potato for a taste dogs absolutely love.<br><br><b>What Sets Us Apar",
+      "keywords": [
+        "grain free",
+        "dog treats organic",
+        "grainfree natural",
+        "healthy premium",
+        "treats training",
+        "treats small",
+        "medium large",
+        "breed best",
+        "flavored sweetpotato",
+        "potato chicken",
+        "rewards snacks",
+        "bites bitesize"
+      ]
+    },
+    "social": {
+      "platform": "instagram",
+      "caption": "POV: Your dog watches you open this bag like you just invented fire.\n\nThe excitement? Immediate.\n\nThese aren't just treats \u2014 they're USDA organic, grain-free, and made with real chicken as the #1 ingredient. Oven-baked with sweet potato for that crunch dogs absolutely lose their minds over.\n\nNo artificial flavors. No weird preservatives. Just simple, honest ingredients that you'd actually feel goo",
+      "hashtags": [
+        "#dogtreats",
+        "#organicpet",
+        "#doglover",
+        "#puppytreats",
+        "#healthydogtreats",
+        "#grainfreedogtreats",
+        "#organicdogtreats",
+        "#chickentreats",
+        "#naturaldogtreats",
+        "#dognutrition",
+        "#realchicken",
+        "#sweetpotatodogtreats",
+        "#vetrecommended",
+        "#treatyourpet",
+        "#dogoals"
+      ],
+      "cta": "Tap the link and see that tail spin \ud83d\ude80"
+    },
+    "ads": {
+      "platform": "facebook",
+      "variants": [
+        {
+          "label": "social_proof",
+          "headline": "50,000+ Dogs Can't Be Wrong",
+          "primary_text": "50,000+ Dogs Are Happier With This \ud83d\udc3e\nReal chicken & sweet potato fill them up right \u2014 no artificial junk, just clean bites.\nClean ingredients. No fillers. What are you waiting for?",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "urgency",
+          "headline": "Only 3 Days Left at This Price",
+          "primary_text": "Only 3 days left at this price.\nStock up on organic goodness \u2014 sweet potato & chicken bites dogs go crazy for. Real ingredients, zero junk.\nYour pup deserves better.",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "benefit_driven",
+          "headline": "Real Ingredients Dogs Love",
+          "primary_text": "Finally \u2014 treats your dog actually needs.\nOrganic sweet potato & chicken. Zero artificial junk. Just tail-wagging goodness in every bite.\nYour pup deserves clean, wholesome snacks.",
+          "cta": "Shop Now"
+        }
+      ]
+    },
+    "research": {
+      "analysis": "The Organic Dog Treats market featuring Sweet Potato & Chicken on Amazon is highly saturated with over 1,000 results, indicating strong consumer demand for healthy pet snacks. The market segment has evolved beyond basic treats to emphasize premium positioning through organic certification, human-grade ingredients, and functional health benefits. Key differentiators among competitors include ingredient sourcing transparency, processing methods (jerky, crunchy chews, soft slices), and value-added ",
+      "keywords": [
+        "organic dog treats",
+        "sweet potato dog treats",
+        "chicken sweet potato dog treats",
+        "grain free",
+        "gluten free",
+        "rawhide free",
+        "human grade",
+        "organic meat",
+        "climate certified",
+        "natural ingredients"
+      ],
+      "competitors": [
+        {
+          "name": "MON2SUN Dog Treats",
+          "price": "Budget-friendly bulk pricing",
+          "weakness": "Generic branding, no specific organic certification mentioned, basic packaging p"
+        },
+        {
+          "name": "Dog Sweet Potato Wrapped with Chicken (Pet Natural Chew Treats)",
+          "price": "$14.90 ($1.41/Ounce)",
+          "weakness": "Premium pricing at $14.90, brand differentiation limited among similar products"
+        },
+        {
+          "name": "Amazon Brand - Solimo Sweet Potato & Chicken Jerky",
+          "price": "Competitive with private label positioning",
+          "weakness": "House brand perception, limited differentiation from competitors, no organic cer"
+        },
+        {
+          "name": "Generic/White-label Sellers (1,000+ products)",
+          "price": "Low to mid-range ($0.50-$2.00 per ounce typically)",
+          "weakness": "No brand recognition, inconsistent quality, lower review counts, difficult to di"
+        }
+      ]
+    },
+    "photoshoot": null,
+    "creative": null
+  },
+  {
+    "id": "leather-wallet",
+    "name": "Men's RFID-Blocking Leather Wallet",
+    "image": "/showcase/input.png",
+    "category": "Fashion Accessories",
+    "price": "$42.00",
+    "listing": {
+      "platform": "amazon",
+      "title": "Meridian Men's RFID Blocking Leather Wallet - Slim Front Pocket Bifold with Coin Pocket - Gift Box",
+      "bullets": [
+        "SECURE RFID PROTECTION \u2014 Advanced blocking lining shields all your cards from electronic theft and unauthorized scans, keeping your identity and financial information fully protected in any environment.",
+        "SLIM FRONT POCKET DESIGN \u2014 Compact and lightweight at just 4.5 x 3.5 inches, this bifold slides effortlessly into your front pocket without bulk. No more bulging back-pocket wallets or fumbling through stacks of cards.",
+        "PREMIUM ITALIAN LEATHER \u2014 Handcrafted from genuine full-grain Italian leather that develops a rich, personalized patina over time. Eight card slots, two bill compartments, ID window, and zippered coin pocket keep everything organized.",
+        "PERFECT FOR WORK AND TRAVEL \u2014 Designed for modern professionals who need quick access to essentials. Ideal for daily commute, business trips, nights out, or any occasion requiring polished style and practical functionality.",
+        "GIFT-READY PACKAGING \u2014 Arrives in an elegant gift box, making it a perfect birthday, holiday, anniversary, or graduation present for the men in your life. Backed by our satisfaction guarantee."
+      ],
+      "description": "<b>Crafted for the Modern Man Who Demands Style and Security</b><br><br>Introducing the Meridian Men's RFID Blocking Leather Wallet \u2014 where timeless Italian craftsmanship meets modern security technology. This slim bifold wallet is handcrafted from premium full-grain Italian leather that only gets b",
+      "keywords": [
+        "rfid wallet men bifold",
+        "gift for husband boyfriend",
+        "mens wallet slim front pocket",
+        "blocking wallet Gift Box",
+        "tarjetero cuero hombre"
+      ]
+    },
+    "social": {
+      "platform": "instagram",
+      "caption": "Still carrying that lumpy wallet that looks like it survived a war?\n\nSame. Until I found this.\n\nFull-grain Italian leather. 8 card slots. 2 bill compartments. ID window. Coin pocket. RFID-blocking lining.\n\nAll in a front-pocket profile that won't ruin your lines.\n\nIt's the upgrade your everyday carry actually needs.\n\nTap the link in bio to grab yours",
+      "hashtags": [
+        "#mensfashion",
+        "#leathergoods",
+        "#accessories",
+        "#menswallet",
+        "#leatherwallet",
+        "#rfidwallet",
+        "#slimwallet",
+        "#frontpocketwallet",
+        "#italianleather",
+        "#mensaccessories",
+        "#everydaycarry",
+        "#minimalistwallet",
+        "#mensstyle",
+        "#leathercraft",
+        "#rfidblocking"
+      ],
+      "cta": "Tap the link in bio to grab yours"
+    },
+    "ads": {
+      "platform": "facebook",
+      "variants": [
+        {
+          "label": "social_proof",
+          "headline": "50,000+ Men Upgraded Their Wallet",
+          "primary_text": "Join 50,000+ men who upgraded.\n\nThis full-grain Italian leather wallet blocks RFID theft and fits perfectly in your front pocket.\n\n8 cards, bills, coins, ID \u2014 all in a slim profile that won't bulk up ",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "urgency",
+          "headline": "The Gift Every Man Actually Uses",
+          "primary_text": "Still searching for the perfect Father's Day gift?\n\nThis is it.\n\nFull-grain Italian leather. RFID-blocking protection. Holds everything he needs without the bulk.\n\nOrder now for Father's Day delivery.",
+          "cta": "Shop Now"
+        },
+        {
+          "label": "curiosity",
+          "headline": "The One Thing Thieves Know",
+          "primary_text": "Your wallet has a security flaw you're not seeing.\n\nEvery tap-to-pay is an opportunity for digital theft. That's why this slim Italian leather wallet has built-in RFID-blocking.\n\nFull-grain leather. 8",
+          "cta": "Learn More"
+        }
+      ]
+    },
+    "research": {
+      "analysis": "The Men's RFID-Blocking Leather Wallet market on Amazon represents a highly competitive and saturated segment within the broader accessories category. With over 70,000 results for 'Men's RFID Leather Wallets' alone, sellers face significant competition from both established brands and private label sellers. The market is driven by growing consumer awareness of digital security threats, particularly RFID skimming and contactless payment data theft. Key trends in this space include the emphasis on",
+      "keywords": [
+        "RFID Blocking Wallet",
+        "Men's RFID Wallet",
+        "Leather RFID Wallet",
+        "RFID Protection",
+        "Slim Profile Wallet",
+        "Digital Security",
+        "Data Theft Prevention",
+        "Bifold Wallet",
+        "Trifold Wallet",
+        "Card Holder"
+      ],
+      "competitors": [
+        {
+          "name": "Spartan Wallet",
+          "price": "Mid to Premium ($40-$80)",
+          "weakness": "Higher price point than basic alternatives, brand may overshadow product-specifi"
+        },
+        {
+          "name": "Generic Leather RFID Wallets (Amazon Private Label)",
+          "price": "Budget to Low-Mid ($10-$30)",
+          "weakness": "Quality inconsistency, lower review ratings on average, limited differentiation,"
+        },
+        {
+          "name": "Carbon Fiber RFID Wallets",
+          "price": "Premium ($50-$120)",
+          "weakness": "Higher production costs, niche market appeal, may not satisfy traditional leathe"
+        },
+        {
+          "name": "Nylon Ripstop RFID Wallets",
+          "price": "Budget to Mid ($15-$35)",
+          "weakness": "Less premium feel compared to leather, limited aesthetic appeal for formal occas"
+        }
+      ]
+    },
+    "photoshoot": null,
+    "creative": null
+  }
+]

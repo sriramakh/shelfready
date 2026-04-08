@@ -614,6 +614,7 @@ export default function Landing() {
             <a href="#demo" className="hover:text-neutral-900 transition-colors">Product</a>
             <a href="#templates" className="hover:text-neutral-900 transition-colors">Templates</a>
             <a href="#pricing" className="hover:text-neutral-900 transition-colors">Pricing</a>
+            <Link href="/use-cases" className="hover:text-neutral-900 transition-colors">Use Cases</Link>
             <Link href="/blog" className="hover:text-neutral-900 transition-colors">Blog</Link>
           </div>
           <div className="flex items-center gap-3">
