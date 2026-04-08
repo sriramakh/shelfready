@@ -362,10 +362,10 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
     setGenProgress(0);
     setTypedChars(0);
 
-    // Phase 1: Show input for 1.6s
-    const t1 = setTimeout(() => setPhase("generating"), 1600);
-    // Phase 2: Generating animation for 4s
-    const t2 = setTimeout(() => setPhase("output"), 5600);
+    // Phase 1: Show input for 0.4s
+    const t1 = setTimeout(() => setPhase("generating"), 400);
+    // Phase 2: Generating animation for 0.8s, then output
+    const t2 = setTimeout(() => setPhase("output"), 1200);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [slide]);
 
@@ -374,7 +374,7 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
     if (phase !== "generating") return;
     const interval = setInterval(() => {
       setGenProgress((p) => Math.min(p + 1, 100));
-    }, 40);
+    }, 8);
     return () => clearInterval(interval);
   }, [phase]);
 
@@ -383,7 +383,7 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
     if (phase !== "output" || current.output.type !== "listing") return;
     const text = (current.output as any).title;
     if (typedChars >= text.length) return;
-    const t = setTimeout(() => setTypedChars((c) => c + 1), 35);
+    const t = setTimeout(() => setTypedChars((c) => c + 1), 12);
     return () => clearTimeout(t);
   }, [phase, typedChars, current]);
 
