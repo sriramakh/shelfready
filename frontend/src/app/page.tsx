@@ -252,25 +252,17 @@ function ToolDemo() {
 
                         {/* Images output (photoshoot + creatives) */}
                         {(tool.output.type === "images" || tool.output.type === "creatives") && (
-                          <>
-                            {/* Input → Output grid: input as first card, outputs follow */}
-                            <div className="grid grid-cols-5 gap-2">
-                              {/* Input card */}
-                              <div className="rounded-lg overflow-hidden border border-dashed border-white/20 fade-slide">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={(tool.output as any).input} alt="Input" className="w-full aspect-square object-cover" />
-                                <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-500 font-medium">Input</p></div>
-                              </div>
-                              {/* Output cards */}
-                              {((tool.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
-                                <div key={i} className="rounded-lg overflow-hidden border border-white/10 fade-slide" style={{ animationDelay: `${i * 0.12}s` }}>
+                          <div className="grid grid-cols-4 gap-2">
+                            {((tool.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
+                              <div key={i} className="rounded-lg border border-white/10 fade-slide overflow-hidden" style={{ animationDelay: `${i * 0.12}s` }}>
+                                <div className="aspect-square overflow-hidden">
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={img.src} alt={img.label} className="w-full aspect-square object-cover" />
-                                  <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-400 font-medium">{img.label}</p></div>
+                                  <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
                                 </div>
-                              ))}
-                            </div>
-                          </>
+                                <div className="bg-white/5 px-2 py-1 h-6 flex items-center"><p className="text-[10px] text-neutral-400 font-medium truncate">{img.label}</p></div>
+                              </div>
+                            ))}
+                          </div>
                         )}
 
                         {/* Social output */}
