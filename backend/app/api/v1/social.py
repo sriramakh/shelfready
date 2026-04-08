@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
 from ...db.repositories import social_repo
-from ...models.enums import REQUEST_COSTS, Feature, GenerationType
+from ...models.enums import Feature, GenerationType
 from ...models.schemas import (
     MessageResponse,
     SocialGenerateRequest,
@@ -23,32 +23,16 @@ async def create_social_post(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate a social media post with optional image."""
-    text_cost = REQUEST_COSTS[GenerationType.TEXT]
-    image_cost = REQUEST_COSTS[GenerationType.IMAGE] if request.generate_image else 0
-    total_cost = text_cost + image_cost
-
-    await quota_manager.check_quota(str(user.id), user.current_plan, total_cost, feature=Feature.SOCIAL)
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.SOCIAL)
 
     result = await generate_social_post(request, str(user.id))
 
-    # Consume text quota
     await quota_manager.consume(
         str(user.id),
         GenerationType.TEXT,
         Feature.SOCIAL,
-        text_cost,
         metadata={"platform": request.platform.value},
     )
-
-    # Consume image quota if image was generated
-    if request.generate_image:
-        await quota_manager.consume(
-            str(user.id),
-            GenerationType.IMAGE,
-            Feature.SOCIAL,
-            image_cost,
-            metadata={"platform": request.platform.value, "with_image": True},
-        )
 
     return result
 

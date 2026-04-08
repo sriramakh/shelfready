@@ -3,17 +3,18 @@ from fastapi import APIRouter, Depends
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
 from ...db.supabase_client import get_supabase
-from ...models.schemas import UsageCurrent, UsageLogEntry, UserProfile
+from ...models.schemas import UsageLogEntry, UserProfile
 
 router = APIRouter(prefix="/usage", tags=["usage"])
 
 
-@router.get("/current", response_model=UsageCurrent)
+@router.get("/current")
 async def get_current_usage(
     user: UserProfile = Depends(get_current_user),
 ):
-    """Get current quota usage in the rolling 5-hour window."""
-    return await quota_manager.get_current_usage(str(user.id), user.current_plan)
+    """Get monthly usage summary per feature."""
+    summary = await quota_manager.get_usage_summary(str(user.id), user.current_plan)
+    return {"plan": user.current_plan, "features": summary}
 
 
 @router.get("/history", response_model=list[UsageLogEntry])

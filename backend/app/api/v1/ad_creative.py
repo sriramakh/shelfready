@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
 from ...db.repositories import images_repo
-from ...models.enums import REQUEST_COSTS, Feature, GenerationType
+from ...models.enums import Feature, GenerationType
 from ...models.schemas import UserProfile
 from ...services.storage_service import upload_image
 from .demo import AdCreativeRequest, generate_ad_creative as _demo_creative
@@ -24,8 +24,8 @@ async def generate_ad_creative_prod(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate visual ad creatives — persists results to DB and Supabase Storage."""
-    cost = REQUEST_COSTS[GenerationType.IMAGE] * len(req.creative_sizes)
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.IMAGE)
+    
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
 
     # Run the same generation logic as demo
     result = await _demo_creative(req)
@@ -73,7 +73,6 @@ async def generate_ad_creative_prod(
         str(user.id),
         GenerationType.IMAGE,
         Feature.AD_COPY,
-        cost,
         metadata={
             "source": "ad_creative",
             "sizes": req.creative_sizes,

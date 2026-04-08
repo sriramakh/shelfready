@@ -52,41 +52,38 @@ class ImageStyle(str, Enum):
     VIBRANT = "vibrant"
 
 
-# Plan quota configuration
+# Plan quota configuration — monthly limits per feature (-1 = unlimited)
 PLAN_QUOTAS = {
     PlanTier.FREE: {
-        "requests_per_5h": 100,
         "max_listings_per_month": 5,
         "max_images_per_month": 5,
         "max_photoshoots_per_month": 0,
-        "research_enabled": False,
+        "max_social_per_month": 5,
+        "max_ads_per_month": 5,
+        "max_research_per_month": 0,
     },
     PlanTier.STARTER: {
-        "requests_per_5h": 2000,
         "max_listings_per_month": 50,
         "max_images_per_month": 100,
         "max_photoshoots_per_month": 10,
-        "research_enabled": True,
+        "max_social_per_month": 50,
+        "max_ads_per_month": 50,
+        "max_research_per_month": 20,
     },
     PlanTier.PRO: {
-        "requests_per_5h": 5000,
         "max_listings_per_month": 300,
         "max_images_per_month": 300,
         "max_photoshoots_per_month": 30,
-        "research_enabled": True,
+        "max_social_per_month": 300,
+        "max_ads_per_month": 300,
+        "max_research_per_month": 100,
     },
     PlanTier.BUSINESS: {
-        "requests_per_5h": 15000,
-        "max_listings_per_month": -1,  # unlimited
+        "max_listings_per_month": -1,
         "max_images_per_month": 1000,
         "max_photoshoots_per_month": 100,
-        "research_enabled": True,
+        "max_social_per_month": -1,
+        "max_ads_per_month": -1,
+        "max_research_per_month": -1,
     },
-}
-
-# Request cost per generation type
-REQUEST_COSTS = {
-    GenerationType.TEXT: 1,
-    GenerationType.IMAGE: 75,
-    GenerationType.SEARCH: 1,
 }

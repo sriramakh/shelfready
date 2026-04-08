@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
 from ...db.repositories import images_repo
-from ...models.enums import REQUEST_COSTS, Feature, GenerationType
+from ...models.enums import Feature, GenerationType
 from ...models.schemas import UserProfile
 from ...services.storage_service import upload_image
 from .demo import PhotoshootRequest, generate_photoshoot as _demo_photoshoot
@@ -24,8 +24,8 @@ async def generate_photoshoot_prod(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate AI photoshoot images — persists results to DB and Supabase Storage."""
-    cost = REQUEST_COSTS[GenerationType.IMAGE] * len(req.themes)
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.IMAGE)
+    
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
 
     # Run the same generation logic as demo
     result = await _demo_photoshoot(req)
@@ -71,7 +71,6 @@ async def generate_photoshoot_prod(
         str(user.id),
         GenerationType.IMAGE,
         Feature.IMAGE,
-        cost,
         metadata={
             "source": "photoshoot",
             "themes": req.themes,

@@ -4,7 +4,7 @@ from ...core.auth import get_current_user
 from ...core.exceptions import FeatureNotAvailableException
 from ...core.quota import quota_manager
 from ...db.repositories import research_repo
-from ...models.enums import PLAN_QUOTAS, REQUEST_COSTS, Feature, GenerationType, PlanTier
+from ...models.enums import Feature, GenerationType
 from ...models.schemas import (
     ResearchRequest,
     ResearchResponse,
@@ -27,9 +27,9 @@ async def search_competitors(
         raise FeatureNotAvailableException("Competitor Research", "Starter")
 
     # Research costs: 1 search + 1 text = 2 requests
-    cost = REQUEST_COSTS[GenerationType.SEARCH] + REQUEST_COSTS[GenerationType.TEXT]
+    
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.RESEARCH)
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.RESEARCH)
 
     result = await conduct_research(request, str(user.id))
 
@@ -37,7 +37,6 @@ async def search_competitors(
         str(user.id),
         GenerationType.SEARCH,
         Feature.RESEARCH,
-        cost,
         metadata={"query": request.query},
     )
 

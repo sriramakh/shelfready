@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
 from ...db.repositories import listings_repo
-from ...models.enums import REQUEST_COSTS, Feature, GenerationType
+from ...models.enums import Feature, GenerationType
 from ...models.schemas import (
     ListingGenerateRequest,
     ListingGenerateResponse,
@@ -25,10 +25,10 @@ async def create_listing(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate an optimized product listing using AI."""
-    cost = REQUEST_COSTS[GenerationType.TEXT]
+    
 
     # Check quota
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.LISTING)
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.LISTING)
 
     # Generate
     result = await generate_listing(request, str(user.id))
@@ -38,7 +38,6 @@ async def create_listing(
         str(user.id),
         GenerationType.TEXT,
         Feature.LISTING,
-        cost,
         metadata={"platform": request.platform.value, "product": request.product_name},
     )
 
@@ -117,8 +116,8 @@ async def regenerate_listing(
 
         raise HTTPException(status_code=404, detail="Listing not found")
 
-    cost = REQUEST_COSTS[GenerationType.TEXT]
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.LISTING)
+    
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.LISTING)
 
     # Rebuild request from stored input
     request = ListingGenerateRequest(
@@ -136,7 +135,6 @@ async def regenerate_listing(
         str(user.id),
         GenerationType.TEXT,
         Feature.LISTING,
-        cost,
         metadata={"platform": request.platform.value, "regenerate": True},
     )
 

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
 from ...db.repositories import ads_repo
-from ...models.enums import REQUEST_COSTS, Feature, GenerationType
+from ...models.enums import Feature, GenerationType
 from ...models.schemas import (
     AdGenerateRequest,
     AdGenerateResponse,
@@ -23,9 +23,9 @@ async def create_ad_copy(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate ad copy variants for Facebook or Google ads."""
-    cost = REQUEST_COSTS[GenerationType.TEXT]
+    
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, cost, feature=Feature.AD)
+    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.AD)
 
     result = await generate_ad_copy(request, str(user.id))
 
@@ -33,7 +33,6 @@ async def create_ad_copy(
         str(user.id),
         GenerationType.TEXT,
         Feature.AD,
-        cost,
         metadata={
             "ad_platform": request.ad_platform.value,
             "num_variants": request.num_variants,
