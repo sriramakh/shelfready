@@ -122,10 +122,10 @@ function ToolDemo() {
     // Stream each step
     const timers: ReturnType<typeof setTimeout>[] = [];
     for (let i = 0; i < steps; i++) {
-      timers.push(setTimeout(() => setStreamStep(i + 1), 600 * (i + 1)));
+      timers.push(setTimeout(() => setStreamStep(i + 1), 180 * (i + 1)));
     }
     // Switch to output after all steps
-    timers.push(setTimeout(() => setPhase("output"), 600 * steps + 400));
+    timers.push(setTimeout(() => setPhase("output"), 180 * steps + 420));
     return () => timers.forEach(clearTimeout);
   }, [active, tool.steps.length]);
 

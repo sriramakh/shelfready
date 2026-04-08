@@ -1,10 +1,14 @@
-"""Competitor research orchestrator.
+"""Production-grade competitive intelligence engine.
 
-Uses web search to gather competitor data, then feeds results to the
-MiniMax text model for structured analysis including keyword extraction
-and competitor profiling.
+Multi-pass pipeline:
+  1. Generate targeted search queries across pricing, reviews, keywords, trends
+  2. Execute searches in parallel via SearXNG/DDG
+  3. Pass 1: Extract structured competitor data with MiniMax
+  4. Pass 2: Synthesize strategic insights, keyword gaps, and opportunities
+  5. Persist and return rich research report
 """
 
+import asyncio
 import json
 import logging
 import re
@@ -20,89 +24,158 @@ from .minimax_text import generate_text
 logger = logging.getLogger(__name__)
 
 
-# ── Analysis prompt builders ─────────────────────────────────────────────────
+# ── Search query generation ──────────────────────────────────────────────────
 
-_ANALYSIS_SYSTEM_PROMPT = (
-    "You are an expert e-commerce competitive analyst. "
-    "You will receive web search results about a product category or competitor. "
-    "Analyze them and produce a structured report.\n\n"
-    "IMPORTANT: Respond ONLY with a valid JSON object in this exact format, "
-    "with no additional text, markdown, or explanation:\n"
-    "{\n"
-    '  "analysis": "Detailed analysis of the competitive landscape, trends, '
-    'pricing patterns, and actionable recommendations (500-1000 words)",\n'
-    '  "keywords_found": ["keyword1", "keyword2", "keyword3", '
-    '"... (20-50 high-value search keywords)"],\n'
-    '  "competitors": [\n'
-    "    {\n"
-    '      "name": "Competitor name or brand",\n'
-    '      "url": "URL if available",\n'
-    '      "strengths": "What they do well",\n'
-    '      "weaknesses": "Potential gaps or weaknesses",\n'
-    '      "price_range": "Price range if found"\n'
-    "    }\n"
-    "  ]\n"
-    "}"
-)
+def _build_search_queries(query: str, platform: Platform | None) -> list[str]:
+    """Generate comprehensive search queries for maximum coverage."""
+    marketplace = platform.value.capitalize() if platform else "Amazon"
+    base = query.strip()
 
-
-def _build_analysis_user_prompt(
-    query: str,
-    search_results: list[dict],
-    platform: Platform | None,
-) -> str:
-    """Build the user prompt for competitive analysis."""
-    parts = [
-        f"Research Query: {query}",
+    queries = [
+        # Direct competitor queries
+        f"{base} best sellers {marketplace} 2026",
+        f"{base} top brands {marketplace}",
+        f"{base} competitor analysis",
+        # Pricing intelligence
+        f"{base} price comparison {marketplace}",
+        f"{base} pricing strategy e-commerce",
+        # Keyword / SEO queries
+        f"{base} most searched keywords {marketplace}",
+        f"{base} SEO keywords product listing",
+        # Market trends
+        f"{base} market size trends 2026",
+        f"{base} growing demand e-commerce trends",
+        # Review / sentiment queries
+        f"{base} customer reviews common complaints {marketplace}",
+        f"{base} what customers want",
     ]
 
+    return queries
+
+
+# ── Pass 1: Extract structured data from search results ──────────────────────
+
+_EXTRACTION_PROMPT = """You are a competitive intelligence data extractor.
+Given web search results about a product category, extract ALL factual data points you can find.
+
+IMPORTANT: Respond ONLY with valid JSON, no markdown or explanation:
+{
+  "competitors": [
+    {
+      "name": "Brand or seller name",
+      "url": "URL if found",
+      "price_range": "Exact prices if found (e.g. $24.99-$39.99)",
+      "rating": "Star rating if found (e.g. 4.5/5)",
+      "review_count": "Number of reviews if found",
+      "key_features": "Notable product features or differentiators",
+      "weaknesses": "Customer complaints, negative reviews, missing features"
+    }
+  ],
+  "pricing_data": {
+    "low": "Lowest price found",
+    "mid": "Average/typical price",
+    "high": "Premium price point",
+    "sweet_spot": "Most common price range"
+  },
+  "keywords_from_results": ["keyword1", "keyword2", "...extract 30-50 relevant product keywords"],
+  "customer_pain_points": ["pain point 1", "pain point 2", "...from reviews and complaints"],
+  "trending_features": ["feature 1", "feature 2", "...what customers are looking for"],
+  "market_signals": ["Any data about market size, growth, seasonality, trends"]
+}"""
+
+
+def _build_extraction_prompt(query: str, search_results: list[dict], platform: Platform | None) -> str:
+    """Build prompt for data extraction pass."""
+    parts = [f"Product/Category: {query}"]
     if platform:
-        parts.append(f"Target Marketplace: {platform.value}")
+        parts.append(f"Marketplace: {platform.value}")
 
-    parts.append("\n--- Web Search Results ---\n")
+    parts.append(f"\nTotal search results: {len(search_results)}\n")
+    parts.append("--- SEARCH RESULTS ---\n")
 
-    for i, result in enumerate(search_results, 1):
-        title = result.get("title", "No title")
-        url = result.get("url", "")
-        snippet = result.get("snippet", "No description")
-        parts.append(f"{i}. [{title}]({url})\n   {snippet}\n")
+    for i, r in enumerate(search_results, 1):
+        title = r.get("title", "")
+        url = r.get("url", "")
+        snippet = r.get("snippet", "")
+        engine = r.get("engine", "")
+        parts.append(f"{i}. [{title}]({url}) [{engine}]\n   {snippet}\n")
 
-    parts.append(
-        "\nAnalyze these results to identify competitors, extract "
-        "high-value keywords, and provide actionable insights."
-    )
+    return "\n".join(parts)
 
+
+# ── Pass 2: Strategic analysis ───────────────────────────────────────────────
+
+_STRATEGY_PROMPT = """You are a senior e-commerce strategy consultant. Given extracted competitive data, produce a comprehensive strategic analysis.
+
+IMPORTANT: Respond ONLY with valid JSON:
+{
+  "executive_summary": "2-3 sentence summary of the competitive landscape and key opportunity",
+
+  "market_analysis": "Detailed analysis (400-600 words) covering: market size indicators, growth trends, seasonality patterns, demand signals, price sensitivity, customer segments",
+
+  "competitive_landscape": "Analysis (300-400 words) of competitor positioning, market leaders vs challengers, differentiation strategies, common strengths/weaknesses across competitors",
+
+  "keyword_strategy": {
+    "primary_keywords": ["8-12 highest-value, highest-volume keywords"],
+    "long_tail_keywords": ["15-20 specific long-tail keywords with buyer intent"],
+    "keyword_gaps": ["5-10 keywords competitors are missing or underserving"],
+    "trending_keywords": ["5-8 emerging/growing keywords"]
+  },
+
+  "pricing_intelligence": {
+    "market_range": "Full price range in the market",
+    "sweet_spot": "Optimal price point for maximum sales velocity",
+    "premium_justification": "What features/positioning justify premium pricing",
+    "undercut_opportunity": "Is there room to undercut on price while maintaining margins"
+  },
+
+  "opportunities": [
+    {
+      "opportunity": "Specific actionable opportunity",
+      "impact": "high/medium/low",
+      "effort": "high/medium/low",
+      "details": "How to execute this opportunity"
+    }
+  ],
+
+  "threats": ["Key risks or competitive threats to be aware of"],
+
+  "recommended_positioning": "Specific recommendation for how to position the product — target audience, unique value prop, price point, key differentiators",
+
+  "action_items": ["5-8 specific, prioritized next steps"]
+}"""
+
+
+def _build_strategy_prompt(query: str, extracted_data: dict, platform: Platform | None) -> str:
+    """Build prompt for strategic analysis pass."""
+    parts = [
+        f"Product/Category: {query}",
+        f"Marketplace: {platform.value if platform else 'Multi-platform'}",
+        "",
+        "--- EXTRACTED COMPETITIVE DATA ---",
+        json.dumps(extracted_data, indent=2)[:8000],  # Cap to stay in token limits
+    ]
     return "\n".join(parts)
 
 
 # ── JSON parsing ─────────────────────────────────────────────────────────────
 
-def _parse_research_json(raw: str) -> dict:
-    """Parse the LLM analysis response into a structured dict.
-
-    Handles markdown code fences and extraneous text.
-    """
+def _parse_json(raw: str) -> dict:
+    """Parse LLM JSON response with fallback handling."""
     text = raw.strip()
 
-    # Direct parse
     try:
         return json.loads(text)
     except (json.JSONDecodeError, ValueError):
         pass
 
-    # Markdown code block
-    code_block_match = re.search(
-        r"```(?:json)?\s*\n?(.*?)\n?\s*```",
-        text,
-        re.DOTALL,
-    )
-    if code_block_match:
+    match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", text, re.DOTALL)
+    if match:
         try:
-            return json.loads(code_block_match.group(1).strip())
+            return json.loads(match.group(1).strip())
         except (json.JSONDecodeError, ValueError):
             pass
 
-    # First { ... } block
     brace_match = re.search(r"\{.*\}", text, re.DOTALL)
     if brace_match:
         try:
@@ -110,29 +183,7 @@ def _parse_research_json(raw: str) -> dict:
         except (json.JSONDecodeError, ValueError):
             pass
 
-    raise ValueError(
-        f"Unable to parse research JSON from LLM response: {text[:500]}"
-    )
-
-
-# ── Search query builders ───────────────────────────────────────────────────
-
-def _build_search_queries(query: str, platform: Platform | None) -> list[str]:
-    """Build a set of search queries from the user's research request.
-
-    Generates multiple angles to get comprehensive results.
-    """
-    queries = [query]
-
-    if platform:
-        marketplace = platform.value.capitalize()
-        queries.append(f"{query} {marketplace} best sellers")
-        queries.append(f"{query} {marketplace} competitor analysis")
-    else:
-        queries.append(f"{query} top products e-commerce")
-        queries.append(f"{query} competitor brands")
-
-    return queries
+    raise ValueError(f"Unable to parse JSON: {text[:300]}")
 
 
 # ── Main orchestrator ────────────────────────────────────────────────────────
@@ -141,104 +192,138 @@ async def conduct_research(
     request: ResearchRequest,
     user_id: str,
 ) -> ResearchResponse:
-    """Conduct competitor research end-to-end.
+    """Run full competitive intelligence pipeline.
 
-    1. Build search queries from the request.
-    2. Execute web searches to gather competitor data.
-    3. Feed combined results to MiniMax for structured analysis.
-    4. Parse the analysis into keywords and competitor profiles.
-    5. Save to the research_sessions table.
-    6. Return a structured response.
-
-    Args:
-        request: The research request with query and optional platform.
-        user_id: The authenticated user's ID.
-
-    Returns:
-        ResearchResponse with analysis, keywords, and competitor data.
-
-    Raises:
-        RuntimeError: On search or analysis failure.
-        ValueError: If the LLM analysis cannot be parsed.
+    Pipeline:
+      1. Generate 11 targeted search queries
+      2. Execute all searches in parallel
+      3. Pass 1: Extract structured data (competitors, pricing, keywords)
+      4. Pass 2: Strategic analysis (positioning, opportunities, action items)
+      5. Merge and persist results
     """
-    logger.info(
-        "Conducting research for user %s: %s (platform=%s)",
-        user_id,
-        request.query,
-        request.platform.value if request.platform else "all",
-    )
+    logger.info("Research pipeline started for user %s: %s", user_id, request.query)
 
-    # Step 1: Execute web searches
+    # Step 1: Generate search queries
     search_queries = _build_search_queries(request.query, request.platform)
+
+    # Step 2: Execute searches in parallel
+    async def _search(q: str) -> list[dict]:
+        try:
+            return await web_search(q, max_results=10)
+        except Exception as e:
+            logger.warning("Search failed for '%s': %s", q[:50], e)
+            return []
+
+    search_tasks = [_search(q) for q in search_queries]
+    search_batches = await asyncio.gather(*search_tasks)
+
+    # Deduplicate results by URL
     all_results: list[dict] = []
     seen_urls: set[str] = set()
+    for batch in search_batches:
+        for r in batch:
+            url = r.get("url", "")
+            if url and url not in seen_urls:
+                seen_urls.add(url)
+                all_results.append(r)
 
-    for sq in search_queries:
-        try:
-            results = await web_search(sq, max_results=10)
-            for r in results:
-                url = r.get("url", "")
-                if url and url not in seen_urls:
-                    seen_urls.add(url)
-                    all_results.append(r)
-        except Exception as exc:
-            logger.warning("Search query '%s' failed: %s", sq, exc)
-            continue
+    logger.info("Collected %d unique search results from %d queries", len(all_results), len(search_queries))
 
     if not all_results:
-        logger.warning("No search results found for query: %s", request.query)
-        # Proceed with analysis anyway; the model can still provide
-        # general knowledge-based insights
-        all_results = [
-            {
-                "title": "No web results found",
-                "url": "",
-                "snippet": (
-                    "Web search returned no results. Provide analysis "
-                    "based on your knowledge of this product category."
-                ),
-            }
-        ]
+        all_results = [{
+            "title": "No web results",
+            "url": "",
+            "snippet": "Provide analysis based on general knowledge of this product category.",
+            "engine": "fallback",
+        }]
 
-    # Step 2: Analyze results with text generation
-    user_prompt = _build_analysis_user_prompt(
-        query=request.query,
-        search_results=all_results[:20],  # Cap at 20 results to stay within token limits
-        platform=request.platform,
+    # Step 3: Pass 1 — Extract structured data
+    extraction_prompt = _build_extraction_prompt(
+        request.query, all_results[:30], request.platform
     )
 
-    raw_analysis = await generate_text(
-        system_prompt=_ANALYSIS_SYSTEM_PROMPT,
-        user_message=user_prompt,
+    raw_extraction = await generate_text(
+        system_prompt=_EXTRACTION_PROMPT,
+        user_message=extraction_prompt,
         max_tokens=4096,
+        temperature=0.3,
+    )
+
+    extracted_data = _parse_json(raw_extraction)
+    logger.info("Extraction pass complete: %d competitors, %d keywords",
+                len(extracted_data.get("competitors", [])),
+                len(extracted_data.get("keywords_from_results", [])))
+
+    # Step 4: Pass 2 — Strategic analysis
+    strategy_prompt = _build_strategy_prompt(
+        request.query, extracted_data, request.platform
+    )
+
+    raw_strategy = await generate_text(
+        system_prompt=_STRATEGY_PROMPT,
+        user_message=strategy_prompt,
+        max_tokens=8192,
         temperature=0.4,
     )
 
-    parsed = _parse_research_json(raw_analysis)
+    strategy = _parse_json(raw_strategy)
 
-    analysis = parsed.get("analysis", "")
-    keywords_found = parsed.get("keywords_found", [])
-    competitors = parsed.get("competitors", [])
+    # Step 5: Merge into final output
+    # Build the analysis text from strategy
+    analysis_parts = []
+    if strategy.get("executive_summary"):
+        analysis_parts.append(f"**Executive Summary**\n{strategy['executive_summary']}")
+    if strategy.get("market_analysis"):
+        analysis_parts.append(f"\n**Market Analysis**\n{strategy['market_analysis']}")
+    if strategy.get("competitive_landscape"):
+        analysis_parts.append(f"\n**Competitive Landscape**\n{strategy['competitive_landscape']}")
+    if strategy.get("pricing_intelligence"):
+        pi = strategy["pricing_intelligence"]
+        analysis_parts.append(
+            f"\n**Pricing Intelligence**\n"
+            f"Market range: {pi.get('market_range', 'N/A')}\n"
+            f"Sweet spot: {pi.get('sweet_spot', 'N/A')}\n"
+            f"Premium justification: {pi.get('premium_justification', 'N/A')}\n"
+            f"Undercut opportunity: {pi.get('undercut_opportunity', 'N/A')}"
+        )
+    if strategy.get("recommended_positioning"):
+        analysis_parts.append(f"\n**Recommended Positioning**\n{strategy['recommended_positioning']}")
+    if strategy.get("opportunities"):
+        opps = strategy["opportunities"]
+        opp_lines = [f"- [{o.get('impact','?')} impact / {o.get('effort','?')} effort] {o.get('opportunity','')}: {o.get('details','')}" for o in opps]
+        analysis_parts.append(f"\n**Opportunities**\n" + "\n".join(opp_lines))
+    if strategy.get("threats"):
+        analysis_parts.append(f"\n**Threats**\n" + "\n".join(f"- {t}" for t in strategy["threats"]))
+    if strategy.get("action_items"):
+        analysis_parts.append(f"\n**Action Items**\n" + "\n".join(f"{i+1}. {a}" for i, a in enumerate(strategy["action_items"])))
 
-    if not isinstance(keywords_found, list):
-        keywords_found = [str(keywords_found)]
-    if not isinstance(competitors, list):
-        competitors = [competitors] if isinstance(competitors, dict) else []
+    full_analysis = "\n".join(analysis_parts)
 
-    # Step 3: Persist to database
-    db_record = research_repo.create(
-        {
-            "user_id": user_id,
-            "query": request.query,
-            "platform": request.platform.value if request.platform else None,
-            "analysis": analysis,
-            "keywords_found": keywords_found,
-            "competitors": competitors,
-            "search_results_count": len(all_results),
-        }
-    )
+    # Merge keywords from both passes
+    all_keywords = list(set(
+        extracted_data.get("keywords_from_results", []) +
+        strategy.get("keyword_strategy", {}).get("primary_keywords", []) +
+        strategy.get("keyword_strategy", {}).get("long_tail_keywords", []) +
+        strategy.get("keyword_strategy", {}).get("keyword_gaps", []) +
+        strategy.get("keyword_strategy", {}).get("trending_keywords", [])
+    ))
 
-    logger.info("Research session %s created for user %s", db_record["id"], user_id)
+    # Build competitor list from extraction pass
+    competitors = extracted_data.get("competitors", [])
+
+    # Step 6: Persist
+    db_record = research_repo.create({
+        "user_id": user_id,
+        "query": request.query,
+        "platform": request.platform.value if request.platform else None,
+        "analysis": full_analysis,
+        "keywords_found": all_keywords,
+        "competitors": competitors,
+        "search_results_count": len(all_results),
+    })
+
+    logger.info("Research %s complete: %d keywords, %d competitors, %d search results",
+                db_record["id"], len(all_keywords), len(competitors), len(all_results))
 
     return ResearchResponse(
         id=UUID(db_record["id"]),
