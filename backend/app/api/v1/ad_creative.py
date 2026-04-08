@@ -65,7 +65,7 @@ async def generate_ad_creative_prod(
 
         saved_creatives.append(creative)
 
-    await quota_manager.consume(str(user.id), GenerationType.IMAGE, Feature.AD_COPY, metadata={"source": "ad_creative", "sizes": req.creative_sizes, "product": req.product_name})
+    await quota_manager.consume(str(user.id), GenerationType.IMAGE, Feature.AD, metadata={"source": "ad_creative", "sizes": req.creative_sizes, "product": req.product_name})
 
     result["creatives"] = saved_creatives
     return result
