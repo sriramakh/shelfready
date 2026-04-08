@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -52,7 +53,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-white antialiased">{children}</body>
+      <body className="min-h-screen bg-white antialiased">
+        {children}
+        <Script
+          src="https://analytics.shelfready.app/script.js"
+          data-website-id="cb9c1737-fb8a-4d7f-9ee3-3145548fc318"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }
