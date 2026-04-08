@@ -1146,5 +1146,285 @@
     "name": "Matrix Code",
     "description": "Falling code aesthetic",
     "preview": "/templates/gz_matrix.png"
+  },
+  {
+    "id": "gz_y2k",
+    "category": "genz",
+    "name": "Y2K Revival",
+    "description": "2000s metallic chrome aesthetic",
+    "preview": "/templates/gz_y2k.png"
+  },
+  {
+    "id": "gz_cottagecore",
+    "category": "genz",
+    "name": "Cottagecore",
+    "description": "Soft pastoral fairy vibes",
+    "preview": "/templates/gz_cottagecore.png"
+  },
+  {
+    "id": "gz_dark_academia",
+    "category": "genz",
+    "name": "Dark Academia",
+    "description": "Moody scholarly aesthetic",
+    "preview": "/templates/gz_dark_academia.png"
+  },
+  {
+    "id": "gz_clean_girl",
+    "category": "genz",
+    "name": "Clean Girl",
+    "description": "Minimal dewy aesthetic",
+    "preview": "/templates/gz_clean_girl.png"
+  },
+  {
+    "id": "gz_dopamine",
+    "category": "genz",
+    "name": "Dopamine Rush",
+    "description": "Bright clashing color overload",
+    "preview": "/templates/gz_dopamine.png"
+  },
+  {
+    "id": "gz_blob",
+    "category": "genz",
+    "name": "Blob Morph",
+    "description": "Organic blob shapes gradient",
+    "preview": "/templates/gz_blob.png"
+  },
+  {
+    "id": "gz_comic_pop",
+    "category": "genz",
+    "name": "Comic Pop",
+    "description": "Bold comic book halftone",
+    "preview": "/templates/gz_comic_pop.png"
+  },
+  {
+    "id": "gz_noise_grain",
+    "category": "genz",
+    "name": "Noise Grain",
+    "description": "Grainy film texture overlay",
+    "preview": "/templates/gz_noise_grain.png"
+  },
+  {
+    "id": "gz_abstract_3d",
+    "category": "genz",
+    "name": "Abstract 3D",
+    "description": "Floating 3D shapes surreal",
+    "preview": "/templates/gz_abstract_3d.png"
+  },
+  {
+    "id": "gz_kinetic_type",
+    "category": "genz",
+    "name": "Kinetic Type",
+    "description": "Warped distorted typography",
+    "preview": "/templates/gz_kinetic_type.png"
+  },
+  {
+    "id": "gz_maximalist",
+    "category": "genz",
+    "name": "Maximalist",
+    "description": "Over-the-top layered chaos",
+    "preview": "/templates/gz_maximalist.png"
+  },
+  {
+    "id": "gz_soft_punk",
+    "category": "genz",
+    "name": "Soft Punk",
+    "description": "Pastel punk safety pins",
+    "preview": "/templates/gz_soft_punk.png"
+  },
+  {
+    "id": "gz_chrome_heart",
+    "category": "genz",
+    "name": "Chrome Hearts",
+    "description": "Silver chrome gothic text",
+    "preview": "/templates/gz_chrome_heart.png"
+  },
+  {
+    "id": "gz_indie_sleaze",
+    "category": "genz",
+    "name": "Indie Sleaze",
+    "description": "Flash photo party aesthetic",
+    "preview": "/templates/gz_indie_sleaze.png"
+  },
+  {
+    "id": "gz_coquette",
+    "category": "genz",
+    "name": "Coquette Bow",
+    "description": "Ribbons bows soft pink",
+    "preview": "/templates/gz_coquette.png"
+  },
+  {
+    "id": "ml_avocado",
+    "category": "millennial",
+    "name": "Avocado Toast",
+    "description": "Earthy green wellness aesthetic",
+    "preview": "/templates/ml_avocado.png"
+  },
+  {
+    "id": "ml_rose_gold",
+    "category": "millennial",
+    "name": "Rose Gold",
+    "description": "Blush pink metallic elegant",
+    "preview": "/templates/ml_rose_gold.png"
+  },
+  {
+    "id": "ml_marble",
+    "category": "millennial",
+    "name": "Marble Luxe",
+    "description": "White marble gold accents",
+    "preview": "/templates/ml_marble.png"
+  },
+  {
+    "id": "ml_flat_lay",
+    "category": "millennial",
+    "name": "Flat Lay",
+    "description": "Overhead styled flat lay",
+    "preview": "/templates/ml_flat_lay.png"
+  },
+  {
+    "id": "ml_script_quote",
+    "category": "millennial",
+    "name": "Script Quote",
+    "description": "Handwritten script overlay",
+    "preview": "/templates/ml_script_quote.png"
+  },
+  {
+    "id": "ml_terrazzo",
+    "category": "millennial",
+    "name": "Terrazzo",
+    "description": "Colorful terrazzo pattern",
+    "preview": "/templates/ml_terrazzo.png"
+  },
+  {
+    "id": "ml_boho",
+    "category": "millennial",
+    "name": "Boho Chic",
+    "description": "Warm earth tones macrame",
+    "preview": "/templates/ml_boho.png"
+  },
+  {
+    "id": "ml_self_care",
+    "category": "millennial",
+    "name": "Self Care Sunday",
+    "description": "Soft spa wellness vibes",
+    "preview": "/templates/ml_self_care.png"
+  },
+  {
+    "id": "ml_plant_mom",
+    "category": "millennial",
+    "name": "Plant Mom",
+    "description": "Lush greenery botanical",
+    "preview": "/templates/ml_plant_mom.png"
+  },
+  {
+    "id": "ml_golden_hour",
+    "category": "millennial",
+    "name": "Golden Hour",
+    "description": "Warm sunset golden light",
+    "preview": "/templates/ml_golden_hour.png"
+  },
+  {
+    "id": "ml_scandinavian",
+    "category": "millennial",
+    "name": "Scandinavian",
+    "description": "Clean Nordic minimalism",
+    "preview": "/templates/ml_scandinavian.png"
+  },
+  {
+    "id": "ml_latte_art",
+    "category": "millennial",
+    "name": "Latte Art",
+    "description": "Coffee shop warm tones",
+    "preview": "/templates/ml_latte_art.png"
+  },
+  {
+    "id": "ml_sage_green",
+    "category": "millennial",
+    "name": "Sage Green",
+    "description": "Muted sage organic calm",
+    "preview": "/templates/ml_sage_green.png"
+  },
+  {
+    "id": "ml_dusty_rose",
+    "category": "millennial",
+    "name": "Dusty Rose",
+    "description": "Muted pink romantic soft",
+    "preview": "/templates/ml_dusty_rose.png"
+  },
+  {
+    "id": "ml_neutral_palette",
+    "category": "millennial",
+    "name": "Neutral Palette",
+    "description": "Beige cream warm neutrals",
+    "preview": "/templates/ml_neutral_palette.png"
+  },
+  {
+    "id": "ml_hygge",
+    "category": "millennial",
+    "name": "Hygge Cozy",
+    "description": "Candles blankets warm glow",
+    "preview": "/templates/ml_hygge.png"
+  },
+  {
+    "id": "ml_gradient_blur",
+    "category": "millennial",
+    "name": "Gradient Blur",
+    "description": "Soft blurred color gradients",
+    "preview": "/templates/ml_gradient_blur.png"
+  },
+  {
+    "id": "ml_moon_phase",
+    "category": "millennial",
+    "name": "Moon Phase",
+    "description": "Celestial moons mystical",
+    "preview": "/templates/ml_moon_phase.png"
+  },
+  {
+    "id": "ml_ceramic",
+    "category": "millennial",
+    "name": "Ceramic Studio",
+    "description": "Handmade pottery aesthetic",
+    "preview": "/templates/ml_ceramic.png"
+  },
+  {
+    "id": "ml_brooklyn",
+    "category": "millennial",
+    "name": "Brooklyn Loft",
+    "description": "Industrial brick exposed",
+    "preview": "/templates/ml_brooklyn.png"
+  },
+  {
+    "id": "ml_matcha",
+    "category": "millennial",
+    "name": "Matcha Moment",
+    "description": "Green tea zen Japanese",
+    "preview": "/templates/ml_matcha.png"
+  },
+  {
+    "id": "ml_polaroid",
+    "category": "millennial",
+    "name": "Polaroid Frame",
+    "description": "Vintage polaroid border",
+    "preview": "/templates/ml_polaroid.png"
+  },
+  {
+    "id": "ml_washi_tape",
+    "category": "millennial",
+    "name": "Washi Tape",
+    "description": "Tape stickers journal aesthetic",
+    "preview": "/templates/ml_washi_tape.png"
+  },
+  {
+    "id": "ml_sunset_drive",
+    "category": "millennial",
+    "name": "Sunset Drive",
+    "description": "Retro sunset palm gradient",
+    "preview": "/templates/ml_sunset_drive.png"
+  },
+  {
+    "id": "ml_brunch",
+    "category": "millennial",
+    "name": "Sunday Brunch",
+    "description": "Bright airy food styling",
+    "preview": "/templates/ml_brunch.png"
   }
 ]

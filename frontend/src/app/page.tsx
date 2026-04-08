@@ -44,7 +44,7 @@ const TOOL_SLIDES = [
     },
   },
   {
-    id: "ads", label: "Ad Creatives", icon: Megaphone, color: "#f59e0b", tag: "160+ templates",
+    id: "ads", label: "Ad Creatives", icon: Megaphone, color: "#f59e0b", tag: "200+ templates",
     steps: ["Analyzing product for ad context...", "Matching template: Flash Sale...", "Compositing product into template...", "Adding text overlays: 25% OFF...", "Generating variant: New Arrival...", "Generating variant: Premium..."],
     output: {
       type: "creatives",
@@ -253,16 +253,15 @@ function ToolDemo() {
                         {/* Images output (photoshoot + creatives) */}
                         {(tool.output.type === "images" || tool.output.type === "creatives") && (
                           <>
-                            {/* Input indicator */}
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="w-10 h-10 rounded-lg border border-white/10 overflow-hidden flex-shrink-0">
+                            {/* Input → Output grid: input as first card, outputs follow */}
+                            <div className="grid grid-cols-5 gap-2">
+                              {/* Input card */}
+                              <div className="rounded-lg overflow-hidden border border-dashed border-white/20 fade-slide">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={(tool.output as any).input} alt="Input" className="w-full h-full object-cover" />
+                                <img src={(tool.output as any).input} alt="Input" className="w-full aspect-square object-cover" />
+                                <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-500 font-medium">Input</p></div>
                               </div>
-                              <ArrowRight className="h-3 w-3 text-neutral-600" />
-                              <span className="text-[10px] text-neutral-500">AI transformed into:</span>
-                            </div>
-                            <div className="grid grid-cols-4 gap-2">
+                              {/* Output cards */}
                               {((tool.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
                                 <div key={i} className="rounded-lg overflow-hidden border border-white/10 fade-slide" style={{ animationDelay: `${i * 0.12}s` }}>
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -742,12 +741,12 @@ export default function Landing() {
         <div className="max-w-[1200px] mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
             <div>
-              <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">160+ ad templates</p>
+              <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">200+ ad templates</p>
               <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Creatives that convert.</h2>
               <p className="mt-2 text-neutral-500 max-w-md">Pick a template, upload your product, add your offer — get scroll-stopping ad creatives in seconds.</p>
             </div>
             <div className="flex gap-1.5 flex-wrap">
-              {[{id:"all",l:"All"},{id:"sale",l:"Sale"},{id:"pastel",l:"Pastel"},{id:"minimalist",l:"Minimal"},{id:"genz",l:"Bold"},{id:"lifestyle",l:"Lifestyle"},{id:"luxury",l:"Premium"}].map(c => (
+              {[{id:"all",l:"All"},{id:"sale",l:"Sale"},{id:"pastel",l:"Pastel"},{id:"minimalist",l:"Minimal"},{id:"genz",l:"Gen Z"},{id:"millennial",l:"Millennial"},{id:"lifestyle",l:"Lifestyle"},{id:"luxury",l:"Premium"}].map(c => (
                 <button key={c.id} onClick={() => setTplCat(c.id)} className={`text-[12px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all ${tplCat === c.id ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-500 hover:text-neutral-900"}`}>{c.l}</button>
               ))}
             </div>
@@ -794,7 +793,7 @@ export default function Landing() {
       <section className="py-24 px-6 bg-neutral-900 text-white">
         <div className="max-w-[1000px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-            {[{v:"30s",l:"Avg. time"},{v:"160+",l:"Ad templates"},{v:"6-in-1",l:"Platform"},{v:"$174",l:"Saved/mo"}].map(m => (
+            {[{v:"30s",l:"Avg. time"},{v:"200+",l:"Ad templates"},{v:"6-in-1",l:"Platform"},{v:"$174",l:"Saved/mo"}].map(m => (
               <div key={m.l} className="text-center">
                 <p className="text-[2.5rem] sm:text-[3rem] font-extrabold tracking-tight">{m.v}</p>
                 <p className="text-[13px] text-neutral-500 mt-1">{m.l}</p>

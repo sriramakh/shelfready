@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     default: "ShelfReady — AI Product Listings, Photoshoots & Ad Creatives for E-commerce",
     template: "%s — ShelfReady",
   },
-  description: "Generate optimized product listings, professional AI photoshoots, ad creatives with 160+ templates, social content, and competitive intelligence for Amazon, Etsy, and Shopify sellers.",
+  description: "Generate optimized product listings, professional AI photoshoots, ad creatives with 200+ templates, social content, and competitive intelligence for Amazon, Etsy, and Shopify sellers.",
   keywords: [
     "AI product listings", "Amazon listing optimization", "Etsy SEO", "Shopify product descriptions",
     "AI product photography", "e-commerce photoshoots", "ad creative generator", "Facebook ad templates",
