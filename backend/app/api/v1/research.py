@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ...core.auth import get_current_user
-from ...core.exceptions import FeatureNotAvailableException
 from ...core.quota import quota_manager
 from ...db.repositories import research_repo
 from ...models.enums import Feature, GenerationType
@@ -21,14 +20,7 @@ async def search_competitors(
     user: UserProfile = Depends(get_current_user),
 ):
     """Conduct competitor/keyword research using web search + AI analysis."""
-    # Check if research is available on user's plan
-    plan_config = PLAN_QUOTAS[PlanTier(user.current_plan)]
-    if not plan_config["research_enabled"]:
-        raise FeatureNotAvailableException("Competitor Research", "Starter")
-
-    # Research costs: 1 search + 1 text = 2 requests
-    
-
+    # Quota check handles feature gating (0 = blocked on free plan)
     await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.RESEARCH)
 
     result = await conduct_research(request, str(user.id))
