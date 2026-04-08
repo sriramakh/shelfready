@@ -1,5 +1,6 @@
-"""MiniMax text generation via Anthropic-compatible SDK."""
+"""MiniMax text generation via Anthropic-compatible SDK with retry."""
 
+import asyncio
 import logging
 
 import anthropic
@@ -8,6 +9,9 @@ from ..config import settings
 from ..core.rate_limiter import rate_limiter
 
 logger = logging.getLogger(__name__)
+
+MAX_RETRIES = 2
+RETRY_DELAY = 2.0
 
 # Anthropic-compatible client pointing at the MiniMax endpoint
 _client = anthropic.Anthropic(
@@ -24,17 +28,7 @@ async def generate_text(
 ) -> str:
     """Generate text using MiniMax M2.7 via the Anthropic messages API.
 
-    Args:
-        system_prompt: System-level instruction for the model.
-        user_message: The user-facing prompt content.
-        max_tokens: Maximum tokens in the response.
-        temperature: Sampling temperature (0.0 - 1.0).
-
-    Returns:
-        The generated text content.
-
-    Raises:
-        RuntimeError: If rate limit cannot be acquired or the API call fails.
+    Retries once on transient 5xx errors.
     """
     acquired = await rate_limiter.acquire_text()
     if not acquired:
@@ -42,42 +36,55 @@ async def generate_text(
             "Text generation rate limit exceeded. Please try again shortly."
         )
 
-    try:
-        response = _client.messages.create(
-            model=settings.minimax_model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            system=system_prompt,
-            messages=[
-                {"role": "user", "content": user_message},
-            ],
-        )
+    last_error = None
 
-        # Extract text from response — skip ThinkingBlock, find TextBlock
-        if response.content:
-            for block in response.content:
-                if hasattr(block, "text"):
-                    return block.text
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = _client.messages.create(
+                model=settings.minimax_model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": user_message},
+                ],
+            )
 
-        raise RuntimeError("MiniMax returned an empty response.")
+            # Extract text from response — skip ThinkingBlock, find TextBlock
+            if response.content:
+                for block in response.content:
+                    if hasattr(block, "text"):
+                        return block.text
 
-    except anthropic.APIConnectionError as exc:
-        logger.error("MiniMax API connection error: %s", exc)
-        raise RuntimeError(
-            "Unable to connect to the AI service. Please try again later."
-        ) from exc
-    except anthropic.RateLimitError as exc:
-        logger.warning("MiniMax API rate limit hit: %s", exc)
-        raise RuntimeError(
-            "AI service is temporarily overloaded. Please try again in a moment."
-        ) from exc
-    except anthropic.APIStatusError as exc:
-        logger.error("MiniMax API error (status %s): %s", exc.status_code, exc.message)
-        raise RuntimeError(
-            f"AI service returned an error (HTTP {exc.status_code}). Please try again."
-        ) from exc
-    except Exception as exc:
-        logger.exception("Unexpected error during text generation")
-        raise RuntimeError(
-            "An unexpected error occurred during text generation."
-        ) from exc
+            raise RuntimeError("MiniMax returned an empty response.")
+
+        except anthropic.APIConnectionError as exc:
+            last_error = exc
+            logger.warning("MiniMax connection error (attempt %d/%d): %s", attempt, MAX_RETRIES, exc)
+        except anthropic.RateLimitError as exc:
+            last_error = exc
+            logger.warning("MiniMax rate limit (attempt %d/%d): %s", attempt, MAX_RETRIES, exc)
+        except anthropic.APIStatusError as exc:
+            last_error = exc
+            if exc.status_code >= 500:
+                logger.warning("MiniMax 5xx error (attempt %d/%d): %s", attempt, MAX_RETRIES, exc)
+            else:
+                # 4xx errors are not retryable
+                raise RuntimeError(
+                    f"AI service returned an error (HTTP {exc.status_code})."
+                ) from exc
+        except RuntimeError:
+            raise
+        except Exception as exc:
+            last_error = exc
+            logger.warning("MiniMax unexpected error (attempt %d/%d): %s", attempt, MAX_RETRIES, exc)
+
+        # Wait before retry
+        if attempt < MAX_RETRIES:
+            await asyncio.sleep(RETRY_DELAY * attempt)
+
+    # All retries exhausted
+    logger.error("MiniMax failed after %d attempts: %s", MAX_RETRIES, last_error)
+    raise RuntimeError(
+        "AI service is temporarily unavailable. Please try again in a moment."
+    ) from last_error
