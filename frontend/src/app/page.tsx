@@ -266,7 +266,7 @@ function ToolDemo() {
                               {((tool.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
                                 <div key={i} className="rounded-lg overflow-hidden border border-white/10 fade-slide" style={{ animationDelay: `${i * 0.12}s` }}>
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={img.src} alt={img.label} className="w-full object-cover" />
+                                  <img src={img.src} alt={img.label} className="w-full aspect-square object-cover" />
                                   <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-400 font-medium">{img.label}</p></div>
                                 </div>
                               ))}
@@ -492,7 +492,7 @@ function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: n
                 {((current.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
                   <div key={i} className="rounded-lg overflow-hidden border border-white/10 animate-[fadeSlide_0.4s_ease-out]" style={{ animationDelay: `${i * 0.15}s` }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.src} alt={img.label} className="w-full object-cover" />
+                    <img src={img.src} alt={img.label} className="w-full aspect-square object-cover" />
                     <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-400">{img.label}</p></div>
                   </div>
                 ))}
