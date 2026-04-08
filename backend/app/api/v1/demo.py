@@ -1,17 +1,19 @@
 """Demo-mode API routes — bypass auth/DB, call MiniMax directly.
 
-Active only when ENVIRONMENT=demo in .env.
+Rate-limited by IP: 10 requests per hour per IP address.
 """
 
 import base64
 import json
 import re
+import time
 import uuid
+from collections import defaultdict
 from datetime import datetime, timezone
 
 import anthropic
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from ...config import settings
@@ -27,6 +29,28 @@ from ...prompts.social_prompts import get_social_system_prompt, get_social_user_
 from ...prompts.ad_prompts import get_ad_system_prompt, get_ad_user_prompt
 
 router = APIRouter(prefix="/demo", tags=["demo"])
+
+# ── IP-based rate limiting for demo endpoints ────────────────────────
+_ip_requests: dict[str, list[float]] = defaultdict(list)
+DEMO_RATE_LIMIT = 10  # max requests per hour per IP
+DEMO_WINDOW = 3600  # 1 hour in seconds
+
+
+def _check_demo_rate_limit(request: Request) -> None:
+    """Enforce per-IP rate limit on demo endpoints."""
+    ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host if request.client else "unknown"
+    now = time.time()
+
+    # Clean old entries
+    _ip_requests[ip] = [t for t in _ip_requests[ip] if now - t < DEMO_WINDOW]
+
+    if len(_ip_requests[ip]) >= DEMO_RATE_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail="Demo rate limit exceeded (10 requests/hour). Sign up for unlimited access.",
+        )
+
+    _ip_requests[ip].append(now)
 
 _client = anthropic.Anthropic(
     api_key=settings.minimax_api_key,
@@ -136,7 +160,8 @@ class ListingRequest(BaseModel):
 
 
 @router.post("/listings/generate")
-async def generate_listing(req: ListingRequest):
+async def generate_listing(req: ListingRequest, request: Request):
+    _check_demo_rate_limit(request)
     try:
         system = get_listing_system_prompt(req.platform)
         # Wrap in proper schema so prompt functions work with .platform.value
@@ -189,7 +214,8 @@ class ImageRequest(BaseModel):
 
 
 @router.post("/images/generate")
-async def generate_image(req: ImageRequest):
+async def generate_image(req: ImageRequest, request: Request):
+    _check_demo_rate_limit(request)
     try:
         prompt = build_image_prompt(req.description, req.image_type, req.style, req.aspect_ratio)
 
@@ -243,7 +269,8 @@ class SocialRequest(BaseModel):
 
 
 @router.post("/social/generate")
-async def generate_social(req: SocialRequest):
+async def generate_social(req: SocialRequest, request: Request):
+    _check_demo_rate_limit(request)
     try:
         system = get_social_system_prompt(req.platform, req.tone)
         schema_req = SocialGenerateRequest(
@@ -291,7 +318,8 @@ class AdRequest(BaseModel):
 
 
 @router.post("/ads/generate")
-async def generate_ads(req: AdRequest):
+async def generate_ads(req: AdRequest, request: Request):
+    _check_demo_rate_limit(request)
     try:
         system = get_ad_system_prompt(req.ad_platform, req.num_variants)
         schema_req = AdGenerateRequest(
@@ -336,7 +364,8 @@ class ResearchRequest(BaseModel):
 
 
 @router.post("/research/search")
-async def research(req: ResearchRequest):
+async def research(req: ResearchRequest, request: Request):
+    _check_demo_rate_limit(request)
     try:
         # Use DuckDuckGo for live search
         from ...services.search_provider import web_search
@@ -398,7 +427,8 @@ def _grok_headers() -> dict:
 
 
 @router.post("/photoshoot/generate")
-async def generate_photoshoot(req: PhotoshootRequest):
+async def generate_photoshoot(req: PhotoshootRequest, request: Request):
+    _check_demo_rate_limit(request)
     if len(req.themes) > 5:
         raise HTTPException(400, "Maximum 5 images per run")
     if len(req.themes) < 1:
@@ -593,7 +623,8 @@ CREATIVE_TEMPLATES = {
 }
 
 @router.post("/ads/creative")
-async def generate_ad_creative(req: AdCreativeRequest):
+async def generate_ad_creative(req: AdCreativeRequest, request: Request):
+    _check_demo_rate_limit(request)
     """Generate visual ad creatives using Grok — product image + AI scene."""
 
     if len(req.creative_sizes) > 5:
