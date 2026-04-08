@@ -38,11 +38,12 @@ async def get_plans():
                 name=details["name"],
                 price_monthly=details["price_monthly"],
                 price_yearly=details["price_yearly"],
-                requests_per_5h=quota["requests_per_5h"],
                 max_listings_per_month=quota["max_listings_per_month"],
-                max_images_per_month=quota["max_images_per_month"],
+                max_images_per_month=quota.get("max_images_per_month", quota.get("max_images_lifetime", 5)),
                 max_photoshoots_per_month=quota["max_photoshoots_per_month"],
-                research_enabled=quota["research_enabled"],
+                max_social_per_month=quota["max_social_per_month"],
+                max_ads_per_month=quota["max_ads_per_month"],
+                max_research_per_month=quota["max_research_per_month"],
             )
         )
     return plans

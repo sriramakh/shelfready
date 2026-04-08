@@ -171,11 +171,12 @@ class PlanInfo(BaseModel):
     name: str
     price_monthly: float
     price_yearly: float
-    requests_per_5h: int
     max_listings_per_month: int
     max_images_per_month: int
     max_photoshoots_per_month: int
-    research_enabled: bool
+    max_social_per_month: int
+    max_ads_per_month: int
+    max_research_per_month: int
 
 
 class CheckoutRequest(BaseModel):
