@@ -3,7 +3,7 @@
 import base64
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
@@ -24,8 +24,12 @@ async def generate_ad_creative_prod(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate visual ad creatives — persists results to DB and Supabase Storage."""
-    from fastapi import HTTPException
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
+    try:
+        await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Quota check failed: {exc}")
 
     try:
         result = await generate_ad_creative(req)
