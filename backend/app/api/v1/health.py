@@ -10,6 +10,17 @@ async def health_check():
     return {"status": "healthy", "service": "shelfready-api", "version": "0.1.0"}
 
 
+@router.get("/health/test-checkout")
+async def test_checkout():
+    """Test creating a real LemonSqueezy checkout — no auth required."""
+    from ...services.lemonsqueezy_service import create_checkout_url
+    try:
+        url = await create_checkout_url("test-health-check", "test@shelfready.app", "starter", "monthly")
+        return {"status": "ok", "checkout_url": url}
+    except Exception as e:
+        return {"status": "error", "detail": str(e), "type": type(e).__name__}
+
+
 @router.get("/health/billing")
 async def billing_health():
     """Check if LemonSqueezy is configured and reachable."""
