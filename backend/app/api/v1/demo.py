@@ -65,12 +65,37 @@ def _parse_json(text: str) -> dict:
 
 
 def _normalize_keywords(keywords) -> list[str]:
-    """Fix keywords: split comma-separated strings, remove empties."""
+    """Fix keywords: split comma/space-separated strings, remove empties.
+
+    MiniMax often returns keywords as:
+    - A single long space-separated string in a 1-element array
+    - Comma-separated strings
+    - Mix of both
+    """
     if isinstance(keywords, str):
-        keywords = [k.strip() for k in keywords.split(",")]
+        keywords = [keywords]
     if not isinstance(keywords, list):
         return []
-    # Flatten any comma-separated items and remove empties
+
+    # If we got a single long string (>80 chars), it's likely space-separated keywords
+    if len(keywords) == 1 and isinstance(keywords[0], str) and len(keywords[0]) > 80:
+        blob = keywords[0]
+        # Try comma split first, fall back to chunking by 2-3 word phrases
+        if "," in blob:
+            return [k.strip() for k in blob.split(",") if k.strip()]
+        # Split into 2-3 word keyword phrases
+        words = blob.split()
+        result = []
+        i = 0
+        while i < len(words):
+            # Take 2-3 words as a keyword phrase
+            chunk_size = 2 if i + 2 < len(words) and len(words[i]) > 4 else 3
+            chunk_size = min(chunk_size, len(words) - i)
+            result.append(" ".join(words[i:i + chunk_size]))
+            i += chunk_size
+        return result
+
+    # Normal case: flatten any comma-separated items
     result = []
     for k in keywords:
         if not isinstance(k, str):

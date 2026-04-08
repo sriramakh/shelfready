@@ -176,25 +176,45 @@ async def generate_listing(
 
     if not title:
         raise ValueError("Generated listing is missing a title.")
+
+    # Enforce platform title length limits
+    platform_str = request.platform.value if hasattr(request.platform, 'value') else str(request.platform)
+    if platform_str == "etsy" and len(title) > 140:
+        title = title[:137] + "..."
+    elif platform_str == "amazon" and len(title) > 200:
+        title = title[:197] + "..."
     if not isinstance(bullets, list):
         bullets = [str(bullets)]
     # Filter empty bullets
     bullets = [b for b in bullets if isinstance(b, str) and b.strip()]
 
-    # Normalize keywords: split comma-separated, remove empties
+    # Normalize keywords: MiniMax often returns a single long space-separated blob
     if isinstance(keywords, str):
-        keywords = [k.strip() for k in keywords.split(",") if k.strip()]
+        keywords = [keywords]
     if not isinstance(keywords, list):
         keywords = [str(keywords)]
-    normalized_kw = []
-    for k in keywords:
-        if not isinstance(k, str):
-            continue
-        if "," in k:
-            normalized_kw.extend(part.strip() for part in k.split(",") if part.strip())
-        elif k.strip():
-            normalized_kw.append(k.strip())
-    keywords = normalized_kw
+    if len(keywords) == 1 and isinstance(keywords[0], str) and len(keywords[0]) > 80:
+        blob = keywords[0]
+        if "," in blob:
+            keywords = [k.strip() for k in blob.split(",") if k.strip()]
+        else:
+            words = blob.split()
+            keywords = []
+            i = 0
+            while i < len(words):
+                chunk = min(2 if len(words[i]) > 4 else 3, len(words) - i)
+                keywords.append(" ".join(words[i:i + chunk]))
+                i += chunk
+    else:
+        normalized = []
+        for k in keywords:
+            if not isinstance(k, str):
+                continue
+            if "," in k:
+                normalized.extend(p.strip() for p in k.split(",") if p.strip())
+            elif k.strip():
+                normalized.append(k.strip())
+        keywords = normalized
 
     # Persist to database
     db_record = listings_repo.create(
