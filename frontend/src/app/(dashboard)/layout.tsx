@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/ui/toast";
 import { PageLoader } from "@/components/shared/loading-spinner";
@@ -25,6 +26,8 @@ import {
   User,
   Crown,
   ArrowUpRight,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 const mainNav = [
@@ -61,6 +64,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, loading, signOut } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -127,7 +131,7 @@ export default function DashboardLayout({
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-surface-alt">
+      <div className="min-h-screen bg-surface-alt dark:bg-surface">
         {/* Mobile sidebar overlay */}
         <div
           className={cn(
@@ -143,7 +147,7 @@ export default function DashboardLayout({
         <aside
           className={cn(
             "fixed top-0 left-0 z-50 h-full w-[264px] flex flex-col transition-transform duration-300 ease-out lg:translate-x-0",
-            "bg-gradient-to-b from-white via-white to-slate-50/80 border-r border-border/60",
+            "bg-gradient-to-b from-white via-white to-slate-50/80 border-r border-border/60 dark:from-[#13151d] dark:via-[#13151d] dark:to-[#13151d] dark:border-border",
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
@@ -184,7 +188,7 @@ export default function DashboardLayout({
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium transition-all duration-150 relative group",
                       active
                         ? "bg-primary/8 text-primary"
-                        : "text-text-muted hover:bg-purple-50/80 hover:text-text"
+                        : "text-text-muted hover:bg-purple-50/80 dark:hover:bg-white/5 hover:text-text"
                     )}
                   >
                     {/* Active left border indicator */}
@@ -225,7 +229,7 @@ export default function DashboardLayout({
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium transition-all duration-150 relative group",
                       active
                         ? "bg-primary/8 text-primary"
-                        : "text-text-muted hover:bg-purple-50/80 hover:text-text"
+                        : "text-text-muted hover:bg-purple-50/80 dark:hover:bg-white/5 hover:text-text"
                     )}
                   >
                     <div
@@ -251,7 +255,7 @@ export default function DashboardLayout({
 
           {/* Plan badge & upgrade CTA */}
           <div className="px-3 pb-2 flex-shrink-0">
-            <div className="rounded-xl bg-gradient-to-br from-slate-50 to-blue-50/50 border border-border/50 px-4 py-3">
+            <div className="rounded-xl bg-gradient-to-br from-slate-50 to-blue-50/50 dark:from-white/5 dark:to-white/5 border border-border/50 px-4 py-3">
               <div className="flex items-center gap-2 mb-1.5">
                 <Crown className="h-3.5 w-3.5 text-amber-500" />
                 <span className="text-xs font-semibold text-secondary">
@@ -275,7 +279,7 @@ export default function DashboardLayout({
           <div className="border-t border-border/40 p-3 flex-shrink-0">
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-text-muted hover:bg-red-50 hover:text-red-600 transition-all duration-150 w-full cursor-pointer group"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-text-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 transition-all duration-150 w-full cursor-pointer group"
             >
               <LogOut className="h-[18px] w-[18px] group-hover:text-red-500 transition-colors" />
               Sign Out
@@ -286,7 +290,7 @@ export default function DashboardLayout({
         {/* Main content */}
         <div className="lg:pl-[264px]">
           {/* Top bar */}
-          <header className="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-xl border-b border-border/40 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-surface/80 backdrop-blur-xl border-b border-border/40 flex items-center justify-between px-4 sm:px-6 lg:px-8">
             {/* Left: hamburger + breadcrumb */}
             <div className="flex items-center gap-4">
               <button
@@ -331,7 +335,15 @@ export default function DashboardLayout({
               </span>
             </div>
 
-            {/* Right: user menu */}
+            {/* Right: theme toggle + user menu */}
+            <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-text-muted hover:bg-surface-alt dark:hover:bg-white/5 transition-colors cursor-pointer"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -364,14 +376,14 @@ export default function DashboardLayout({
               {/* User dropdown */}
               <div
                 className={cn(
-                  "absolute right-0 top-full mt-2 w-72 rounded-2xl border border-border/60 bg-white shadow-xl shadow-black/8 z-20 overflow-hidden transition-all duration-200 origin-top-right",
+                  "absolute right-0 top-full mt-2 w-72 rounded-2xl border border-border/60 bg-white dark:bg-surface-alt shadow-xl shadow-black/8 z-20 overflow-hidden transition-all duration-200 origin-top-right",
                   userMenuOpen
                     ? "opacity-100 scale-100 translate-y-0"
                     : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
                 )}
               >
                 {/* User info header */}
-                <div className="px-5 py-4 bg-gradient-to-br from-slate-50 to-blue-50/30">
+                <div className="px-5 py-4 bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-white/5 dark:to-white/5">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 via-primary to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
                       {initials}
@@ -397,7 +409,7 @@ export default function DashboardLayout({
                 <div className="py-1.5">
                   <Link
                     href="/settings"
-                    className="flex items-center gap-3 px-5 py-2.5 text-sm text-text-muted hover:bg-surface-alt hover:text-text transition-colors"
+                    className="flex items-center gap-3 px-5 py-2.5 text-sm text-text-muted hover:bg-surface-alt dark:hover:bg-white/5 hover:text-text transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <Settings className="h-4 w-4" />
@@ -405,7 +417,7 @@ export default function DashboardLayout({
                   </Link>
                   <Link
                     href="/billing"
-                    className="flex items-center gap-3 px-5 py-2.5 text-sm text-text-muted hover:bg-surface-alt hover:text-text transition-colors"
+                    className="flex items-center gap-3 px-5 py-2.5 text-sm text-text-muted hover:bg-surface-alt dark:hover:bg-white/5 hover:text-text transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <CreditCard className="h-4 w-4" />
@@ -413,7 +425,7 @@ export default function DashboardLayout({
                   </Link>
                   <Link
                     href="/usage"
-                    className="flex items-center gap-3 px-5 py-2.5 text-sm text-text-muted hover:bg-surface-alt hover:text-text transition-colors"
+                    className="flex items-center gap-3 px-5 py-2.5 text-sm text-text-muted hover:bg-surface-alt dark:hover:bg-white/5 hover:text-text transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <BarChart3 className="h-4 w-4" />
@@ -434,6 +446,7 @@ export default function DashboardLayout({
                   </button>
                 </div>
               </div>
+            </div>
             </div>
           </header>
 

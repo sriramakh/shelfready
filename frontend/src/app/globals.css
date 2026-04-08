@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
@@ -20,6 +22,21 @@ body {
   font-family: var(--font-sans);
   color: var(--color-text);
   background-color: var(--color-surface);
+}
+
+/* Dark mode overrides */
+.dark {
+  --color-surface: #0f1117;
+  --color-surface-alt: #181a23;
+  --color-border: #2a2d3a;
+  --color-text: #e4e6eb;
+  --color-text-muted: #8b8fa3;
+  --color-secondary: #c5cad6;
+}
+
+.dark body,
+.dark {
+  color-scheme: dark;
 }
 
 @keyframes showcaseFadeIn {

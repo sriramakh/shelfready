@@ -52,8 +52,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-white antialiased">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `try{if(localStorage.theme==="dark")document.documentElement.classList.add("dark")}catch(e){}` }} />
+      </head>
+      <body className="min-h-screen bg-white dark:bg-[#0f1117] antialiased">
         {children}
         <Script
           src="https://analytics.thestorymama.club/script.js"

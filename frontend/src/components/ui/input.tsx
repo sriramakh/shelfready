@@ -24,7 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted/60 transition-all duration-200",
+            "w-full rounded-lg border bg-white dark:bg-surface px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted/60 transition-all duration-200",
             "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
             error ? "border-danger focus:ring-danger/20 focus:border-danger" : "border-border",
             "disabled:opacity-50 disabled:bg-surface-alt",
@@ -62,7 +62,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted/60 transition-all duration-200 resize-y min-h-[100px]",
+            "w-full rounded-lg border bg-white dark:bg-surface px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted/60 transition-all duration-200 resize-y min-h-[100px]",
             "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
             error ? "border-danger focus:ring-danger/20 focus:border-danger" : "border-border",
             "disabled:opacity-50 disabled:bg-surface-alt",
