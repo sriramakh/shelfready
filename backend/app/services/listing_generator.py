@@ -168,7 +168,7 @@ async def generate_listing(
 
     parsed = _parse_listing_json(raw_response)
 
-    # Validate required fields
+    # Validate and normalize fields
     title = parsed.get("title", "")
     bullets = parsed.get("bullets", [])
     description = parsed.get("description", "")
@@ -178,8 +178,23 @@ async def generate_listing(
         raise ValueError("Generated listing is missing a title.")
     if not isinstance(bullets, list):
         bullets = [str(bullets)]
+    # Filter empty bullets
+    bullets = [b for b in bullets if isinstance(b, str) and b.strip()]
+
+    # Normalize keywords: split comma-separated, remove empties
+    if isinstance(keywords, str):
+        keywords = [k.strip() for k in keywords.split(",") if k.strip()]
     if not isinstance(keywords, list):
         keywords = [str(keywords)]
+    normalized_kw = []
+    for k in keywords:
+        if not isinstance(k, str):
+            continue
+        if "," in k:
+            normalized_kw.extend(part.strip() for part in k.split(",") if part.strip())
+        elif k.strip():
+            normalized_kw.append(k.strip())
+    keywords = normalized_kw
 
     # Persist to database
     db_record = listings_repo.create(

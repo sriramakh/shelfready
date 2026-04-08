@@ -64,6 +64,41 @@ def _parse_json(text: str) -> dict:
     raise ValueError("Could not parse JSON from response")
 
 
+def _normalize_keywords(keywords) -> list[str]:
+    """Fix keywords: split comma-separated strings, remove empties."""
+    if isinstance(keywords, str):
+        keywords = [k.strip() for k in keywords.split(",")]
+    if not isinstance(keywords, list):
+        return []
+    # Flatten any comma-separated items and remove empties
+    result = []
+    for k in keywords:
+        if not isinstance(k, str):
+            continue
+        if "," in k:
+            result.extend(part.strip() for part in k.split(",") if part.strip())
+        elif k.strip():
+            result.append(k.strip())
+    return result
+
+
+def _normalize_hashtags(hashtags) -> list[str]:
+    """Ensure all hashtags have # prefix, split comma-separated."""
+    if isinstance(hashtags, str):
+        hashtags = [h.strip() for h in hashtags.replace(",", " ").split()]
+    if not isinstance(hashtags, list):
+        return []
+    result = []
+    for h in hashtags:
+        if not isinstance(h, str) or not h.strip():
+            continue
+        tag = h.strip()
+        if not tag.startswith("#"):
+            tag = f"#{tag}"
+        result.append(tag)
+    return result
+
+
 # ── Listing Generation ────────────────────────────────────────────────
 
 class ListingRequest(BaseModel):
@@ -108,9 +143,9 @@ async def generate_listing(req: ListingRequest):
             "platform": req.platform,
             "product_name": req.product_name,
             "generated_title": parsed.get("title", ""),
-            "generated_bullets": parsed.get("bullets", []),
+            "generated_bullets": [b for b in parsed.get("bullets", []) if isinstance(b, str) and b.strip()],
             "generated_description": parsed.get("description", ""),
-            "generated_keywords": parsed.get("keywords", []),
+            "generated_keywords": _normalize_keywords(parsed.get("keywords", [])),
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
     except HTTPException:
@@ -209,7 +244,7 @@ async def generate_social(req: SocialRequest):
             "id": str(uuid.uuid4()),
             "platform": req.platform,
             "caption": parsed.get("caption", ""),
-            "hashtags": parsed.get("hashtags", []),
+            "hashtags": _normalize_hashtags(parsed.get("hashtags", [])),
             "cta_text": parsed.get("cta_text", ""),
             "image_url": None,
             "created_at": datetime.now(timezone.utc).isoformat(),

@@ -168,8 +168,17 @@ async def generate_social_post(
 
     if not caption:
         raise ValueError("Generated social post is missing a caption.")
+
+    # Normalize hashtags: ensure # prefix, split comma-separated
+    if isinstance(hashtags, str):
+        hashtags = [h.strip() for h in hashtags.replace(",", " ").split()]
     if not isinstance(hashtags, list):
         hashtags = [str(hashtags)]
+    hashtags = [
+        h.strip() if h.strip().startswith("#") else f"#{h.strip()}"
+        for h in hashtags
+        if isinstance(h, str) and h.strip()
+    ]
 
     # Optionally generate an image
     image_url: str | None = None
