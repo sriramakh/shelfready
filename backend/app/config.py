@@ -13,12 +13,17 @@ class Settings(BaseSettings):
     supabase_service_role_key: str = ""
     supabase_jwt_secret: str = ""
 
-    # Stripe
-    stripe_secret_key: str = ""
-    stripe_webhook_secret: str = ""
-    stripe_starter_price_id: str = ""
-    stripe_pro_price_id: str = ""
-    stripe_business_price_id: str = ""
+    # LemonSqueezy
+    lemonsqueezy_api_key: str = ""
+    lemonsqueezy_webhook_secret: str = ""
+    lemonsqueezy_store_id: str = "324429"
+    # Variant IDs: monthly, yearly
+    ls_starter_monthly_variant: str = "1502795"
+    ls_starter_yearly_variant: str = "1502784"
+    ls_pro_monthly_variant: str = "1502798"
+    ls_pro_yearly_variant: str = "1502803"
+    ls_business_monthly_variant: str = "1502815"
+    ls_business_yearly_variant: str = "1502809"
 
     # Email
     resend_api_key: str = ""
@@ -43,7 +48,7 @@ class Settings(BaseSettings):
     # Quota limits (requests per 5-hour rolling window)
     global_budget_limit: int = 15000
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -1,5 +1,10 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const PREFIX = "/api/v1/demo";
+
+// Authenticated users use production endpoints (persist to DB)
+// Unauthenticated / demo uses demo endpoints (no persistence)
+function getPrefix(token?: string): string {
+  return token ? "/api/v1" : "/api/v1/demo";
+}
 
 type FetchOptions = RequestInit & {
   token?: string;
@@ -16,6 +21,7 @@ class ApiError extends Error {
 
 async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
   const { token, ...fetchOptions } = options;
+  const prefix = getPrefix(token);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -26,7 +32,7 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${PREFIX}${endpoint}`, {
+  const response = await fetch(`${API_URL}${prefix}${endpoint}`, {
     ...fetchOptions,
     headers,
   });

@@ -239,9 +239,13 @@ export default function AdsGeneratePage() {
         }
       }
 
-      const resp = await fetch(`${API_URL}/api/v1/demo/ads/creative`, {
+      const prefix = session?.access_token ? "/api/v1" : "/api/v1/demo";
+      const fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) fetchHeaders["Authorization"] = `Bearer ${session.access_token}`;
+
+      const resp = await fetch(`${API_URL}${prefix}/ads/creative`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: fetchHeaders,
         body: JSON.stringify({
           image_base64: uploadedImage,
           product_name: creativeProductName,

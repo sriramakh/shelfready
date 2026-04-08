@@ -208,9 +208,13 @@ export default function ImageGeneratePage() {
     setGeneratingIndex(0);
 
     try {
-      const resp = await fetch(`${API_URL}/api/v1/demo/photoshoot/generate`, {
+      const prefix = session?.access_token ? "/api/v1" : "/api/v1/demo";
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
+
+      const resp = await fetch(`${API_URL}${prefix}/photoshoot/generate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           image_base64: uploadedImage,
           themes: selectedThemes,

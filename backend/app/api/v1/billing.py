@@ -10,9 +10,9 @@ from ...models.schemas import (
     SubscriptionInfo,
     UserProfile,
 )
-from ...services.stripe_service import (
-    create_checkout_session,
-    create_portal_session,
+from ...services.lemonsqueezy_service import (
+    create_checkout_url,
+    get_customer_portal_url,
 )
 from ...db.supabase_client import get_supabase
 
@@ -53,11 +53,11 @@ async def create_checkout(
     request: CheckoutRequest,
     user: UserProfile = Depends(get_current_user),
 ):
-    """Create a Stripe Checkout session for plan upgrade."""
+    """Create a LemonSqueezy Checkout session for plan upgrade."""
     if request.plan_tier not in PLAN_DETAILS:
         raise HTTPException(status_code=400, detail="Invalid plan tier")
 
-    checkout_url = await create_checkout_session(
+    checkout_url = await create_checkout_url(
         user_id=str(user.id),
         email=user.email,
         plan_tier=request.plan_tier,
@@ -71,11 +71,11 @@ async def create_checkout(
 async def create_billing_portal(
     user: UserProfile = Depends(get_current_user),
 ):
-    """Create a Stripe Customer Portal session for managing subscription."""
+    """Get the LemonSqueezy customer portal URL."""
     if not user.stripe_customer_id:
         raise HTTPException(status_code=400, detail="No active subscription")
 
-    portal_url = await create_portal_session(user.stripe_customer_id)
+    portal_url = await get_customer_portal_url(user.stripe_customer_id)
     return PortalResponse(portal_url=portal_url)
 
 
