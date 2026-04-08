@@ -155,14 +155,9 @@ export default function DashboardLayout({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-icon.png" alt="ShelfReady" className="h-9 w-9 rounded-xl shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200" />
-              <div className="flex items-center gap-2">
-                <span className="text-[17px] font-bold tracking-tight text-secondary">
-                  ShelfReady
-                </span>
-                <span className="inline-flex items-center rounded-md bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary uppercase tracking-wider">
-                  Beta
-                </span>
-              </div>
+              <span className="text-[17px] font-bold tracking-tight text-secondary">
+                ShelfReady
+              </span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}

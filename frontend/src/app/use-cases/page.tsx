@@ -8,7 +8,8 @@ import {
   Check, ChevronRight, ArrowRight,
 } from "lucide-react";
 
-type UseCase = (typeof useCases)[number];
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type UseCase = Record<string, any>;
 
 const TOOL_TABS = [
   { id: "listing", label: "Listing", icon: FileText, color: "#3b82f6" },
@@ -19,7 +20,7 @@ const TOOL_TABS = [
   { id: "creative", label: "Creatives", icon: Camera, color: "#6366f1" },
 ] as const;
 
-function ListingOutput({ data }: { data: NonNullable<UseCase["listing"]> }) {
+function ListingOutput({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
@@ -31,7 +32,7 @@ function ListingOutput({ data }: { data: NonNullable<UseCase["listing"]> }) {
       </div>
       <div className="bg-white border border-neutral-200 rounded-xl p-4 space-y-2">
         <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">Bullet Points</p>
-        {data.bullets.map((b, i) => (
+        {data.bullets.map((b: string, i: number) => (
           <div key={i} className="flex gap-2 text-[13px] text-neutral-600">
             <Check className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
             <span>{b}</span>
@@ -41,7 +42,7 @@ function ListingOutput({ data }: { data: NonNullable<UseCase["listing"]> }) {
       <div className="bg-white border border-neutral-200 rounded-xl p-4">
         <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">Backend Keywords</p>
         <div className="flex flex-wrap gap-1.5">
-          {data.keywords.map((k) => (
+          {data.keywords.map((k: string) => (
             <span key={k} className="text-[11px] bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full">{k}</span>
           ))}
         </div>
@@ -50,7 +51,7 @@ function ListingOutput({ data }: { data: NonNullable<UseCase["listing"]> }) {
   );
 }
 
-function SocialOutput({ data }: { data: NonNullable<UseCase["social"]> }) {
+function SocialOutput({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -64,7 +65,7 @@ function SocialOutput({ data }: { data: NonNullable<UseCase["social"]> }) {
       <div className="bg-white border border-neutral-200 rounded-xl p-4">
         <p className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-2">Hashtags</p>
         <div className="flex flex-wrap gap-1.5">
-          {data.hashtags.map((h) => (
+          {data.hashtags.map((h: string) => (
             <span key={h} className="text-[11px] bg-pink-50 text-pink-700 px-2.5 py-0.5 rounded-full">{h}</span>
           ))}
         </div>
@@ -79,14 +80,14 @@ function SocialOutput({ data }: { data: NonNullable<UseCase["social"]> }) {
   );
 }
 
-function AdsOutput({ data }: { data: NonNullable<UseCase["ads"]> }) {
+function AdsOutput({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 uppercase">{data.platform} Ads</span>
         <span className="text-[11px] text-neutral-400">{data.variants.length} variants</span>
       </div>
-      {data.variants.map((v, i) => (
+      {data.variants.map((v: any, i: number) => (
         <div key={i} className="bg-white border border-neutral-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700">{v.label || `Variant ${i + 1}`}</span>
@@ -100,7 +101,7 @@ function AdsOutput({ data }: { data: NonNullable<UseCase["ads"]> }) {
   );
 }
 
-function ResearchOutput({ data }: { data: NonNullable<UseCase["research"]> }) {
+function ResearchOutput({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <div className="bg-white border border-neutral-200 rounded-xl p-4">
@@ -110,7 +111,7 @@ function ResearchOutput({ data }: { data: NonNullable<UseCase["research"]> }) {
       <div className="bg-white border border-neutral-200 rounded-xl p-4">
         <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-2">Top Keywords</p>
         <div className="flex flex-wrap gap-1.5">
-          {data.keywords.map((k) => (
+          {data.keywords.map((k: string) => (
             <span key={k} className="text-[11px] bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full">{k}</span>
           ))}
         </div>
@@ -118,7 +119,7 @@ function ResearchOutput({ data }: { data: NonNullable<UseCase["research"]> }) {
       <div className="bg-white border border-neutral-200 rounded-xl p-4">
         <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-3">Competitors</p>
         <div className="space-y-3">
-          {data.competitors.map((c, i) => (
+          {data.competitors.map((c: any, i: number) => (
             <div key={i} className="flex items-start justify-between pb-3 border-b border-neutral-100 last:border-0 last:pb-0">
               <div>
                 <p className="text-[13px] font-semibold text-neutral-900">{c.name}</p>
@@ -133,7 +134,7 @@ function ResearchOutput({ data }: { data: NonNullable<UseCase["research"]> }) {
   );
 }
 
-function PhotoshootOutput({ data }: { data: NonNullable<UseCase["photoshoot"]> }) {
+function PhotoshootOutput({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       {data.product_analysis && (
@@ -145,7 +146,7 @@ function PhotoshootOutput({ data }: { data: NonNullable<UseCase["photoshoot"]> }
         </div>
       )}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {data.images.map((img, i) => (
+        {data.images.map((img: any, i: number) => (
           <div key={i} className="rounded-xl overflow-hidden border border-neutral-200">
             <div className="aspect-square overflow-hidden bg-neutral-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -161,10 +162,10 @@ function PhotoshootOutput({ data }: { data: NonNullable<UseCase["photoshoot"]> }
   );
 }
 
-function CreativeOutput({ data }: { data: NonNullable<UseCase["creative"]> }) {
+function CreativeOutput({ data }: { data: any }) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      {data.creatives.map((c, i) => (
+      {data.creatives.map((c: any, i: number) => (
         <div key={i} className="rounded-xl overflow-hidden border border-neutral-200">
           <div className="aspect-square overflow-hidden bg-neutral-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -183,11 +184,11 @@ export default function UseCasesPage() {
   const [activeProduct, setActiveProduct] = useState(0);
   const [activeTool, setActiveTool] = useState("listing");
 
-  const uc = useCases[activeProduct];
+  const uc = useCases[activeProduct] as UseCase;
 
   // Filter tools to those that have data for this product
   const availableTools = TOOL_TABS.filter((t) => {
-    const data = uc[t.id as keyof UseCase];
+    const data = uc[t.id];
     return data !== null && data !== undefined;
   });
 

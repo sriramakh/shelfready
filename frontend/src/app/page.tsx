@@ -635,7 +635,7 @@ export default function Landing() {
           <div>
             <div className="inline-flex items-center gap-2 bg-[#2563eb]/5 border border-[#2563eb]/15 rounded-full px-4 py-1.5 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse" />
-              <span className="text-[13px] font-semibold text-[#2563eb]">Now in public beta</span>
+              <span className="text-[13px] font-semibold text-[#2563eb]">Now available</span>
             </div>
 
             <h1 className="text-[clamp(2.4rem,5.5vw,3.75rem)] font-extrabold leading-[1.08] tracking-[-0.03em]">
