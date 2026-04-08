@@ -56,7 +56,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-white antialiased">
         {children}
         <Script
-          src="https://analytics.shelfready.app/script.js"
+          src="https://analytics.thestorymama.club/script.js"
           data-website-id="cb9c1737-fb8a-4d7f-9ee3-3145548fc318"
           strategy="afterInteractive"
         />
