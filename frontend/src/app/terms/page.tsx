@@ -61,10 +61,10 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-neutral-900 mb-3">4. Subscription Plans and Billing</h2>
             <p>ShelfReady offers the following subscription tiers:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
-              <li><strong>Free:</strong> Limited access with 5 product listings and 5 AI images per month.</li>
-              <li><strong>Starter ($29/month):</strong> 50 listings, 100 images, 10 AI photoshoots, ad creatives, market research.</li>
-              <li><strong>Pro ($79/month):</strong> 300 listings, 300 images, 30 photoshoots, CSV/JSON export.</li>
-              <li><strong>Business ($149/month):</strong> Unlimited listings, 1,000 images, 100 photoshoots, API access, dedicated support.</li>
+              <li><strong>Free:</strong> 5 listings/month, 5 AI images (lifetime), 5 social posts/month, 5 ad copies/month.</li>
+              <li><strong>Starter ($29/month):</strong> 50 listings, 100 images, 10 photoshoots, 50 social, 50 ads, 20 research reports/month.</li>
+              <li><strong>Pro ($79/month):</strong> 300 listings, 300 images, 30 photoshoots, 300 social, 300 ads, 100 research/month, CSV/JSON export.</li>
+              <li><strong>Business ($149/month):</strong> Unlimited listings/social/ads/research, 1,000 images, 100 photoshoots, API access, dedicated support.</li>
             </ul>
             <p className="mt-3">
               Annual billing is available at a discounted rate. All prices are in USD. We reserve the right to modify pricing with 30 days&apos; notice to existing subscribers.

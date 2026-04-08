@@ -40,9 +40,9 @@ const planMeta: Record<
     badgeColor: "bg-purple-50 text-slate-600",
     features: [
       "5 product listings/month",
-      "5 AI images (text-to-image)",
-      "Basic ad copy",
-      "Social media posts",
+      "5 AI images (lifetime)",
+      "5 social media posts/month",
+      "5 ad copies/month",
       "Community support",
     ],
     photoshootLine: null,
@@ -55,12 +55,13 @@ const planMeta: Record<
     features: [
       "50 product listings/month",
       "100 AI images/month",
-      "Ad copy + visual creatives (160+ templates)",
-      "Social media posts",
-      "Competitor intelligence + market insights",
+      "50 social media posts/month",
+      "50 ad creatives/month",
+      "20 market research reports/month",
+      "160+ ad creative templates",
       "Priority support",
     ],
-    photoshootLine: "10 AI photoshoots (50 pro images)",
+    photoshootLine: "10 AI photoshoots/month",
     cta: "Start Free Trial",
   },
   pro: {
@@ -70,13 +71,14 @@ const planMeta: Record<
     features: [
       "300 product listings/month",
       "300 AI images/month",
-      "Ad copy generation",
-      "Social media posts",
-      "Competitor intelligence + market insights",
+      "300 social media posts/month",
+      "300 ad creatives/month",
+      "100 market research reports/month",
+      "160+ ad creative templates",
       "Export to CSV/JSON",
       "Priority support",
     ],
-    photoshootLine: "30 AI photoshoots (150 pro images)",
+    photoshootLine: "30 AI photoshoots/month",
     cta: "Start Free Trial",
   },
   business: {
@@ -86,14 +88,15 @@ const planMeta: Record<
     features: [
       "Unlimited product listings",
       "1,000 AI images/month",
-      "Ad copy generation",
-      "Social media posts",
-      "Competitor intelligence + market insights",
+      "Unlimited social media posts",
+      "Unlimited ad creatives",
+      "Unlimited market research",
+      "160+ ad creative templates",
       "Export to CSV/JSON",
       "API access",
       "Dedicated support",
     ],
-    photoshootLine: "100 AI photoshoots (500 pro images)",
+    photoshootLine: "100 AI photoshoots/month",
     cta: "Start Free Trial",
   },
 };
@@ -103,28 +106,14 @@ const comparisonRows: {
   values: (string | boolean)[];
 }[] = [
   { feature: "Product Listings", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
-  { feature: "AI Images", values: ["5/mo", "100/mo", "300/mo", "1,000/mo"] },
-  {
-    feature: "AI Photoshoots",
-    values: ["\u2014", "10/mo (50 imgs)", "30/mo (150 imgs)", "100/mo (500 imgs)"],
-  },
-  { feature: "Ad Copy Variants", values: ["Basic", "Full", "Full", "Full"] },
-  {
-    feature: "Social Platforms",
-    values: ["3 platforms", "3 platforms", "3 platforms", "3 platforms"],
-  },
-  {
-    feature: "Competitor Research",
-    values: [false, true, true, true],
-  },
-  {
-    feature: "Export Formats",
-    values: [false, false, "CSV, JSON", "CSV, JSON"],
-  },
-  {
-    feature: "Support Level",
-    values: ["Community", "Priority", "Priority", "Dedicated"],
-  },
+  { feature: "AI Images", values: ["5 lifetime", "100/mo", "300/mo", "1,000/mo"] },
+  { feature: "AI Photoshoots", values: ["\u2014", "10/mo", "30/mo", "100/mo"] },
+  { feature: "Social Posts", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
+  { feature: "Ad Creatives", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
+  { feature: "Market Research", values: ["\u2014", "20/mo", "100/mo", "Unlimited"] },
+  { feature: "Creative Templates", values: ["\u2014", "160+", "160+", "160+"] },
+  { feature: "Export Formats", values: [false, false, "CSV, JSON", "CSV, JSON"] },
+  { feature: "Support Level", values: ["Community", "Priority", "Priority", "Dedicated"] },
   { feature: "API Access", values: [false, false, false, true] },
 ];
 

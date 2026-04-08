@@ -142,7 +142,7 @@ export default function SettingsPage() {
                 Free Plan
               </Badge>
               <p className="text-sm text-text-muted">
-                100 requests per 5-hour window
+                5 listings/mo &middot; 5 images (lifetime)
               </p>
             </div>
             <Button

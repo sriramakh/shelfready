@@ -807,7 +807,7 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <p className="text-[13px] text-neutral-400 mt-6">Free plan available — 5 listings, 5 images. <Link href="/signup" className="text-[#2563eb] hover:underline font-medium">Start free →</Link></p>
+          <p className="text-[13px] text-neutral-400 mt-6">Free plan — 5 listings/mo, 5 images, social posts &amp; ad copies. <Link href="/signup" className="text-[#2563eb] hover:underline font-medium">Start free →</Link></p>
         </div>
       </section>
 

@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Check } from "lucide-react";
 
 const benefits = [
-  "5 free product listings per month",
-  "AI-generated images and ad copy",
-  "Multi-platform optimization",
+  "5 product listings per month",
+  "5 AI images (lifetime)",
+  "Social posts & ad creatives",
   "No credit card required",
 ];
 
