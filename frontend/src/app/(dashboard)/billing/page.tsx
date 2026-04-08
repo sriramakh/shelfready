@@ -33,12 +33,12 @@ export default function BillingPage() {
 
     try {
       const data = (await api.createCheckout(
-        { plan: planKey, billing_period: annual ? "yearly" : "monthly" },
+        { plan_tier: planKey, billing_period: annual ? "yearly" : "monthly" },
         session.access_token,
-      )) as { url: string };
+      )) as { checkout_url: string };
 
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
       }
     } catch {
       alert("Failed to create checkout session. Please try again.");
@@ -53,11 +53,11 @@ export default function BillingPage() {
 
     try {
       const data = (await api.createPortal(session.access_token)) as {
-        url: string;
+        portal_url: string;
       };
 
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.portal_url) {
+        window.location.href = data.portal_url;
       }
     } catch {
       alert("Failed to open billing portal. Please try again.");
