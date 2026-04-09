@@ -7,6 +7,7 @@ import { api } from "@/lib/api-client";
 import { cn, formatNumber } from "@/lib/utils";
 import { Card, CardBody } from "@/components/ui/card";
 import { PageLoader } from "@/components/shared/loading-spinner";
+import { OnboardingTour } from "@/components/shared/onboarding-tour";
 import type { UsageCurrent, ListingResponse } from "@/types/api";
 import {
   FileText,
@@ -217,6 +218,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 max-w-7xl">
+      <OnboardingTour />
+
       {/* ===== Welcome section ===== */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
