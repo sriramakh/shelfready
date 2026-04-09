@@ -365,8 +365,13 @@ export default function StudioPage() {
   };
 
   // ── Generate all 6 outputs ──
+  const [genError, setGenError] = useState("");
   const generateAll = async () => {
-    if (!token || !productName) return;
+    setGenError("");
+    if (!token) { setGenError("Not connected — sign in above first"); return; }
+    if (!productName) { setGenError("Enter a product name"); return; }
+    if (!productDetails) { setGenError("Enter product details"); return; }
+    console.log("[Studio] Starting generation with token:", token.slice(0, 20), "API:", API_URL);
     setGenerating(true);
     setResults({});
     const progress: Record<string, "pending" | "loading" | "done" | "error"> = {};
@@ -382,7 +387,7 @@ export default function StudioPage() {
         const r = await api.generateListing({ platform: "amazon", product_name: productName, product_details: productDetails, target_audience: targetAudience, category, price_range: price }, token);
         setResults((prev) => ({ ...prev, listing: r }));
         setGenProgress((p) => ({ ...p, listing: "done" }));
-      } catch { setGenProgress((p) => ({ ...p, listing: "error" })); }
+      } catch(e) { console.error("[Studio] Listing error:", e); setGenProgress((p) => ({ ...p, listing: "error" })); }
     })());
 
     // 2. Social
@@ -392,7 +397,7 @@ export default function StudioPage() {
         const r = await api.generateSocial({ platform: "instagram", product_name: productName, product_details: productDetails, tone: "casual" }, token);
         setResults((prev) => ({ ...prev, social: r }));
         setGenProgress((p) => ({ ...p, social: "done" }));
-      } catch { setGenProgress((p) => ({ ...p, social: "error" })); }
+      } catch(e) { console.error("[Studio] Social error:", e); setGenProgress((p) => ({ ...p, social: "error" })); }
     })());
 
     // 3. Ads
@@ -402,7 +407,7 @@ export default function StudioPage() {
         const r = await api.generateAds({ ad_platform: "facebook", product_name: productName, product_details: productDetails, target_audience: targetAudience, num_variants: 3 }, token);
         setResults((prev) => ({ ...prev, ads: r }));
         setGenProgress((p) => ({ ...p, ads: "done" }));
-      } catch { setGenProgress((p) => ({ ...p, ads: "error" })); }
+      } catch(e) { console.error("[Studio] Ads error:", e); setGenProgress((p) => ({ ...p, ads: "error" })); }
     })());
 
     // 4. Research
@@ -412,7 +417,7 @@ export default function StudioPage() {
         const r = await api.searchResearch({ query: `${productName} market competitors pricing` }, token);
         setResults((prev) => ({ ...prev, research: r }));
         setGenProgress((p) => ({ ...p, research: "done" }));
-      } catch { setGenProgress((p) => ({ ...p, research: "error" })); }
+      } catch(e) { console.error("[Studio] Research error:", e); setGenProgress((p) => ({ ...p, research: "error" })); }
     })());
 
     // 5. Photoshoot (needs image)
@@ -768,13 +773,19 @@ export default function StudioPage() {
         </div>
 
         {/* Generate button */}
+        {genError && <p className="mt-4 text-sm text-red-400 text-center">{genError}</p>}
         <button
           onClick={generateAll}
-          disabled={generating || !productName || !productDetails}
-          className="mt-8 w-full py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110 disabled:opacity-40 transition-all cursor-pointer flex items-center justify-center gap-2"
+          disabled={generating}
+          className="mt-4 w-full py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110 disabled:opacity-40 transition-all cursor-pointer flex items-center justify-center gap-2"
         >
-          {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating all outputs...</> : !token ? <>Connect above to generate</> : <><Sparkles className="h-4 w-4" /> Generate All 6 Outputs</>}
+          {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating all outputs...</> : <><Sparkles className="h-4 w-4" /> Generate All 6 Outputs</>}
         </button>
+
+        {/* Debug: show token status */}
+        <p className="mt-2 text-[10px] text-neutral-600 text-center">
+          Token: {token ? `${token.slice(0, 20)}...` : "none"} | API: {API_URL}
+        </p>
 
         {/* Progress */}
         {generating && (
