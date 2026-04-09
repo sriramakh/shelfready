@@ -6,6 +6,7 @@
 let _ctx: AudioContext | null = null;
 
 function getCtx(): AudioContext {
+  if (typeof window === "undefined") throw new Error("Audio not available on server");
   if (!_ctx) _ctx = new AudioContext();
   if (_ctx.state === "suspended") _ctx.resume();
   return _ctx;

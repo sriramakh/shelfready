@@ -270,8 +270,14 @@ export default function StudioPage() {
   const [bgmVolume, setBgmVolume] = useState(0.5);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const bgmRef = useRef(createBGM());
+  const bgmRef = useRef<ReturnType<typeof createBGM> | null>(null);
   const stopProcessingRef = useRef<(() => void) | null>(null);
+
+  // Lazy-init BGM (can't create AudioContext during SSR)
+  const getBGM = useCallback(() => {
+    if (!bgmRef.current) bgmRef.current = createBGM();
+    return bgmRef.current;
+  }, []);
 
   const token = session?.access_token || "";
 
@@ -392,7 +398,7 @@ export default function StudioPage() {
     setPresStep(0);
     setPresPhase("input");
     setAutoPlay(true);
-    if (bgmEnabled) bgmRef.current.start();
+    if (bgmEnabled) getBGM().start();
   };
 
   // ── Recording controls ──
@@ -425,7 +431,7 @@ export default function StudioPage() {
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
     setRecording(false);
-    bgmRef.current.stop();
+    getBGM().stop();
   };
 
   // Auto-advance through phases with sound effects
@@ -460,7 +466,7 @@ export default function StudioPage() {
           setPresPhase("input");
         } else {
           setAutoPlay(false);
-          bgmRef.current.stop();
+          getBGM().stop();
           if (recording) stopRecording();
         }
       }, 4000);
@@ -471,7 +477,7 @@ export default function StudioPage() {
 
   // Update BGM volume
   useEffect(() => {
-    bgmRef.current.setVolume(bgmVolume);
+    getBGM().setVolume(bgmVolume);
   }, [bgmVolume]);
 
   const activeTool = TOOLS[presStep];
@@ -606,7 +612,7 @@ export default function StudioPage() {
               <button onClick={() => setSfxEnabled(!sfxEnabled)} className={`p-1.5 rounded-md cursor-pointer ${sfxEnabled ? "bg-white/10 text-white" : "text-neutral-600"}`} title="Sound effects">
                 {sfxEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
               </button>
-              <button onClick={() => { setBgmEnabled(!bgmEnabled); if (bgmEnabled) bgmRef.current.stop(); else bgmRef.current.start(); }} className={`p-1.5 rounded-md cursor-pointer ${bgmEnabled ? "bg-white/10 text-white" : "text-neutral-600"}`} title="Background music">
+              <button onClick={() => { setBgmEnabled(!bgmEnabled); if (bgmEnabled) getBGM().stop(); else getBGM().start(); }} className={`p-1.5 rounded-md cursor-pointer ${bgmEnabled ? "bg-white/10 text-white" : "text-neutral-600"}`} title="Background music">
                 <Music className="h-3.5 w-3.5" />
               </button>
               {recording ? (
