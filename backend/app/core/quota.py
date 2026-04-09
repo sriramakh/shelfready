@@ -7,6 +7,11 @@ from ..models.enums import PLAN_QUOTAS, Feature, GenerationType, PlanTier
 
 logger = logging.getLogger(__name__)
 
+# Admin users bypass all quotas
+ADMIN_USER_IDS = {
+    "fa96ff9b-0cab-462d-884b-1f67026e8d72",  # sriramakh@gmail.com
+}
+
 # Map Feature to the corresponding monthly limit key in PLAN_QUOTAS
 FEATURE_LIMIT_KEY = {
     Feature.LISTING: "max_listings_per_month",
@@ -56,6 +61,10 @@ class QuotaManager:
     ) -> None:
         """Check if user has enough quota for this feature. Raises if exceeded."""
         if not feature:
+            return
+
+        # Admin users bypass all quotas
+        if user_id in ADMIN_USER_IDS:
             return
 
         plan_tier = PlanTier(plan)
