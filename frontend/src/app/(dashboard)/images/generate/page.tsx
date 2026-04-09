@@ -123,8 +123,34 @@ export default function ImageGeneratePage() {
   const canAddMore = totalImages < 5;
   const hasContext = selectedThemes.includes("context");
 
+  // ── Resize image to max 1024px and compress as JPEG ──
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const MAX = 1024;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const scale = MAX / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { reject(new Error("Canvas not supported")); return; }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        resolve(dataUrl.split(",")[1]);
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   // ── File upload handler ──
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -139,14 +165,14 @@ export default function ImageGeneratePage() {
     }
 
     setUploadedFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = (reader.result as string).split(",")[1];
+    try {
+      const base64 = await compressImage(file);
       setUploadedImage(base64);
       setPhotoshootError("");
       setPhotoshootResult(null);
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setPhotoshootError("Failed to process image. Try a different file.");
+    }
   };
 
   // ── Theme toggle ──
