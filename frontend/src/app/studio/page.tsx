@@ -279,14 +279,40 @@ export default function StudioPage() {
     return bgmRef.current;
   }, []);
 
-  // Use session token if logged in, otherwise prompt to login
-  const token = session?.access_token || "";
-  const [noAuth, setNoAuth] = useState(false);
+  // Auth: use session if available, otherwise inline email sign-in
+  const [token, setToken] = useState("");
+  const [studioEmail, setStudioEmail] = useState("sriramakh@gmail.com");
+  const [studioPassword, setStudioPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
-    if (!session?.access_token) setNoAuth(true);
-    else setNoAuth(false);
+    if (session?.access_token) setToken(session.access_token);
   }, [session?.access_token]);
+
+  const studioSignIn = async () => {
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      );
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: studioEmail,
+        password: studioPassword,
+      });
+      if (error) throw error;
+      if (data.session?.access_token) {
+        setToken(data.session.access_token);
+      }
+    } catch (e: any) {
+      setAuthError(e.message || "Sign in failed");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   // ── Image upload with compression ──
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -657,6 +683,27 @@ export default function StudioPage() {
         <h1 className="text-2xl font-bold mb-1">Prepare Content</h1>
         <p className="text-neutral-500 text-sm mb-8">Enter product details, generate all 6 outputs, then present for recording.</p>
 
+        {/* Inline auth — only shown if no token */}
+        {!token && (
+          <div className="mb-6 bg-white/5 border border-white/10 rounded-xl p-4">
+            <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3">Sign in to connect to API</p>
+            <div className="flex gap-2">
+              <input value={studioEmail} onChange={(e) => setStudioEmail(e.target.value)} placeholder="Email" className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none" />
+              <input value={studioPassword} onChange={(e) => setStudioPassword(e.target.value)} type="password" placeholder="Password" className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none" />
+              <button onClick={studioSignIn} disabled={authLoading} className="px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-500 disabled:opacity-50 cursor-pointer">
+                {authLoading ? "..." : "Connect"}
+              </button>
+            </div>
+            {authError && <p className="text-xs text-red-400 mt-2">{authError}</p>}
+            {token && <p className="text-xs text-green-400 mt-2">Connected!</p>}
+          </div>
+        )}
+        {token && (
+          <div className="mb-6 flex items-center gap-2 text-xs text-green-400">
+            <Check className="h-3.5 w-3.5" /> API connected
+          </div>
+        )}
+
         {/* Input form */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -704,7 +751,7 @@ export default function StudioPage() {
           disabled={generating || !productName || !productDetails}
           className="mt-8 w-full py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110 disabled:opacity-40 transition-all cursor-pointer flex items-center justify-center gap-2"
         >
-          {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating all outputs...</> : !token ? <>Log in first at /login</> : <><Sparkles className="h-4 w-4" /> Generate All 6 Outputs</>}
+          {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating all outputs...</> : !token ? <>Connect above to generate</> : <><Sparkles className="h-4 w-4" /> Generate All 6 Outputs</>}
         </button>
 
         {/* Progress */}
