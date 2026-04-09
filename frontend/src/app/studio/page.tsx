@@ -279,7 +279,14 @@ export default function StudioPage() {
     return bgmRef.current;
   }, []);
 
+  // Use session token if logged in, otherwise prompt to login
   const token = session?.access_token || "";
+  const [noAuth, setNoAuth] = useState(false);
+
+  useEffect(() => {
+    if (!session?.access_token) setNoAuth(true);
+    else setNoAuth(false);
+  }, [session?.access_token]);
 
   // ── Image upload with compression ──
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -694,10 +701,10 @@ export default function StudioPage() {
         {/* Generate button */}
         <button
           onClick={generateAll}
-          disabled={generating || !productName || !productDetails || !token}
+          disabled={generating || !productName || !productDetails}
           className="mt-8 w-full py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110 disabled:opacity-40 transition-all cursor-pointer flex items-center justify-center gap-2"
         >
-          {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating all outputs...</> : <><Sparkles className="h-4 w-4" /> Generate All 6 Outputs</>}
+          {generating ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating all outputs...</> : !token ? <>Log in first at /login</> : <><Sparkles className="h-4 w-4" /> Generate All 6 Outputs</>}
         </button>
 
         {/* Progress */}
