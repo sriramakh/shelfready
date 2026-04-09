@@ -279,16 +279,56 @@ export default function StudioPage() {
     return bgmRef.current;
   }, []);
 
-  // Auth: use session if available, otherwise Google OAuth
+  // Auth: check for session, handle OAuth callback, or show sign-in
   const [token, setToken] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.access_token) setToken(session.access_token);
+    if (session?.access_token) {
+      setToken(session.access_token);
+      setAuthLoading(false);
+      return;
+    }
+
+    // Try to get session from Supabase directly (handles OAuth callback hash)
+    async function initAuth() {
+      try {
+        const { createClient } = await import("@supabase/supabase-js");
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        );
+
+        // Handle OAuth callback — exchange code for session
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        if (code) {
+          const { data } = await supabase.auth.exchangeCodeForSession(code);
+          if (data.session?.access_token) {
+            setToken(data.session.access_token);
+            window.history.replaceState({}, "", window.location.pathname);
+          }
+        } else if (window.location.hash.includes("access_token")) {
+          // Implicit flow fallback
+          const { data } = await supabase.auth.getSession();
+          if (data.session?.access_token) {
+            setToken(data.session.access_token);
+            window.history.replaceState({}, "", window.location.pathname);
+          }
+        } else {
+          // Check for existing session
+          const { data } = await supabase.auth.getSession();
+          if (data.session?.access_token) {
+            setToken(data.session.access_token);
+          }
+        }
+      } catch {}
+      setAuthLoading(false);
+    }
+    initAuth();
   }, [session?.access_token]);
 
   const signInWithGoogle = async () => {
-    setAuthLoading(true);
     try {
       const { createClient } = await import("@supabase/supabase-js");
       const supabase = createClient(
@@ -297,11 +337,9 @@ export default function StudioPage() {
       );
       await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: window.location.href },
+        options: { redirectTo: `${window.location.origin}/studio` },
       });
-    } catch {
-      setAuthLoading(false);
-    }
+    } catch {}
   };
 
   // ── Image upload with compression ──

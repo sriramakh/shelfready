@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
 
     // If there's a ?code= param, redirect to the callback route to exchange it
     const code = request.nextUrl.searchParams.get("code");
-    if (code && !request.nextUrl.pathname.startsWith("/auth/callback") && !request.nextUrl.pathname.startsWith("/callback")) {
+    if (code && !request.nextUrl.pathname.startsWith("/auth/callback") && !request.nextUrl.pathname.startsWith("/callback") && !request.nextUrl.pathname.startsWith("/studio")) {
       const url = request.nextUrl.clone();
       url.pathname = "/auth/callback";
       url.searchParams.set("code", code);
