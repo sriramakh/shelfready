@@ -6,8 +6,9 @@ import { api } from "@/lib/api-client";
 import {
   Package, FileText, Image, Share2, Megaphone, Search, Camera,
   Upload, Play, Pause, SkipForward, ChevronRight, Check, Sparkles,
-  Loader2, ArrowRight, X,
+  Loader2, ArrowRight, X, Circle, Square, Download, Volume2, VolumeX, Music, Film,
 } from "lucide-react";
+import { playKeyTick, playClick, playSuccess, playProcessing, createBGM } from "@/lib/audio-engine";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -259,6 +260,19 @@ export default function StudioPage() {
   const [autoPlay, setAutoPlay] = useState(false);
   const autoRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // Recording & Video Studio state
+  const [recording, setRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [showVideoStudio, setShowVideoStudio] = useState(false);
+  const [sfxEnabled, setSfxEnabled] = useState(true);
+  const [bgmEnabled, setBgmEnabled] = useState(true);
+  const [bgmVolume, setBgmVolume] = useState(0.5);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const bgmRef = useRef(createBGM());
+  const stopProcessingRef = useRef<(() => void) | null>(null);
+
   const token = session?.access_token || "";
 
   // ── Image upload with compression ──
@@ -378,27 +392,87 @@ export default function StudioPage() {
     setPresStep(0);
     setPresPhase("input");
     setAutoPlay(true);
+    if (bgmEnabled) bgmRef.current.start();
   };
 
-  // Auto-advance through phases
+  // ── Recording controls ──
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: "browser" } as any,
+        audio: true,
+      });
+      chunksRef.current = [];
+      const mr = new MediaRecorder(stream, { mimeType: "video/webm;codecs=vp9" });
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        setRecordedBlob(blob);
+        setRecordedUrl(URL.createObjectURL(blob));
+        setShowVideoStudio(true);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      setRecording(true);
+      // Auto-start presentation
+      startPresentation();
+    } catch {
+      // User cancelled screen picker
+    }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+    bgmRef.current.stop();
+  };
+
+  // Auto-advance through phases with sound effects
   useEffect(() => {
     if (!presenting || !autoPlay) return;
+
     if (presPhase === "input") {
+      // Play keyboard ticks during typing
+      if (sfxEnabled) {
+        const tickInterval = setInterval(playKeyTick, 80);
+        autoRef.current = setTimeout(() => {
+          clearInterval(tickInterval);
+          if (sfxEnabled) playClick();
+          setPresPhase("streaming");
+        }, 1500);
+        return () => { clearInterval(tickInterval); clearTimeout(autoRef.current); };
+      }
       autoRef.current = setTimeout(() => setPresPhase("streaming"), 1500);
     } else if (presPhase === "streaming") {
-      autoRef.current = setTimeout(() => setPresPhase("output"), 2500);
+      // Play processing hum
+      if (sfxEnabled) stopProcessingRef.current = playProcessing();
+      autoRef.current = setTimeout(() => {
+        if (stopProcessingRef.current) { stopProcessingRef.current(); stopProcessingRef.current = null; }
+        setPresPhase("output");
+      }, 2500);
     } else if (presPhase === "output") {
+      // Play success chime
+      if (sfxEnabled) playSuccess();
       autoRef.current = setTimeout(() => {
         if (presStep < TOOLS.length - 1) {
           setPresStep((s) => s + 1);
           setPresPhase("input");
         } else {
           setAutoPlay(false);
+          bgmRef.current.stop();
+          if (recording) stopRecording();
         }
       }, 4000);
     }
     return () => clearTimeout(autoRef.current);
-  }, [presenting, autoPlay, presPhase, presStep]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presenting, autoPlay, presPhase, presStep, sfxEnabled]);
+
+  // Update BGM volume
+  useEffect(() => {
+    bgmRef.current.setVolume(bgmVolume);
+  }, [bgmVolume]);
 
   const activeTool = TOOLS[presStep];
   const activeColor = activeTool?.color || "#2563eb";
@@ -503,32 +577,47 @@ export default function StudioPage() {
 
           {/* Controls */}
           <div className="flex items-center justify-between mt-6">
-            <button
-              onClick={() => { if (presStep > 0) { setPresStep(presStep - 1); setPresPhase("input"); } }}
-              disabled={presStep === 0}
-              className="px-4 py-2 text-sm text-neutral-500 hover:text-white disabled:opacity-30 cursor-pointer"
-            >
-              Previous
-            </button>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setAutoPlay(!autoPlay)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer"
+                onClick={() => { if (presStep > 0) { setPresStep(presStep - 1); setPresPhase("input"); } }}
+                disabled={presStep === 0}
+                className="px-3 py-1.5 text-xs text-neutral-500 hover:text-white disabled:opacity-30 cursor-pointer"
               >
+                Previous
+              </button>
+            </div>
+
+            {/* Center: playback controls */}
+            <div className="flex items-center gap-2">
+              <button onClick={() => setAutoPlay(!autoPlay)} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer">
                 {autoPlay ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </button>
               <button
-                onClick={() => {
-                  if (presStep < TOOLS.length - 1) {
-                    setPresStep(presStep + 1);
-                    setPresPhase("input");
-                  }
-                }}
+                onClick={() => { if (presStep < TOOLS.length - 1) { setPresStep(presStep + 1); setPresPhase("input"); } }}
                 disabled={presStep >= TOOLS.length - 1}
-                className="px-4 py-2 text-sm font-medium bg-white/10 rounded-lg hover:bg-white/15 disabled:opacity-30 cursor-pointer flex items-center gap-1"
+                className="px-3 py-1.5 text-xs font-medium bg-white/10 rounded-lg hover:bg-white/15 disabled:opacity-30 cursor-pointer flex items-center gap-1"
               >
-                Next <SkipForward className="h-3.5 w-3.5" />
+                Next <SkipForward className="h-3 w-3" />
               </button>
+            </div>
+
+            {/* Right: audio + recording controls */}
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => setSfxEnabled(!sfxEnabled)} className={`p-1.5 rounded-md cursor-pointer ${sfxEnabled ? "bg-white/10 text-white" : "text-neutral-600"}`} title="Sound effects">
+                {sfxEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+              </button>
+              <button onClick={() => { setBgmEnabled(!bgmEnabled); if (bgmEnabled) bgmRef.current.stop(); else bgmRef.current.start(); }} className={`p-1.5 rounded-md cursor-pointer ${bgmEnabled ? "bg-white/10 text-white" : "text-neutral-600"}`} title="Background music">
+                <Music className="h-3.5 w-3.5" />
+              </button>
+              {recording ? (
+                <button onClick={stopRecording} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-lg cursor-pointer animate-pulse">
+                  <Square className="h-3 w-3" /> Stop
+                </button>
+              ) : (
+                <button onClick={startRecording} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-500">
+                  <Circle className="h-3 w-3" /> Record
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -623,12 +712,116 @@ export default function StudioPage() {
 
         {/* Present button (after generation) */}
         {!generating && Object.keys(results).length > 0 && (
-          <button
-            onClick={startPresentation}
-            className="mt-6 w-full py-3 rounded-xl text-sm font-semibold bg-white text-black hover:bg-neutral-200 transition-all cursor-pointer flex items-center justify-center gap-2"
-          >
-            <Play className="h-4 w-4" /> Start Presentation (Record Your Reel)
-          </button>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={startPresentation}
+              className="py-3 rounded-xl text-sm font-semibold bg-white text-black hover:bg-neutral-200 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Play className="h-4 w-4" /> Present
+            </button>
+            <button
+              onClick={async () => { await startRecording(); }}
+              className="py-3 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-500 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Circle className="h-4 w-4" /> Record Reel
+            </button>
+          </div>
+        )}
+
+        {/* Video Studio */}
+        {recordedUrl && (
+          <div className="mt-8 border-t border-white/10 pt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Film className="h-5 w-5 text-purple-400" /> Video Studio
+              </h2>
+              {!showVideoStudio && (
+                <button onClick={() => setShowVideoStudio(true)} className="text-xs text-purple-400 hover:text-purple-300 cursor-pointer">Open Studio</button>
+              )}
+            </div>
+
+            {showVideoStudio && (
+              <div className="space-y-4">
+                {/* Video preview */}
+                <div className="rounded-xl overflow-hidden border border-white/10 bg-black">
+                  <video
+                    src={recordedUrl}
+                    controls
+                    className="w-full"
+                    style={{ maxHeight: 400 }}
+                  />
+                </div>
+
+                {/* Audio controls */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Audio Settings</p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="h-4 w-4 text-neutral-500" />
+                      <span className="text-sm text-neutral-300">Sound Effects</span>
+                    </div>
+                    <button
+                      onClick={() => setSfxEnabled(!sfxEnabled)}
+                      className={`w-10 h-5 rounded-full transition-colors cursor-pointer ${sfxEnabled ? "bg-blue-600" : "bg-white/10"}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${sfxEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Music className="h-4 w-4 text-neutral-500" />
+                      <span className="text-sm text-neutral-300">Background Music</span>
+                    </div>
+                    <button
+                      onClick={() => setBgmEnabled(!bgmEnabled)}
+                      className={`w-10 h-5 rounded-full transition-colors cursor-pointer ${bgmEnabled ? "bg-purple-600" : "bg-white/10"}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${bgmEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  {bgmEnabled && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-neutral-500 w-16">Volume</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={bgmVolume}
+                        onChange={(e) => setBgmVolume(parseFloat(e.target.value))}
+                        className="flex-1 accent-purple-500"
+                      />
+                      <span className="text-xs text-neutral-400 w-8">{Math.round(bgmVolume * 100)}%</span>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-neutral-600 leading-relaxed">
+                    Sounds play during the next recording. For best results, enable &quot;Share tab audio&quot; when the browser asks.
+                  </p>
+                </div>
+
+                {/* Download */}
+                <a
+                  href={recordedUrl}
+                  download={`shelfready-reel-${productName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.webm`}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:brightness-110 transition-all cursor-pointer"
+                >
+                  <Download className="h-4 w-4" /> Download Reel (.webm)
+                </a>
+
+                {/* Re-record */}
+                <button
+                  onClick={() => { setRecordedBlob(null); setRecordedUrl(null); setShowVideoStudio(false); }}
+                  className="w-full py-2 text-xs text-neutral-500 hover:text-neutral-300 cursor-pointer"
+                >
+                  Discard &amp; re-record
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
