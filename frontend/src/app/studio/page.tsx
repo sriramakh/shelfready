@@ -398,21 +398,14 @@ export default function StudioPage() {
 
     const calls: Promise<void>[] = [];
 
-    const studioFetch = async (endpoint: string, body: unknown, timeoutMs = 120000) => {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        const resp = await fetch(`${API_URL}/api/v1${endpoint}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(body),
-          signal: controller.signal,
-        });
-        if (!resp.ok) throw new Error(`${resp.status}: ${await resp.text()}`);
-        return resp.json();
-      } finally {
-        clearTimeout(timer);
-      }
+    const studioFetch = async (endpoint: string, body: unknown) => {
+      const resp = await fetch(`${API_URL}/api/v1${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!resp.ok) throw new Error(`${resp.status}: ${await resp.text()}`);
+      return resp.json();
     };
 
     // 1. Listing
@@ -449,7 +442,7 @@ export default function StudioPage() {
     calls.push((async () => {
       setGenProgress((p) => ({ ...p, research: "loading" }));
       try {
-        const r = await studioFetch("/research/search", { query: `${productName} market competitors pricing` }, 180000);
+        const r = await studioFetch("/research/search", { query: `${productName} market competitors pricing` });
         setResults((prev) => ({ ...prev, research: r }));
         setGenProgress((p) => ({ ...p, research: "done" }));
       } catch(e) { console.error("[Studio] Research error:", e); setGenProgress((p) => ({ ...p, research: "error" })); }
