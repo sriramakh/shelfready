@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { api } from "@/lib/api-client";
 import {
   Package, FileText, Image, Share2, Megaphone, Search, Camera,
   Upload, Play, Pause, SkipForward, ChevronRight, Check, Sparkles,
@@ -38,7 +37,8 @@ const TOOLS: ToolConfig[] = [
   { id: "research", label: "Market Research", icon: Search, color: "#10b981", inputLabel: "Research market for:" },
 ];
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Studio always uses production API (localhost may have a different app on :8000)
+const API_URL = "https://api.shelfready.app";
 
 /* ─── Presentation Components ───────────────────────────────────────── */
 
@@ -380,11 +380,21 @@ export default function StudioPage() {
 
     const calls: Promise<void>[] = [];
 
+    const studioFetch = async (endpoint: string, body: unknown) => {
+      const resp = await fetch(`${API_URL}/api/v1${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!resp.ok) throw new Error(`${resp.status}: ${await resp.text()}`);
+      return resp.json();
+    };
+
     // 1. Listing
     calls.push((async () => {
       setGenProgress((p) => ({ ...p, listing: "loading" }));
       try {
-        const r = await api.generateListing({ platform: "amazon", product_name: productName, product_details: productDetails, target_audience: targetAudience, category, price_range: price }, token);
+        const r = await studioFetch("/listings/generate", { platform: "amazon", product_name: productName, product_details: productDetails, target_audience: targetAudience, category, price_range: price });
         setResults((prev) => ({ ...prev, listing: r }));
         setGenProgress((p) => ({ ...p, listing: "done" }));
       } catch(e) { console.error("[Studio] Listing error:", e); setGenProgress((p) => ({ ...p, listing: "error" })); }
@@ -394,7 +404,7 @@ export default function StudioPage() {
     calls.push((async () => {
       setGenProgress((p) => ({ ...p, social: "loading" }));
       try {
-        const r = await api.generateSocial({ platform: "instagram", product_name: productName, product_details: productDetails, tone: "casual" }, token);
+        const r = await studioFetch("/social/generate", { platform: "instagram", product_name: productName, product_details: productDetails, tone: "casual" });
         setResults((prev) => ({ ...prev, social: r }));
         setGenProgress((p) => ({ ...p, social: "done" }));
       } catch(e) { console.error("[Studio] Social error:", e); setGenProgress((p) => ({ ...p, social: "error" })); }
@@ -404,7 +414,7 @@ export default function StudioPage() {
     calls.push((async () => {
       setGenProgress((p) => ({ ...p, ads: "loading" }));
       try {
-        const r = await api.generateAds({ ad_platform: "facebook", product_name: productName, product_details: productDetails, target_audience: targetAudience, num_variants: 3 }, token);
+        const r = await studioFetch("/ads/generate", { ad_platform: "facebook", product_name: productName, product_details: productDetails, target_audience: targetAudience, num_variants: 3 });
         setResults((prev) => ({ ...prev, ads: r }));
         setGenProgress((p) => ({ ...p, ads: "done" }));
       } catch(e) { console.error("[Studio] Ads error:", e); setGenProgress((p) => ({ ...p, ads: "error" })); }
@@ -414,7 +424,7 @@ export default function StudioPage() {
     calls.push((async () => {
       setGenProgress((p) => ({ ...p, research: "loading" }));
       try {
-        const r = await api.searchResearch({ query: `${productName} market competitors pricing` }, token);
+        const r = await studioFetch("/research/search", { query: `${productName} market competitors pricing` });
         setResults((prev) => ({ ...prev, research: r }));
         setGenProgress((p) => ({ ...p, research: "done" }));
       } catch(e) { console.error("[Studio] Research error:", e); setGenProgress((p) => ({ ...p, research: "error" })); }
