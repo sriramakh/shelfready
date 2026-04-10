@@ -194,27 +194,45 @@ function AdsOutput({ data }: { data: any }) {
 }
 
 function ResearchOutput({ data }: { data: any }) {
-  if (!data) return null;
+  if (!data) return <p className="text-neutral-500 text-sm">Research data not available — this can take up to 2 minutes.</p>;
+  const analysis = data.analysis || "";
+  const competitors = data.competitors || [];
+  const keywords = data.keywords_found || [];
+  if (!analysis && !competitors.length && !keywords.length) {
+    return <p className="text-neutral-500 text-sm">Research returned no data. Try a different product.</p>;
+  }
   return (
     <div className="space-y-3">
-      <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Analysis</p>
-        <p className="text-[12px] text-neutral-300 leading-relaxed">{(data.analysis || "").slice(0, 250)}...</p>
-      </div>
-      <div className="bg-white/5 border border-white/10 rounded-xl p-3">
-        <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1.5">Competitors</p>
-        {(data.competitors || []).slice(0, 3).map((c: any, i: number) => (
-          <div key={i} className="flex justify-between py-1 border-b border-white/5 last:border-0">
-            <span className="text-[11px] text-neutral-300 font-medium">{c.name}</span>
-            <span className="text-[10px] text-neutral-500">{c.price_range || c.price || ""}</span>
+      {analysis && (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 max-h-[200px] overflow-y-auto">
+          <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Market Analysis</p>
+          <p className="text-[12px] text-neutral-300 leading-relaxed whitespace-pre-line">{analysis.slice(0, 600)}{analysis.length > 600 ? "..." : ""}</p>
+        </div>
+      )}
+      {competitors.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1.5">Top Competitors</p>
+          {competitors.slice(0, 5).map((c: any, i: number) => (
+            <div key={i} className="flex justify-between items-center py-1.5 border-b border-white/5 last:border-0">
+              <div>
+                <span className="text-[11px] text-neutral-300 font-medium">{c.name}</span>
+                {c.weaknesses && <p className="text-[9px] text-neutral-500 mt-0.5">{(c.weaknesses || "").slice(0, 60)}</p>}
+              </div>
+              <span className="text-[10px] text-neutral-500 flex-shrink-0 ml-2">{c.price_range || c.price || ""}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {keywords.length > 0 && (
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1.5">Keywords</p>
+          <div className="flex flex-wrap gap-1">
+            {keywords.slice(0, 12).map((k: string, i: number) => (
+              <span key={i} className="text-[10px] bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full">{k}</span>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {(data.keywords_found || []).slice(0, 8).map((k: string) => (
-          <span key={k} className="text-[10px] bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full">{k}</span>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -380,14 +398,21 @@ export default function StudioPage() {
 
     const calls: Promise<void>[] = [];
 
-    const studioFetch = async (endpoint: string, body: unknown) => {
-      const resp = await fetch(`${API_URL}/api/v1${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      });
-      if (!resp.ok) throw new Error(`${resp.status}: ${await resp.text()}`);
-      return resp.json();
+    const studioFetch = async (endpoint: string, body: unknown, timeoutMs = 120000) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const resp = await fetch(`${API_URL}/api/v1${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        if (!resp.ok) throw new Error(`${resp.status}: ${await resp.text()}`);
+        return resp.json();
+      } finally {
+        clearTimeout(timer);
+      }
     };
 
     // 1. Listing
@@ -424,7 +449,7 @@ export default function StudioPage() {
     calls.push((async () => {
       setGenProgress((p) => ({ ...p, research: "loading" }));
       try {
-        const r = await studioFetch("/research/search", { query: `${productName} market competitors pricing` });
+        const r = await studioFetch("/research/search", { query: `${productName} market competitors pricing` }, 180000);
         setResults((prev) => ({ ...prev, research: r }));
         setGenProgress((p) => ({ ...p, research: "done" }));
       } catch(e) { console.error("[Studio] Research error:", e); setGenProgress((p) => ({ ...p, research: "error" })); }

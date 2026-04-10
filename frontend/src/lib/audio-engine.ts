@@ -1,6 +1,6 @@
 /**
  * Web Audio API sound effects engine for ShelfReady Studio.
- * Generates all sounds procedurally — no external files needed.
+ * Uses pleasant, musical tones — not raw oscillators.
  */
 
 let _ctx: AudioContext | null = null;
@@ -12,136 +12,165 @@ function getCtx(): AudioContext {
   return _ctx;
 }
 
-/** Short keyboard tick — plays during typing animation */
+/** Soft keyboard tick — gentle tap sound */
 export function playKeyTick() {
   const ctx = getCtx();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  osc.type = "square";
-  osc.frequency.setValueAtTime(800 + Math.random() * 400, ctx.currentTime);
-  gain.gain.setValueAtTime(0.03, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-  osc.connect(gain).connect(ctx.destination);
+  const filter = ctx.createBiquadFilter();
+
+  // White noise-ish tick via high-freq triangle wave
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(3000 + Math.random() * 1500, ctx.currentTime);
+
+  filter.type = "highpass";
+  filter.frequency.setValueAtTime(2000, ctx.currentTime);
+
+  gain.gain.setValueAtTime(0.015, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+
+  osc.connect(filter).connect(gain).connect(ctx.destination);
   osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 0.05);
+  osc.stop(ctx.currentTime + 0.04);
 }
 
-/** Button click sound */
+/** Soft button click — pleasant pop */
 export function playClick() {
   const ctx = getCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(600, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
-  gain.gain.setValueAtTime(0.08, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 0.12);
+  // Two-tone pop
+  [800, 1200].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.04, ctx.currentTime + i * 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.03 + 0.1);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(ctx.currentTime + i * 0.03);
+    osc.stop(ctx.currentTime + i * 0.03 + 0.12);
+  });
 }
 
-/** Success chime — ascending notes */
+/** Success sound — pleasant ascending major chord arpeggio */
 export function playSuccess() {
   const ctx = getCtx();
-  const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+  // C major arpeggio: C4, E4, G4, C5 — soft and musical
+  const notes = [261.6, 329.6, 392.0, 523.3];
   notes.forEach((freq, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
-    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
-    gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + i * 0.12 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+
+    // Soft attack, gentle decay
+    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.1);
+    gain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + i * 0.1 + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.5);
+
     osc.connect(gain).connect(ctx.destination);
-    osc.start(ctx.currentTime + i * 0.12);
-    osc.stop(ctx.currentTime + i * 0.12 + 0.35);
+    osc.start(ctx.currentTime + i * 0.1);
+    osc.stop(ctx.currentTime + i * 0.1 + 0.55);
   });
+
+  // Add a soft shimmer overtone
+  const shimmer = ctx.createOscillator();
+  const sGain = ctx.createGain();
+  shimmer.type = "sine";
+  shimmer.frequency.setValueAtTime(1046.5, ctx.currentTime + 0.3); // C6
+  sGain.gain.setValueAtTime(0, ctx.currentTime + 0.3);
+  sGain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.35);
+  sGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+  shimmer.connect(sGain).connect(ctx.destination);
+  shimmer.start(ctx.currentTime + 0.3);
+  shimmer.stop(ctx.currentTime + 1.1);
 }
 
-/** Streaming/processing sound — subtle low hum pulse */
+/** Gentle processing sound — soft pulsing pad, not a hum */
 export function playProcessing(): () => void {
   const ctx = getCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+  const masterGain = ctx.createGain();
+  masterGain.gain.setValueAtTime(0.012, ctx.currentTime);
+  masterGain.connect(ctx.destination);
+
+  // Soft major chord pad
+  const freqs = [261.6, 329.6, 392.0]; // C4, E4, G4
+  const oscs = freqs.map((f) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(f, ctx.currentTime);
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    osc.connect(g).connect(masterGain);
+    osc.start();
+    return osc;
+  });
+
+  // Gentle volume pulse
   const lfo = ctx.createOscillator();
   const lfoGain = ctx.createGain();
-
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(180, ctx.currentTime);
-  gain.gain.setValueAtTime(0.02, ctx.currentTime);
-
   lfo.type = "sine";
-  lfo.frequency.setValueAtTime(2, ctx.currentTime);
-  lfoGain.gain.setValueAtTime(0.01, ctx.currentTime);
-
-  lfo.connect(lfoGain).connect(gain.gain);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start();
+  lfo.frequency.setValueAtTime(0.5, ctx.currentTime); // Very slow pulse
+  lfoGain.gain.setValueAtTime(0.004, ctx.currentTime);
+  lfo.connect(lfoGain).connect(masterGain.gain);
   lfo.start();
 
-  // Return stop function
   return () => {
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    setTimeout(() => { osc.stop(); lfo.stop(); }, 400);
+    masterGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    setTimeout(() => { oscs.forEach((o) => o.stop()); lfo.stop(); }, 600);
   };
 }
 
 /**
- * BGM player — loops a procedurally generated ambient background.
- * Returns start/stop controls.
+ * BGM — gentle ambient pad, barely noticeable.
  */
 export function createBGM(): { start: () => void; stop: () => void; setVolume: (v: number) => void } {
   let playing = false;
-  let nodes: { osc: OscillatorNode[]; gain: GainNode } | null = null;
+  let nodes: { osc: OscillatorNode[]; gain: GainNode; lfo: OscillatorNode } | null = null;
 
   return {
     start() {
       if (playing) return;
       const ctx = getCtx();
       const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(0.015, ctx.currentTime);
+      masterGain.gain.setValueAtTime(0.008, ctx.currentTime);
       masterGain.connect(ctx.destination);
 
-      // Ambient pad — layered sine waves
-      const freqs = [130.81, 164.81, 196.00, 261.63]; // C3, E3, G3, C4
+      // Very soft ambient chord — C major 7th spread
+      const freqs = [65.41, 130.81, 164.81, 196.0, 246.94]; // C2, C3, E3, G3, B3
       const oscs = freqs.map((f) => {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(f, ctx.currentTime);
-        g.gain.setValueAtTime(0.25, ctx.currentTime);
+        g.gain.setValueAtTime(0.2, ctx.currentTime);
         osc.connect(g).connect(masterGain);
         osc.start();
         return osc;
       });
 
-      nodes = { osc: oscs, gain: masterGain };
+      // Very slow breathing effect
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      lfo.type = "sine";
+      lfo.frequency.setValueAtTime(0.15, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(0.003, ctx.currentTime);
+      lfo.connect(lfoGain).connect(masterGain.gain);
+      lfo.start();
+
+      nodes = { osc: oscs, gain: masterGain, lfo };
       playing = true;
     },
     stop() {
       if (!playing || !nodes) return;
-      nodes.gain.gain.exponentialRampToValueAtTime(0.001, getCtx().currentTime + 1);
+      nodes.gain.gain.exponentialRampToValueAtTime(0.001, getCtx().currentTime + 1.5);
       const n = nodes;
-      setTimeout(() => { n.osc.forEach((o) => o.stop()); }, 1200);
+      setTimeout(() => { n.osc.forEach((o) => o.stop()); n.lfo.stop(); }, 1800);
       nodes = null;
       playing = false;
     },
     setVolume(v: number) {
-      if (nodes) nodes.gain.gain.setValueAtTime(Math.max(0.001, v * 0.03), getCtx().currentTime);
+      if (nodes) nodes.gain.gain.setValueAtTime(Math.max(0.001, v * 0.015), getCtx().currentTime);
     },
   };
-}
-
-/** Get the AudioContext destination as a MediaStream (for recording) */
-export function getAudioStream(): MediaStream | null {
-  try {
-    const ctx = getCtx();
-    const dest = ctx.createMediaStreamDestination();
-    // Re-route master to dest as well
-    // This is tricky — for now return null and we'll use display capture with audio
-    return dest.stream;
-  } catch {
-    return null;
-  }
 }
