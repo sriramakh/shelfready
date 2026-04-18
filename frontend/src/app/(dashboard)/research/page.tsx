@@ -94,30 +94,130 @@ const STOPWORDS = new Set([
   "provides", "provide", "providing", "features", "feature",
 ]);
 
-function topGap(competitors: Competitor[]): string | null {
+function cleanPhrase(raw: string, maxLen = 48): string | null {
+  const cleaned = raw
+    .replace(/\*\*(.+?)\*\*:?/g, "$1")
+    .replace(/\[(impact|effort|difficulty)[^\]]*\]/gi, "")
+    .replace(/^(gap|need|opportunity|missing|lack of|no)\s*[:\-]?\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/[.:;—–|]/)[0]
+    .trim();
+  if (cleaned.length < 4 || cleaned.length > maxLen) return null;
+  // Require at least one alpha char
+  if (!/[a-z]/i.test(cleaned)) return null;
+  return cleaned;
+}
+
+function toTitle(s: string): string {
+  return s.replace(/\b([a-z])/g, (m) => m.toUpperCase());
+}
+
+// Parse Opportunities section for first concrete need. Returns the phrase
+// plus a citation count (how many competitors' weaknesses reference it).
+function extractTopUnmetNeed(
+  analysis: string,
+  competitors: Competitor[],
+): { phrase: string; hint: string } | null {
+  // 1. Opportunities section → first bullet (prefer bolded lead)
+  const secMatch = analysis.match(
+    /\*\*\s*(?:Opportunities|Gaps|Unmet Needs|White Space)[^*]*\*\*:?([\s\S]*?)(?=\n\*\*[A-Z]|$)/i,
+  );
+  if (secMatch) {
+    const block = secMatch[1];
+    // Try bolded bullet lead first: "- **Dishwasher-safe option**: ..."
+    const boldBullet = block.match(/[-*•]\s*\*\*([^*\n]+?)\*\*/);
+    if (boldBullet) {
+      const p = cleanPhrase(boldBullet[1]);
+      if (p) return { phrase: toTitle(p), hint: pickHint(p, competitors) };
+    }
+    // Fall back to first bullet line
+    const firstBullet = block.match(/[-*•]\s*([^\n]+)/);
+    if (firstBullet) {
+      const p = cleanPhrase(firstBullet[1]);
+      if (p) return { phrase: toTitle(p), hint: pickHint(p, competitors) };
+    }
+  }
+
+  // 2. Fallback: bigram across competitor weaknesses
+  const bg = topBigram(competitors.map((c) => c.weaknesses));
+  if (bg) {
+    return {
+      phrase: toTitle(bg.phrase),
+      hint: `${bg.count} competitor${bg.count === 1 ? "" : "s"} cited`,
+    };
+  }
+
+  return null;
+}
+
+function pickHint(phrase: string, competitors: Competitor[]): string {
+  const tokens = phrase
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length > 3 && !STOPWORDS.has(t));
+  let cites = 0;
+  for (const c of competitors) {
+    const w = c.weaknesses?.toLowerCase() || "";
+    if (tokens.some((t) => w.includes(t))) cites++;
+  }
+  return cites > 0
+    ? `${cites} competitor${cites === 1 ? "" : "s"} expose this gap`
+    : "From strategic analysis";
+}
+
+function topBigram(
+  texts: (string | undefined)[],
+): { phrase: string; count: number } | null {
+  const counts = new Map<string, number>();
+  for (const t of texts) {
+    if (!t) continue;
+    const tokens = (t.toLowerCase().match(/\b[a-z]{4,}\b/g) || []).filter(
+      (w) => !STOPWORDS.has(w),
+    );
+    const seen = new Set<string>();
+    for (let i = 0; i < tokens.length - 1; i++) {
+      const bg = `${tokens[i]} ${tokens[i + 1]}`;
+      if (seen.has(bg)) continue;
+      seen.add(bg);
+      counts.set(bg, (counts.get(bg) || 0) + 1);
+    }
+  }
+  if (!counts.size) return null;
+  const [phrase, count] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+  return count >= 2 ? { phrase, count } : null;
+}
+
+function extractTopStrength(
+  competitors: Competitor[],
+): { phrase: string; count: number } | null {
+  const bg = topBigram(competitors.map((c) => c.strengths));
+  if (bg) return { phrase: toTitle(bg.phrase), count: bg.count };
+  // Single-word fallback
   const counts = new Map<string, number>();
   for (const c of competitors) {
-    if (!c.weaknesses) continue;
-    const words = c.weaknesses.toLowerCase().match(/\b[a-z]{5,}\b/g) || [];
+    if (!c.strengths) continue;
+    const words = (c.strengths.toLowerCase().match(/\b[a-z]{5,}\b/g) || []).filter(
+      (w) => !STOPWORDS.has(w),
+    );
     const seen = new Set<string>();
     for (const w of words) {
-      if (STOPWORDS.has(w) || seen.has(w)) continue;
+      if (seen.has(w)) continue;
       seen.add(w);
       counts.set(w, (counts.get(w) || 0) + 1);
     }
   }
   if (!counts.size) return null;
-  const entries = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-  const [word, count] = entries[0];
-  return count >= 2 ? word : null;
+  const [phrase, count] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+  return count >= 2 ? { phrase: toTitle(phrase), count } : null;
 }
 
-function topGapCount(competitors: Competitor[], word: string): number {
-  let n = 0;
-  for (const c of competitors) {
-    if (c.weaknesses?.toLowerCase().includes(word)) n++;
-  }
-  return n;
+function countHotKeywords(keywords: (string | unknown)[]): number {
+  return keywords.reduce<number>((acc, kw) => {
+    const s = typeof kw === "string" ? kw : JSON.stringify(kw);
+    const words = s.trim().split(/\s+/).length;
+    return acc + (words >= 3 ? 1 : 0);
+  }, 0);
 }
 
 function scoreKeyword(kw: string): {
@@ -483,8 +583,9 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
 
   const median = medianPrice(competitors);
   const priceSpread = priceRangeSummary(competitors);
-  const gap = topGap(competitors);
-  const gapCount = gap ? topGapCount(competitors, gap) : 0;
+  const unmet = extractTopUnmetNeed(result.analysis, competitors);
+  const topStrength = extractTopStrength(competitors);
+  const hotKw = countHotKeywords(keywords);
   const headline = extractHeadline(result.analysis, competitors);
 
   const scored = keywords
@@ -512,7 +613,7 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
         </h2>
 
         {/* KPI tiles */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           <KPI
             label="Median Price"
             value={median ?? "—"}
@@ -529,10 +630,34 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
           />
           <KPI
             label="Top Unmet Need"
-            value={gap ?? "—"}
-            hint={gap ? `${gapCount} competitor${gapCount === 1 ? "" : "s"} cited` : "No pattern detected"}
+            value={unmet?.phrase ?? "—"}
+            hint={unmet?.hint ?? "No clear gap detected"}
             tone="amber"
             icon={Lightbulb}
+            small
+          />
+          <KPI
+            label="What Wins Today"
+            value={topStrength?.phrase ?? "—"}
+            hint={
+              topStrength
+                ? `${topStrength.count} competitors emphasize this`
+                : "No shared strength pattern"
+            }
+            tone="blue"
+            icon={TrendingUp}
+            small
+          />
+          <KPI
+            label="Hot Keywords"
+            value={String(hotKw)}
+            hint={
+              hotKw > 0
+                ? `Long-tail targets (≥3 words)`
+                : "No long-tail phrases found"
+            }
+            tone="red"
+            icon={Target}
           />
         </div>
 
@@ -573,32 +698,43 @@ function KPI({
   hint,
   tone,
   icon: Icon,
+  small,
 }: {
   label: string;
   value: string;
   hint: string;
-  tone: "emerald" | "purple" | "amber" | "blue";
+  tone: "emerald" | "purple" | "amber" | "blue" | "red";
   icon: typeof TrendingUp;
+  small?: boolean;
 }) {
-  const tones: Record<string, { text: string; bg: string; ring: string }> = {
-    emerald: { text: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30", ring: "ring-emerald-100 dark:ring-emerald-900/40" },
-    purple: { text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/30", ring: "ring-purple-100 dark:ring-purple-900/40" },
-    amber: { text: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30", ring: "ring-amber-100 dark:ring-amber-900/40" },
-    blue: { text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30", ring: "ring-blue-100 dark:ring-blue-900/40" },
+  const tones: Record<string, { text: string; bg: string }> = {
+    emerald: { text: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+    purple: { text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/30" },
+    amber: { text: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30" },
+    blue: { text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
+    red: { text: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30" },
   };
   const c = tones[tone];
+  const valueSize = small
+    ? "text-base md:text-lg"
+    : "text-2xl md:text-3xl";
   return (
-    <div className={`rounded-xl border border-border p-4 ${c.bg}`}>
+    <div className={`rounded-xl border border-border p-4 ${c.bg} flex flex-col min-h-[120px]`}>
       <div className="flex items-center justify-between mb-2">
         <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-text-muted">
           {label}
         </p>
         <Icon className={`h-3.5 w-3.5 ${c.text}`} />
       </div>
-      <p className={`text-3xl font-bold ${c.text} leading-tight tracking-tight truncate`}>
+      <p
+        className={`${valueSize} font-bold ${c.text} leading-tight tracking-tight ${small ? "line-clamp-2" : "truncate"}`}
+        title={value}
+      >
         {value}
       </p>
-      <p className="text-[11px] text-text-muted mt-1.5 leading-snug">{hint}</p>
+      <p className="text-[11px] text-text-muted mt-auto pt-1.5 leading-snug">
+        {hint}
+      </p>
     </div>
   );
 }
