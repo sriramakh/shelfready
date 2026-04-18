@@ -75,12 +75,12 @@ export default function SocialGeneratePage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-[1400px] mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard"
-          className="rounded-lg p-2 hover:bg-surface-alt transition-colors text-text-muted hover:text-text"
+          className="rounded-lg p-2 hover:bg-surface-alt dark:hover:bg-white/5 transition-colors text-text-muted hover:text-text"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -88,15 +88,15 @@ export default function SocialGeneratePage() {
           <h1 className="text-2xl font-bold text-secondary">
             Generate Social Content
           </h1>
-          <p className="text-text-muted mt-1">
+          <p className="text-text-muted mt-0.5 text-sm">
             Create engaging social media posts for your products
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
         {/* Form */}
-        <Card>
+        <Card className="sticky top-20 self-start">
           <CardHeader>
             <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
               <Share2 className="h-5 w-5 text-pink-600" />
@@ -224,11 +224,11 @@ export default function SocialGeneratePage() {
         </Card>
 
         {/* Result */}
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           {!result && !loading && (
             <Card>
-              <CardBody className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="rounded-2xl bg-pink-50 p-4 mb-4">
+              <CardBody className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="rounded-2xl bg-pink-50 dark:bg-pink-950/30 p-4 mb-4">
                   <Share2 className="h-8 w-8 text-pink-400" />
                 </div>
                 <h3 className="text-base font-semibold text-secondary mb-1">
@@ -244,15 +244,13 @@ export default function SocialGeneratePage() {
 
           {loading && (
             <Card>
-              <CardBody className="flex flex-col items-center justify-center py-20">
-                <div className="relative">
-                  <div className="h-16 w-16 rounded-full border-4 border-pink-100 border-t-pink-500 animate-spin" />
-                </div>
-                <p className="mt-4 text-sm font-medium text-text-muted">
+              <CardBody className="flex flex-col items-center justify-center py-24">
+                <div className="h-14 w-14 rounded-full border-4 border-pink-100 dark:border-pink-900/30 border-t-pink-500 animate-spin" />
+                <p className="mt-5 text-sm font-semibold text-secondary">
                   Creating your social post...
                 </p>
                 <p className="text-xs text-text-muted mt-1">
-                  This usually takes 5-10 seconds
+                  Typically 5-10 seconds
                 </p>
               </CardBody>
             </Card>
@@ -260,76 +258,88 @@ export default function SocialGeneratePage() {
 
           {result && (
             <>
-              {/* Image preview if generated */}
-              {result.image_url && (
+              {/* Caption hero + sidebar (image, CTA) */}
+              <div className={cn(
+                "grid grid-cols-1 gap-4",
+                result.image_url ? "xl:grid-cols-[1fr_380px]" : ""
+              )}>
+                {/* Caption */}
                 <Card>
-                  <CardBody>
-                    <div className="rounded-xl overflow-hidden border border-border">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={result.image_url}
-                        alt="Generated social media image"
-                        className="w-full h-auto"
-                      />
+                  <CardHeader className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-secondary flex items-center gap-2">
+                      <Share2 className="h-4 w-4 text-pink-600" />
+                      Caption
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-text-muted">
+                        {result.caption.length} chars
+                      </span>
+                      <CopyButton text={result.caption} />
                     </div>
+                  </CardHeader>
+                  <CardBody>
+                    <div className="rounded-lg bg-surface-alt dark:bg-white/5 p-4 border border-border/50">
+                      <p className="text-sm text-text leading-relaxed whitespace-pre-line">
+                        {result.caption}
+                      </p>
+                    </div>
+                    {/* CTA inline */}
+                    {result.cta_text && (
+                      <div className="mt-3 rounded-lg border border-pink-200 dark:border-pink-900/50 bg-pink-50 dark:bg-pink-950/30 p-3 flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-pink-700 dark:text-pink-400 mb-1">
+                            Call to Action
+                          </p>
+                          <p className="text-sm font-semibold text-secondary">
+                            {result.cta_text}
+                          </p>
+                        </div>
+                        <CopyButton text={result.cta_text} />
+                      </div>
+                    )}
                   </CardBody>
                 </Card>
-              )}
 
-              {/* Caption */}
-              <Card>
-                <CardHeader className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-secondary">
-                    Caption
-                  </h3>
-                  <CopyButton text={result.caption} />
-                </CardHeader>
-                <CardBody>
-                  <div className="rounded-lg bg-surface-alt p-4">
-                    <p className="text-sm text-text leading-relaxed whitespace-pre-line">
-                      {result.caption}
-                    </p>
-                  </div>
-                </CardBody>
-              </Card>
+                {/* Image preview if generated */}
+                {result.image_url && (
+                  <Card>
+                    <CardHeader>
+                      <h3 className="text-sm font-semibold text-secondary">Image</h3>
+                    </CardHeader>
+                    <CardBody>
+                      <div className="rounded-lg overflow-hidden border border-border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={result.image_url}
+                          alt="Generated social media image"
+                          className="w-full h-auto"
+                        />
+                      </div>
+                    </CardBody>
+                  </Card>
+                )}
+              </div>
 
               {/* Hashtags */}
               {result.hashtags && result.hashtags.length > 0 && (
                 <Card>
                   <CardHeader className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-secondary">
-                      Hashtags
+                      Hashtags ({result.hashtags.length})
                     </h3>
                     <CopyButton text={result.hashtags.join(" ")} />
                   </CardHeader>
                   <CardBody>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {result.hashtags.map((tag, i) => (
                         <span
                           key={i}
-                          className="rounded-full bg-pink-50 border border-pink-100 px-3 py-1 text-xs font-medium text-pink-700"
+                          className="rounded-full bg-pink-50 dark:bg-pink-950/30 border border-pink-100 dark:border-pink-900/50 px-2.5 py-0.5 text-xs font-medium text-pink-700 dark:text-pink-300"
                         >
                           {tag.startsWith("#") ? tag : `#${tag}`}
                         </span>
                       ))}
                     </div>
-                  </CardBody>
-                </Card>
-              )}
-
-              {/* CTA */}
-              {result.cta_text && (
-                <Card>
-                  <CardHeader className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-secondary">
-                      Call to Action
-                    </h3>
-                    <CopyButton text={result.cta_text} />
-                  </CardHeader>
-                  <CardBody>
-                    <p className="text-sm font-medium text-primary">
-                      {result.cta_text}
-                    </p>
                   </CardBody>
                 </Card>
               )}

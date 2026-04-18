@@ -270,12 +270,12 @@ export default function ImageGeneratePage() {
     THEMES.find((t) => t.id === id)?.label ?? id;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-[1400px] mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard"
-          className="rounded-lg p-2 hover:bg-surface-alt transition-colors text-text-muted hover:text-text"
+          className="rounded-lg p-2 hover:bg-surface-alt dark:hover:bg-white/5 transition-colors text-text-muted hover:text-text"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -283,7 +283,7 @@ export default function ImageGeneratePage() {
           <h1 className="text-2xl font-bold text-secondary">
             Generate Product Images
           </h1>
-          <p className="text-text-muted mt-1">
+          <p className="text-text-muted mt-0.5 text-sm">
             Create AI-powered product photos from scratch or from your own
             product image
           </p>
@@ -322,8 +322,8 @@ export default function ImageGeneratePage() {
       {/* PHOTOSHOOT MODE                                                */}
       {/* ════════════════════════════════════════════════════════════════ */}
       {mode === "photoshoot" && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
             {/* Left: Upload + Theme Selection */}
             <div className="space-y-4">
               {/* Upload */}
@@ -518,7 +518,7 @@ export default function ImageGeneratePage() {
             </div>
 
             {/* Right: Results */}
-            <div className="lg:col-span-2">
+            <div className="min-w-0">
               {!photoshootResult && !photoshootLoading && (
                 <Card>
                   <CardBody className="flex flex-col items-center justify-center py-20 text-center">
@@ -579,7 +579,7 @@ export default function ImageGeneratePage() {
                   </Card>
 
                   {/* Image Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                     {photoshootResult.images.map((img, i) => (
                       <Card key={img.id}>
                         <CardBody className="space-y-3">
@@ -643,11 +643,11 @@ export default function ImageGeneratePage() {
       {/* FROM DESCRIPTION MODE                                          */}
       {/* ════════════════════════════════════════════════════════════════ */}
       {mode === "scratch" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
+          <Card className="sticky top-20 self-start">
             <CardHeader>
-              <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-purple-600" />
+              <h2 className="text-base font-semibold text-secondary flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-purple-600" />
                 Describe Your Image
               </h2>
             </CardHeader>
@@ -689,11 +689,11 @@ export default function ImageGeneratePage() {
             </CardBody>
           </Card>
 
-          <div>
+          <div className="min-w-0">
             {!scratchResult && !scratchLoading && (
               <Card>
-                <CardBody className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="rounded-2xl bg-purple-50 p-4 mb-4">
+                <CardBody className="flex flex-col items-center justify-center py-24 text-center">
+                  <div className="rounded-2xl bg-purple-50 dark:bg-purple-950/30 p-4 mb-4">
                     <ImageIcon className="h-8 w-8 text-purple-400" />
                   </div>
                   <h3 className="text-base font-semibold text-secondary mb-1">

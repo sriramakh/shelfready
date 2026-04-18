@@ -278,12 +278,12 @@ export default function AdsGeneratePage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-[1400px] mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard"
-          className="rounded-lg p-2 hover:bg-surface-alt transition-colors text-text-muted hover:text-text"
+          className="rounded-lg p-2 hover:bg-surface-alt dark:hover:bg-white/5 transition-colors text-text-muted hover:text-text"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -291,7 +291,7 @@ export default function AdsGeneratePage() {
           <h1 className="text-2xl font-bold text-secondary">
             Generate Ads
           </h1>
-          <p className="text-text-muted mt-1">
+          <p className="text-text-muted mt-0.5 text-sm">
             Create high-converting ad copy or visual ad creatives for your
             products
           </p>
@@ -330,9 +330,9 @@ export default function AdsGeneratePage() {
       {/* AD COPY MODE                                                   */}
       {/* ════════════════════════════════════════════════════════════════ */}
       {mode === "copy" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
           {/* Form */}
-          <Card>
+          <Card className="sticky top-20 self-start">
             <CardHeader>
               <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
                 <Megaphone className="h-5 w-5 text-amber-600" />
@@ -461,11 +461,11 @@ export default function AdsGeneratePage() {
           </Card>
 
           {/* Results */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             {!copyResult && !copyLoading && (
               <Card>
-                <CardBody className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="rounded-2xl bg-amber-50 p-4 mb-4">
+                <CardBody className="flex flex-col items-center justify-center py-24 text-center">
+                  <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/30 p-4 mb-4">
                     <Megaphone className="h-8 w-8 text-amber-400" />
                   </div>
                   <h3 className="text-base font-semibold text-secondary mb-1">
@@ -481,77 +481,80 @@ export default function AdsGeneratePage() {
 
             {copyLoading && (
               <Card>
-                <CardBody className="flex flex-col items-center justify-center py-20">
-                  <div className="relative">
-                    <div className="h-16 w-16 rounded-full border-4 border-amber-100 border-t-amber-500 animate-spin" />
-                  </div>
-                  <p className="mt-4 text-sm font-medium text-text-muted">
+                <CardBody className="flex flex-col items-center justify-center py-24">
+                  <div className="h-14 w-14 rounded-full border-4 border-amber-100 dark:border-amber-900/30 border-t-amber-500 animate-spin" />
+                  <p className="mt-5 text-sm font-semibold text-secondary">
                     Generating {numVariants} ad variant
                     {numVariants > 1 ? "s" : ""}...
                   </p>
                   <p className="text-xs text-text-muted mt-1">
-                    This usually takes 10-15 seconds
+                    Typically 10-15 seconds
                   </p>
                 </CardBody>
               </Card>
             )}
 
-            {copyResult &&
-              copyResult.variants.map((variant, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <CardHeader className="flex items-center justify-between bg-surface-alt/50">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="primary">
-                        {variant.variant_label || `Variant ${i + 1}`}
-                      </Badge>
-                      <Badge
-                        style={{
-                          backgroundColor: `${AD_PLATFORMS[adPlatform].color}15`,
-                          color: AD_PLATFORMS[adPlatform].color,
-                        }}
-                      >
-                        {AD_PLATFORMS[adPlatform].name}
-                      </Badge>
-                    </div>
-                    <CopyButton
-                      text={`${variant.headline}\n\n${variant.primary_text}\n\n${variant.description}\n\nCTA: ${variant.cta}`}
-                      label="Copy All"
-                    />
-                  </CardHeader>
-                  <CardBody className="space-y-4">
-                    <div>
-                      <p className="text-xs font-medium text-text-muted uppercase tracking-wide mb-1">
-                        Headline
-                      </p>
-                      <p className="text-base font-semibold text-secondary">
-                        {variant.headline}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-text-muted uppercase tracking-wide mb-1">
-                        Primary Text
-                      </p>
-                      <p className="text-sm text-text leading-relaxed">
-                        {variant.primary_text}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-text-muted uppercase tracking-wide mb-1">
-                        Description
-                      </p>
-                      <p className="text-sm text-text-muted">
-                        {variant.description}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2 border-t border-border">
-                      <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
-                        CTA:
-                      </p>
-                      <Badge variant="primary">{variant.cta}</Badge>
-                    </div>
-                  </CardBody>
-                </Card>
-              ))}
+            {copyResult && (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                {copyResult.variants.map((variant, i) => (
+                  <Card key={i} className="overflow-hidden h-full flex flex-col">
+                    <CardHeader className="flex items-center justify-between bg-surface-alt/50 dark:bg-white/5">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="primary">
+                          {variant.variant_label || `Variant ${i + 1}`}
+                        </Badge>
+                        <Badge
+                          style={{
+                            backgroundColor: `${AD_PLATFORMS[adPlatform].color}15`,
+                            color: AD_PLATFORMS[adPlatform].color,
+                          }}
+                        >
+                          {AD_PLATFORMS[adPlatform].name}
+                        </Badge>
+                      </div>
+                      <CopyButton
+                        text={`${variant.headline}\n\n${variant.primary_text}\n\n${variant.description}\n\nCTA: ${variant.cta}`}
+                        label="Copy All"
+                      />
+                    </CardHeader>
+                    <CardBody className="space-y-3 flex-1">
+                      <div>
+                        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
+                          Headline
+                        </p>
+                        <p className="text-base font-bold text-secondary leading-snug">
+                          {variant.headline}
+                        </p>
+                      </div>
+                      <div className="border-t border-border/50 pt-3">
+                        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
+                          Primary Text
+                        </p>
+                        <p className="text-sm text-text leading-relaxed">
+                          {variant.primary_text}
+                        </p>
+                      </div>
+                      {variant.description && (
+                        <div className="border-t border-border/50 pt-3">
+                          <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
+                            Description
+                          </p>
+                          <p className="text-sm text-text-muted leading-relaxed">
+                            {variant.description}
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 pt-3 border-t border-border/50 mt-auto">
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
+                          CTA:
+                        </p>
+                        <Badge variant="primary">{variant.cta}</Badge>
+                      </div>
+                    </CardBody>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
