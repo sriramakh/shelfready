@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/shared/copy-button";
+import { HistoryPanel } from "@/components/shared/history-panel";
 import type { AdGenerateRequest, AdResponse } from "@/types/api";
 import {
   Megaphone,
@@ -109,6 +110,42 @@ export default function AdsGeneratePage() {
   const [copyLoading, setCopyLoading] = useState(false);
   const [copyError, setCopyError] = useState("");
   const [copyResult, setCopyResult] = useState<AdResponse | null>(null);
+  const [copyHistory, setCopyHistory] = useState<Array<{ id: string; ad_platform: string; headline: string; primary_text?: string; description?: string; cta?: string; variant_label?: string; created_at?: string }>>([]);
+  const [copyHistoryLoading, setCopyHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+    (async () => {
+      try {
+        const data = await api.getAds(session.access_token, 1) as any;
+        const items = Array.isArray(data) ? data : (data.items || []);
+        setCopyHistory(items);
+        if (!copyResult && items.length >= 1) {
+          // Group recent variants (same product_name or created close in time) into a single AdResponse
+          const mostRecent = items[0];
+          const sameGroup = items.filter((x: any) => {
+            if (!mostRecent.created_at || !x.created_at) return x.ad_platform === mostRecent.ad_platform;
+            const diff = Math.abs(new Date(x.created_at).getTime() - new Date(mostRecent.created_at).getTime());
+            return diff < 60000; // within 1 minute
+          });
+          setCopyResult({
+            id: mostRecent.id,
+            ad_platform: mostRecent.ad_platform,
+            variants: sameGroup.map((x: any) => ({
+              headline: x.headline || "",
+              primary_text: x.primary_text || "",
+              description: x.description || "",
+              cta: x.cta || "",
+              variant_label: x.variant_label || "",
+            })),
+            created_at: mostRecent.created_at || "",
+          } as AdResponse);
+        }
+      } catch {}
+      finally { setCopyHistoryLoading(false); }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
 
   // ── Ad Creative state ──
   const [creativePlatform, setCreativePlatform] =
@@ -193,6 +230,12 @@ export default function AdsGeneratePage() {
       )) as AdResponse;
 
       setCopyResult(data);
+      // Refresh history
+      try {
+        const refreshed = await api.getAds(session.access_token, 1) as any;
+        const items = Array.isArray(refreshed) ? refreshed : (refreshed.items || []);
+        setCopyHistory(items);
+      } catch {}
     } catch (err) {
       const quotaMsg = getQuotaMessage(err);
       setCopyError(
@@ -201,6 +244,24 @@ export default function AdsGeneratePage() {
     } finally {
       setCopyLoading(false);
     }
+  };
+
+  const loadAdFromHistory = (id: string) => {
+    const item = copyHistory.find((x) => x.id === id);
+    if (!item) return;
+    // Show just this single variant
+    setCopyResult({
+      id: item.id,
+      ad_platform: item.ad_platform,
+      variants: [{
+        headline: item.headline || "",
+        primary_text: item.primary_text || "",
+        description: item.description || "",
+        cta: item.cta || "",
+        variant_label: item.variant_label || "",
+      }],
+      created_at: item.created_at || "",
+    } as AdResponse);
   };
 
   // ── Ad Creative generate ──
@@ -331,8 +392,9 @@ export default function AdsGeneratePage() {
       {/* ════════════════════════════════════════════════════════════════ */}
       {mode === "copy" && (
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
-          {/* Form */}
-          <Card className="sticky top-20 self-start">
+          {/* Form + History */}
+          <div className="space-y-4 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pb-4 lg:pr-1">
+          <Card>
             <CardHeader>
               <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
                 <Megaphone className="h-5 w-5 text-amber-600" />
@@ -459,6 +521,21 @@ export default function AdsGeneratePage() {
               </form>
             </CardBody>
           </Card>
+
+          <HistoryPanel
+            items={copyHistory.map((a) => ({
+              id: a.id,
+              label: a.headline || "Ad variant",
+              subtitle: `${a.ad_platform} · ${a.variant_label || ""}`,
+              timestamp: a.created_at,
+            }))}
+            loading={copyHistoryLoading}
+            onSelect={loadAdFromHistory}
+            title="Recent Ads"
+            emptyText="No ad copy yet."
+            accentColor="amber"
+          />
+          </div>
 
           {/* Results */}
           <div className="space-y-4 min-w-0">

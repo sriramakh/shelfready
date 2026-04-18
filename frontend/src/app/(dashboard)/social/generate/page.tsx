@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceede
 import { Input, Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { CopyButton } from "@/components/shared/copy-button";
+import { HistoryPanel } from "@/components/shared/history-panel";
 import type { SocialGenerateRequest, SocialResponse } from "@/types/api";
 import { Share2, Sparkles, ArrowLeft, ImageIcon } from "lucide-react";
 import Link from "next/link";
@@ -40,6 +41,22 @@ export default function SocialGeneratePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<SocialResponse | null>(null);
+  const [history, setHistory] = useState<SocialResponse[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+    (async () => {
+      try {
+        const data = await api.getSocialPosts(session.access_token, 1) as SocialResponse[] | { items: SocialResponse[] };
+        const items = Array.isArray(data) ? data : (data.items || []);
+        setHistory(items);
+        if (!result && items.length > 0) setResult(items[0]);
+      } catch {}
+      finally { setHistoryLoading(false); }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +81,7 @@ export default function SocialGeneratePage() {
       )) as SocialResponse;
 
       setResult(data);
+      setHistory((h) => [data, ...h.filter((x) => x.id !== data.id)]);
     } catch (err) {
       const quotaMsg = getQuotaMessage(err);
       setError(
@@ -95,8 +113,9 @@ export default function SocialGeneratePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
-        {/* Form */}
-        <Card className="sticky top-20 self-start">
+        {/* Form + History */}
+        <div className="space-y-4 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pb-4 lg:pr-1">
+        <Card>
           <CardHeader>
             <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
               <Share2 className="h-5 w-5 text-pink-600" />
@@ -222,6 +241,25 @@ export default function SocialGeneratePage() {
             </form>
           </CardBody>
         </Card>
+
+        <HistoryPanel
+          items={history.map((s) => ({
+            id: s.id,
+            label: s.caption?.slice(0, 60) || "Social post",
+            subtitle: `${s.platform} · ${s.hashtags?.length || 0} hashtags`,
+            timestamp: (s as { created_at?: string }).created_at,
+          }))}
+          activeId={result?.id}
+          loading={historyLoading}
+          onSelect={(id) => {
+            const found = history.find((s) => s.id === id);
+            if (found) setResult(found);
+          }}
+          title="Recent Posts"
+          emptyText="No social posts yet."
+          accentColor="pink"
+        />
+        </div>
 
         {/* Result */}
         <div className="space-y-4 min-w-0">

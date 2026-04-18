@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceede
 import { Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { HistoryPanel } from "@/components/shared/history-panel";
 import type { ImageGenerateRequest, ImageResponse } from "@/types/api";
 import {
   Image as ImageIcon,
@@ -119,6 +120,31 @@ export default function ImageGeneratePage() {
   const [generatingIndex, setGeneratingIndex] = useState(-1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Image history (all generated images across modes)
+  interface ImageHistoryItem {
+    id: string;
+    public_url: string;
+    prompt?: string;
+    image_type?: string;
+    aspect_ratio?: string;
+    created_at?: string;
+  }
+  const [imageHistory, setImageHistory] = useState<ImageHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+    (async () => {
+      try {
+        const data = await api.getImages(session.access_token, 1) as any;
+        const items: ImageHistoryItem[] = Array.isArray(data) ? data : (data.items || []);
+        setImageHistory(items);
+      } catch {}
+      finally { setHistoryLoading(false); }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
+
   const totalImages = selectedThemes.length;
   const canAddMore = totalImages < 5;
   const hasContext = selectedThemes.includes("context");
@@ -213,6 +239,11 @@ export default function ImageGeneratePage() {
         session.access_token,
       )) as ImageResponse;
       setScratchResult(data);
+      try {
+        const refreshed = await api.getImages(session?.access_token || "", 1) as any;
+        const items = Array.isArray(refreshed) ? refreshed : (refreshed.items || []);
+        setImageHistory(items);
+      } catch {}
     } catch (err) {
       setScratchError(
         err instanceof Error ? err.message : "Failed to generate image.",
@@ -256,6 +287,12 @@ export default function ImageGeneratePage() {
 
       const data = (await resp.json()) as PhotoshootResult;
       setPhotoshootResult(data);
+      // Refresh history
+      try {
+        const refreshed = await api.getImages(session?.access_token || "", 1) as any;
+        const items = Array.isArray(refreshed) ? refreshed : (refreshed.items || []);
+        setImageHistory(items);
+      } catch {}
     } catch (err) {
       setPhotoshootError(
         err instanceof Error ? err.message : "Photoshoot generation failed.",
@@ -753,6 +790,47 @@ export default function ImageGeneratePage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Past Images Gallery */}
+      {!historyLoading && imageHistory.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h3 className="text-sm font-semibold text-secondary flex items-center gap-2">
+              <ImageIcon className="h-4 w-4 text-purple-600" />
+              Past Generations ({imageHistory.length})
+            </h3>
+          </CardHeader>
+          <CardBody>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {imageHistory.slice(0, 30).map((img) => (
+                <a
+                  key={img.id}
+                  href={img.public_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.public_url}
+                    alt={img.prompt || "Generated image"}
+                    className="w-full aspect-square object-cover"
+                    loading="lazy"
+                  />
+                  {img.image_type && (
+                    <div className="absolute top-1.5 left-1.5">
+                      <Badge className="text-[10px] capitalize">{img.image_type}</Badge>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end justify-end p-2">
+                    <Download className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
       )}
     </div>
   );

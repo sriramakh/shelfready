@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn, sanitizeHtml } from "@/lib/utils";
@@ -11,9 +11,18 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/shared/copy-button";
+import { HistoryPanel } from "@/components/shared/history-panel";
 import type { ListingGenerateRequest, ListingResponse } from "@/types/api";
 import { Sparkles, FileText, ArrowLeft, Eye, Code } from "lucide-react";
 import Link from "next/link";
+
+interface ListingSummary {
+  id: string;
+  platform: string;
+  product_name: string;
+  generated_title?: string;
+  created_at?: string;
+}
 
 type Platform = keyof typeof PLATFORMS;
 
@@ -33,6 +42,38 @@ export default function NewListingPage() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<ListingResponse | null>(null);
   const [descView, setDescView] = useState<"preview" | "html">("preview");
+  const [history, setHistory] = useState<ListingSummary[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  // Load recent listings on mount
+  useEffect(() => {
+    if (!session?.access_token) return;
+    (async () => {
+      try {
+        const data = await api.getListings(session.access_token, 1) as ListingSummary[] | { items: ListingSummary[] };
+        const items = Array.isArray(data) ? data : (data.items || []);
+        setHistory(items);
+        if (!result && items.length > 0) {
+          // Load full data for the most recent
+          const full = await api.getListing(items[0].id, session.access_token) as ListingResponse;
+          setResult(full);
+        }
+      } catch {
+        // silent
+      } finally {
+        setHistoryLoading(false);
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
+
+  const loadFromHistory = async (id: string) => {
+    if (!session?.access_token) return;
+    try {
+      const full = await api.getListing(id, session.access_token) as ListingResponse;
+      setResult(full);
+    } catch {}
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +98,17 @@ export default function NewListingPage() {
       )) as ListingResponse;
 
       setResult(data);
+      // Prepend to history
+      setHistory((h) => [
+        {
+          id: data.id,
+          platform: data.platform,
+          product_name: data.product_name,
+          generated_title: data.generated_title,
+          created_at: (data as { created_at?: string }).created_at,
+        },
+        ...h.filter((x) => x.id !== data.id),
+      ]);
     } catch (err) {
       const quota = getQuotaMessage(err);
       setError(
@@ -88,8 +140,9 @@ export default function NewListingPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
-        {/* Form */}
-        <Card className="sticky top-20 self-start">
+        {/* Form + History */}
+        <div className="space-y-4 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pb-4 lg:pr-1">
+        <Card>
           <CardHeader>
             <h2 className="text-lg font-semibold text-secondary flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
@@ -175,6 +228,22 @@ export default function NewListingPage() {
             </form>
           </CardBody>
         </Card>
+
+        <HistoryPanel
+          items={history.map((l) => ({
+            id: l.id,
+            label: l.product_name,
+            subtitle: l.generated_title || l.platform,
+            timestamp: l.created_at,
+          }))}
+          activeId={result?.id}
+          loading={historyLoading}
+          onSelect={loadFromHistory}
+          title="Recent Listings"
+          emptyText="No listings yet. Generate your first one above."
+          accentColor="primary"
+        />
+        </div>
 
         {/* Results */}
         <div className="space-y-4 min-w-0">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { CopyButton } from "@/components/shared/copy-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { FormattedText } from "@/components/shared/formatted-output";
+import { HistoryPanel } from "@/components/shared/history-panel";
 import {
   Search, Sparkles, ArrowLeft, TrendingUp, Target, DollarSign,
   Lightbulb, AlertTriangle, CheckCircle2, Users, BarChart3, MapPin,
@@ -102,11 +103,36 @@ export default function ResearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<ResearchResult | null>(null);
+  const [history, setHistory] = useState<ResearchResult[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
   const sections = useMemo(
     () => (result ? parseAnalysisSections(result.analysis) : []),
     [result]
   );
+
+  // Load history on mount + after each new generation
+  useEffect(() => {
+    if (!session?.access_token) return;
+    (async () => {
+      try {
+        const data = (await api.getResearchHistory(session.access_token)) as {
+          items?: ResearchResult[];
+        } | ResearchResult[];
+        const items: ResearchResult[] = Array.isArray(data) ? data : (data.items || []);
+        setHistory(items);
+        // If no active result, show most recent
+        if (!result && items.length > 0) {
+          setResult(items[0]);
+        }
+      } catch {
+        // silent - may be empty
+      } finally {
+        setHistoryLoading(false);
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +149,8 @@ export default function ResearchPage() {
       )) as ResearchResult;
 
       setResult(data);
+      // Prepend to history
+      setHistory((h) => [data, ...h.filter((x) => x.id !== data.id)]);
     } catch (err) {
       const quotaMsg = getQuotaMessage(err);
       setError(
@@ -155,8 +183,8 @@ export default function ResearchPage() {
 
       {/* Main 2-column layout: narrow form, wide results */}
       <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
-        {/* Form (narrow) */}
-        <div>
+        {/* Form (narrow) + History */}
+        <div className="space-y-4">
           <Card className="sticky top-20">
             <CardHeader>
               <h2 className="text-base font-semibold text-secondary flex items-center gap-2">
@@ -200,6 +228,25 @@ export default function ResearchPage() {
               </form>
             </CardBody>
           </Card>
+
+          {/* History */}
+          <HistoryPanel
+            items={history.map((r) => ({
+              id: r.id,
+              label: r.query,
+              subtitle: `${r.competitors?.length || 0} competitors · ${r.keywords_found?.length || 0} keywords`,
+              timestamp: (r as { created_at?: string }).created_at,
+            }))}
+            activeId={result?.id}
+            loading={historyLoading}
+            onSelect={(id) => {
+              const found = history.find((r) => r.id === id);
+              if (found) setResult(found);
+            }}
+            title="Past Research"
+            emptyText="No research yet. Start your first query above."
+            accentColor="emerald"
+          />
         </div>
 
         {/* Results (wide) */}
