@@ -32,8 +32,10 @@ class Settings(BaseSettings):
     # OpenAI
     openai_api_key: str = ""
 
-    # Grok
+    # Grok (xAI)
     grok_api_key: str = ""
+    grok_base_url: str = "https://api.x.ai/v1"
+    grok_model: str = "grok-4-1-fast-reasoning"
 
     # SearXNG
     searxng_url: str = "http://localhost:8080"

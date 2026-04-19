@@ -19,7 +19,7 @@ from ..db.repositories import research_repo
 from ..models.enums import Platform
 from ..models.schemas import ResearchRequest, ResearchResponse
 from .search_provider import web_search
-from .minimax_text import generate_text
+from .grok_text import generate_text
 
 logger = logging.getLogger(__name__)
 
