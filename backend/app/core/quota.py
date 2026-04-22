@@ -128,18 +128,38 @@ class QuotaManager:
         cost: int = 1,
         metadata: dict | None = None,
     ) -> None:
-        """Log quota consumption."""
+        """Log quota consumption. Failures are logged but never raised —
+        we don't want a usage-log insert failure to abort a successful
+        generation. If this ever spikes, investigate via logs.
+        """
         supabase = get_supabase()
-
-        supabase.table("usage_logs").insert(
-            {
-                "user_id": user_id,
-                "generation_type": generation_type.value,
-                "feature": feature.value,
-                "request_count": cost,
-                "metadata": metadata or {},
-            }
-        ).execute()
+        try:
+            result = (
+                supabase.table("usage_logs")
+                .insert({
+                    "user_id": user_id,
+                    "generation_type": generation_type.value,
+                    "feature": feature.value,
+                    "request_count": cost,
+                    "metadata": metadata or {},
+                })
+                .execute()
+            )
+            if not result.data:
+                logger.warning(
+                    "Quota consume: empty response for user=%s feature=%s",
+                    user_id, feature.value,
+                )
+            else:
+                logger.info(
+                    "Quota consumed: user=%s feature=%s type=%s cost=%d",
+                    user_id, feature.value, generation_type.value, cost,
+                )
+        except Exception as exc:
+            logger.error(
+                "Quota consume FAILED for user=%s feature=%s: %s",
+                user_id, feature.value, exc,
+            )
 
     async def get_usage_summary(self, user_id: str, plan: str) -> dict:
         """Get usage summary for all features this month."""

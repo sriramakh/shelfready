@@ -171,8 +171,10 @@ export default function DashboardPage() {
 
   if (loading) return <PageLoader />;
 
-  const usagePercent = usage
-    ? Math.round((usage.used / usage.limit) * 100)
+  const total = usage?.total;
+  const unlimited = total?.limit === -1;
+  const usagePercent = total && total.limit > 0
+    ? Math.round((total.used / total.limit) * 100)
     : 0;
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset =
@@ -213,9 +215,9 @@ export default function DashboardPage() {
     },
     {
       label: "Quota Used",
-      value: usage ? `${usagePercent}%` : "0%",
-      trend: usage
-        ? `${formatNumber(usage.remaining)} left`
+      value: total ? (unlimited ? "Unlimited" : `${usagePercent}%`) : "0%",
+      trend: total
+        ? (unlimited ? `${formatNumber(total.used)} used` : `${formatNumber(total.remaining)} left`)
         : "Full quota available",
       trendUp: usagePercent < 80 ? true : false,
       icon: TrendingUp,
@@ -381,21 +383,26 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {usage && (
+            {total && (
               <div className="mt-5 text-center space-y-1">
                 <p className="text-sm font-medium text-secondary">
-                  {formatNumber(usage.used)}{" "}
-                  <span className="text-text-muted font-normal">of</span>{" "}
-                  {formatNumber(usage.limit)}{" "}
+                  {formatNumber(total.used)}
+                  {!unlimited && (
+                    <>
+                      {" "}
+                      <span className="text-text-muted font-normal">of</span>{" "}
+                      {formatNumber(total.limit)}
+                    </>
+                  )}{" "}
                   <span className="text-text-muted font-normal">requests</span>
                 </p>
                 <p className="text-xs text-text-muted">
-                  {formatNumber(usage.remaining)} remaining
+                  {unlimited ? "Unlimited plan" : `${formatNumber(total.remaining)} remaining`}
                 </p>
               </div>
             )}
 
-            {!usage && (
+            {!total && (
               <div className="mt-5 text-center">
                 <p className="text-sm text-text-muted">
                   No usage data yet

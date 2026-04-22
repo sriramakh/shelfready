@@ -808,17 +808,24 @@ function MiniSelect({
 }
 
 function QuotaBar({ usage }: { usage: UsageCurrent }) {
-  const pct = usage.limit > 0 ? Math.min(100, Math.round((usage.used / usage.limit) * 100)) : 0;
+  const total = usage.total;
+  const unlimited = total.limit === -1;
+  const pct = unlimited ? 0 : total.limit > 0 ? Math.min(100, Math.round((total.used / total.limit) * 100)) : 0;
   const tone = pct >= 90 ? "bg-red-500" : pct >= 75 ? "bg-amber-500" : "bg-emerald-500";
   return (
     <div className="hidden sm:flex items-center gap-3 rounded-lg border border-border bg-surface-alt/50 px-3 py-2 min-w-[220px]">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">Quota</p>
-          <p className="text-[10px] text-text-muted">{usage.used}/{usage.limit}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">Quota · {usage.plan}</p>
+          <p className="text-[10px] text-text-muted">
+            {total.used}{unlimited ? " used" : `/${total.limit}`}
+          </p>
         </div>
         <div className="h-1.5 bg-border rounded-full overflow-hidden">
-          <div className={cn("h-full transition-all", tone)} style={{ width: `${pct}%` }} />
+          <div
+            className={cn("h-full transition-all", unlimited ? "bg-emerald-500" : tone)}
+            style={{ width: `${unlimited ? 100 : pct}%`, opacity: unlimited ? 0.4 : 1 }}
+          />
         </div>
       </div>
     </div>

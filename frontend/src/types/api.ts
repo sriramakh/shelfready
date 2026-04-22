@@ -77,12 +77,24 @@ export interface AdResponse {
   created_at: string;
 }
 
-export interface UsageCurrent {
+export interface FeatureUsage {
   used: number;
-  limit: number;
-  remaining: number;
-  window_resets_at: string;
+  limit: number; // -1 = unlimited
+  remaining: number; // -1 = unlimited
+}
+
+export interface UsageCurrent {
   plan: string;
+  features: Record<string, FeatureUsage>;
+  total: FeatureUsage;
+  period_resets_at: string;
+}
+
+export interface UsageLogEntry {
+  generation_type: string;
+  feature: string;
+  request_count: number;
+  created_at: string;
 }
 
 export interface PlanInfo {
