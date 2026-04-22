@@ -90,17 +90,22 @@ export default function DashboardLayout({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [userMenuOpen]);
 
-  if (loading) {
+  // Auth guard: if session is gone (e.g. user signed out or token expired),
+  // bounce to homepage. Called via effect so we don't trigger navigation
+  // during render, which Next.js silently drops — that's what left users
+  // stuck on a blank /dashboard screen after logout.
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/");
+    }
+  }, [loading, user, router]);
+
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-alt">
         <PageLoader />
       </div>
     );
-  }
-
-  if (!user) {
-    router.push("/login");
-    return null;
   }
 
   const displayName =
@@ -119,7 +124,9 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/login");
+    // Send freshly-logged-out users to the public homepage instead of the
+    // login form — they just told us they wanted to leave.
+    router.replace("/");
   };
 
   // Breadcrumb / page title
