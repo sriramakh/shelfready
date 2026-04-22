@@ -1,23 +1,27 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/input";
+import { Textarea, Input } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/shared/copy-button";
 import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceeded";
+import type { UsageCurrent } from "@/types/api";
 import {
   ArrowLeft, Upload, X, Sparkles, FileText, Camera, Image as ImageIcon,
   Share2, Megaphone, Search, Check, AlertTriangle, Loader2, Package,
+  ChevronDown, ChevronRight, Plus, Minus, Building, Trees, User, Crosshair,
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 type FeatureKey = "listing" | "photoshoot" | "image" | "social" | "ads" | "research";
+type PhotoshootTheme = "studio" | "outdoor" | "model" | "context";
 
 interface FeatureDef {
   key: FeatureKey;
@@ -31,12 +35,24 @@ interface FeatureDef {
 
 const FEATURES: FeatureDef[] = [
   { key: "listing",    label: "Marketplace Listing", description: "Title, bullets, description, keywords", icon: FileText,  color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",       border: "border-blue-300 dark:border-blue-900" },
-  { key: "photoshoot", label: "AI Photoshoot",        description: "4-angle studio/outdoor/model/context",  icon: Camera,    color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",   border: "border-purple-300 dark:border-purple-900" },
+  { key: "photoshoot", label: "AI Photoshoot",        description: "Multi-angle product photography",       icon: Camera,    color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",   border: "border-purple-300 dark:border-purple-900" },
   { key: "image",      label: "Hero Image",            description: "Single lifestyle product image",        icon: ImageIcon, color: "text-pink-600",    bg: "bg-pink-50 dark:bg-pink-950/30",       border: "border-pink-300 dark:border-pink-900" },
   { key: "social",     label: "Social Post",           description: "Caption + hashtags + CTA",              icon: Share2,    color: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-950/30",       border: "border-rose-300 dark:border-rose-900" },
-  { key: "ads",        label: "Ad Copy",               description: "3 variants for Facebook/Google",        icon: Megaphone, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30",     border: "border-amber-300 dark:border-amber-900" },
+  { key: "ads",        label: "Ad Copy",               description: "Variants for Facebook/Google",          icon: Megaphone, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30",     border: "border-amber-300 dark:border-amber-900" },
   { key: "research",   label: "Market Research",       description: "Competitor + keyword intelligence",     icon: Search,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-300 dark:border-emerald-900" },
 ];
+
+const PHOTOSHOOT_THEMES: { id: PhotoshootTheme; label: string; icon: typeof FileText; color: string }[] = [
+  { id: "studio",  label: "Studio",      icon: Building,  color: "text-slate-600" },
+  { id: "outdoor", label: "Outdoor",     icon: Trees,     color: "text-green-600" },
+  { id: "model",   label: "With Model",  icon: User,      color: "text-purple-600" },
+  { id: "context", label: "In Context",  icon: Crosshair, color: "text-amber-600" },
+];
+
+const TONES = ["professional", "casual", "playful", "luxurious", "urgent", "educational"];
+const IMAGE_TYPES = ["lifestyle", "flat_lay", "in_use", "studio"];
+const IMAGE_STYLES = ["photorealistic", "minimalist", "vibrant"];
+const ASPECT_RATIOS = ["1:1", "4:5", "16:9", "9:16"];
 
 interface ProductInfo {
   product_name: string;
@@ -57,6 +73,24 @@ interface FeatureState {
   error?: string;
 }
 
+interface FeatureConfigs {
+  listing: { notes: string };
+  social: { tone: string; notes: string };
+  ads: { num_variants: number; target_audience: string; notes: string };
+  research: { query_override: string };
+  image: { image_type: string; style: string; aspect_ratio: string; notes: string };
+  photoshoot: { themes: PhotoshootTheme[]; notes: string };
+}
+
+const DEFAULT_CONFIGS: FeatureConfigs = {
+  listing: { notes: "" },
+  social: { tone: "professional", notes: "" },
+  ads: { num_variants: 3, target_audience: "", notes: "" },
+  research: { query_override: "" },
+  image: { image_type: "lifestyle", style: "photorealistic", aspect_ratio: "1:1", notes: "" },
+  photoshoot: { themes: ["studio", "outdoor", "model", "context"], notes: "" },
+};
+
 export default function MasterPage() {
   const { session } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +106,8 @@ export default function MasterPage() {
   const [selected, setSelected] = useState<Set<FeatureKey>>(
     new Set(FEATURES.map((f) => f.key)),
   );
+  const [expanded, setExpanded] = useState<Set<FeatureKey>>(new Set());
+  const [configs, setConfigs] = useState<FeatureConfigs>(DEFAULT_CONFIGS);
 
   const [product, setProduct] = useState<ProductInfo | null>(null);
   const [extracting, setExtracting] = useState(false);
@@ -80,6 +116,20 @@ export default function MasterPage() {
   const [features, setFeatures] = useState<Record<FeatureKey, FeatureState>>(
     Object.fromEntries(FEATURES.map((f) => [f.key, { status: "idle" as FeatureStatus }])) as Record<FeatureKey, FeatureState>,
   );
+
+  const [usage, setUsage] = useState<UsageCurrent | null>(null);
+
+  const refreshUsage = useCallback(async () => {
+    if (!session?.access_token) return;
+    try {
+      const u = (await api.getCurrentUsage(session.access_token)) as UsageCurrent;
+      setUsage(u);
+    } catch {}
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    refreshUsage();
+  }, [refreshUsage]);
 
   const anyRunning = extracting || Object.values(features).some((f) => f.status === "loading");
 
@@ -154,69 +204,117 @@ export default function MasterPage() {
     });
   };
 
+  const toggleExpanded = (key: FeatureKey) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const updateConfig = <K extends keyof FeatureConfigs>(key: K, patch: Partial<FeatureConfigs[K]>) => {
+    setConfigs((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
+  };
+
+  const addPhotoshootTheme = (theme: PhotoshootTheme) => {
+    setConfigs((prev) => {
+      if (prev.photoshoot.themes.length >= 10) return prev;
+      return { ...prev, photoshoot: { ...prev.photoshoot, themes: [...prev.photoshoot.themes, theme] } };
+    });
+  };
+  const removePhotoshootThemeAt = (idx: number) => {
+    setConfigs((prev) => {
+      if (prev.photoshoot.themes.length <= 1) return prev;
+      return { ...prev, photoshoot: { ...prev.photoshoot, themes: prev.photoshoot.themes.filter((_, i) => i !== idx) } };
+    });
+  };
+
+  const buildDetails = (info: ProductInfo, extraNotes: string): string => {
+    const parts: string[] = [];
+    if (description.trim()) parts.push(description.trim());
+    if (extraNotes.trim()) parts.push(extraNotes.trim());
+    if (parts.length === 0) {
+      // No user input — use vision-extracted info
+      if (info.description) parts.push(info.description);
+      if (info.key_features.length > 0) parts.push(`Features: ${info.key_features.join(", ")}`);
+      if (info.color) parts.push(`Color: ${info.color}`);
+      if (info.materials) parts.push(`Materials: ${info.materials}`);
+    }
+    return parts.join(". ").trim() || `${info.product_name} product`;
+  };
+
   const dispatchFeature = async (key: FeatureKey, info: ProductInfo) => {
     if (!session?.access_token) return;
     const token = session.access_token;
     setFeatures((prev) => ({ ...prev, [key]: { status: "loading" } }));
 
-    const details =
-      (description.trim() || info.description || info.key_features.join(", "))
-        .slice(0, 2999) || info.product_name;
-    const longDetails =
-      (description.trim() || info.description || info.key_features.join(", "))
-        .slice(0, 4999) || info.product_name;
-
     try {
       let data: unknown;
+      const cfg = configs;
+
       if (key === "listing") {
+        const details = buildDetails(info, cfg.listing.notes).slice(0, 4999);
         data = await api.generateListing({
           platform: marketplace,
           product_name: info.product_name.slice(0, 200) || "Product",
-          product_details: longDetails.length >= 10 ? longDetails : `${info.product_name}. ${longDetails}`,
+          product_details: details.length >= 10 ? details : `${info.product_name}. ${details}`.slice(0, 4999),
           target_audience: info.target_audience.slice(0, 500),
           category: info.product_category.slice(0, 200),
         }, token);
       } else if (key === "social") {
+        const details = buildDetails(info, cfg.social.notes).slice(0, 2999);
         data = await api.generateSocial({
           platform: socialPlatform,
           product_name: info.product_name.slice(0, 200) || "Product",
-          product_details: details.length >= 10 ? details : `${info.product_name}. ${details}`,
+          product_details: details.length >= 10 ? details : `${info.product_name}. ${details}`.slice(0, 2999),
           generate_image: false,
-          tone: "professional",
+          tone: cfg.social.tone,
         }, token);
       } else if (key === "ads") {
+        const details = buildDetails(info, cfg.ads.notes).slice(0, 2999);
         data = await api.generateAds({
           ad_platform: adPlatform,
           product_name: info.product_name.slice(0, 200) || "Product",
-          product_details: details.length >= 10 ? details : `${info.product_name}. ${details}`,
-          target_audience: info.target_audience.slice(0, 500),
-          num_variants: 3,
+          product_details: details.length >= 10 ? details : `${info.product_name}. ${details}`.slice(0, 2999),
+          target_audience: (cfg.ads.target_audience.trim() || info.target_audience).slice(0, 500),
+          num_variants: cfg.ads.num_variants,
         }, token);
       } else if (key === "research") {
-        const q = info.product_category
-          ? `${description.trim() || info.product_name} in ${info.product_category}`
-          : (description.trim() || info.product_name);
+        const q = cfg.research.query_override.trim()
+          || (info.product_category
+            ? `${description.trim() || info.product_name} in ${info.product_category}`
+            : (description.trim() || info.product_name));
         data = await api.searchResearch({ query: q.slice(0, 499) }, token);
       } else if (key === "image") {
+        // Build the richest possible prompt — vision info + user description + notes.
+        const richPrompt = [
+          info.product_name,
+          info.product_category,
+          info.color,
+          info.materials,
+          info.key_features.join(", "),
+          description.trim(),
+          cfg.image.notes.trim(),
+        ].filter(Boolean).join(", ");
+        const imageDesc = (richPrompt || info.product_name || "product").slice(0, 1999);
+        if (imageDesc.length < 5) {
+          throw new Error("Need at least a product name or description to generate an image.");
+        }
         data = await api.generateImage({
-          description: (details || info.product_name).slice(0, 1999),
-          aspect_ratio: "1:1",
-          image_type: "lifestyle",
-          style: "photorealistic",
+          description: imageDesc,
+          aspect_ratio: cfg.image.aspect_ratio,
+          image_type: cfg.image.image_type,
+          style: cfg.image.style,
         }, token);
       } else if (key === "photoshoot") {
-        // Photoshoot uses the raw uploaded image directly
+        const themes = cfg.photoshoot.themes;
+        if (themes.length < 1) throw new Error("Pick at least one photoshoot theme.");
+        if (themes.length > 10) throw new Error("Photoshoot cap is 10 images per run.");
         const resp = await fetch(`${API_URL}/api/v1/photoshoot/generate`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            image_base64: imageBase64,
-            themes: ["studio", "outdoor", "model", "context"],
-            aspect_ratio: "1:1",
-          }),
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ image_base64: imageBase64, themes, aspect_ratio: "1:1" }),
         });
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}));
@@ -224,11 +322,21 @@ export default function MasterPage() {
         }
         data = await resp.json();
       }
+
+      // Validate image endpoints returned a usable URL before calling success.
+      if (key === "image") {
+        const url = (data as { public_url?: string })?.public_url;
+        if (!url) throw new Error("Image generated but no URL returned from server.");
+      }
+
       setFeatures((prev) => ({ ...prev, [key]: { status: "success", data } }));
     } catch (err) {
       const quotaMsg = getQuotaMessage(err);
       const msg = quotaMsg || (err instanceof Error ? err.message : "Generation failed.");
       setFeatures((prev) => ({ ...prev, [key]: { status: "error", error: msg } }));
+    } finally {
+      // Refresh usage after each feature — independent calls means incremental updates.
+      refreshUsage();
     }
   };
 
@@ -256,7 +364,6 @@ export default function MasterPage() {
       setProduct(resp.product);
       setExtracting(false);
 
-      // Fan out selected features in parallel.
       await Promise.all(
         Array.from(selected).map((key) => dispatchFeature(key, resp.product)),
       );
@@ -285,15 +392,16 @@ export default function MasterPage() {
             Master Suite
           </h1>
           <p className="text-text-muted mt-0.5 text-sm">
-            Upload one product image. Get a listing, photoshoot, social post, ad copy, and market research — all at once.
+            Upload one product image. Customize each feature. Generate everything in parallel.
           </p>
         </div>
+        {usage && <QuotaBar usage={usage} />}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-5">
         {/* Sidebar — inputs */}
         <div className="space-y-4">
-          <Card className="sticky top-20">
+          <Card>
             <CardHeader>
               <h2 className="text-sm font-semibold text-secondary">Input</h2>
             </CardHeader>
@@ -324,59 +432,38 @@ export default function MasterPage() {
                   <p className="text-[11px] text-text-muted mt-1.5 truncate">{fileName}</p>
                 </div>
               )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={onFileChange}
-                className="hidden"
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={onFileChange} className="hidden" />
 
               <Textarea
-                label="Description (optional)"
-                placeholder="Leave blank to let AI describe the product from the image, or add anything specific (e.g., 'handcrafted in Vermont, $45 retail')."
+                label="Global description (optional, applies to all features)"
+                placeholder="Anything specific about the product, brand, or positioning. Leave blank to rely on vision extraction."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={3}
+                rows={2}
               />
 
               {/* Platforms */}
               <div className="grid grid-cols-3 gap-2">
-                <PlatformSelect
-                  label="Marketplace"
-                  value={marketplace}
-                  onChange={(v) => setMarketplace(v as typeof marketplace)}
-                  options={[
-                    { value: "amazon", label: "Amazon" },
-                    { value: "etsy", label: "Etsy" },
-                    { value: "shopify", label: "Shopify" },
-                  ]}
-                />
-                <PlatformSelect
-                  label="Social"
-                  value={socialPlatform}
-                  onChange={(v) => setSocialPlatform(v as typeof socialPlatform)}
-                  options={[
-                    { value: "instagram", label: "Instagram" },
-                    { value: "facebook", label: "Facebook" },
-                    { value: "pinterest", label: "Pinterest" },
-                  ]}
-                />
-                <PlatformSelect
-                  label="Ad"
-                  value={adPlatform}
-                  onChange={(v) => setAdPlatform(v as typeof adPlatform)}
-                  options={[
-                    { value: "facebook", label: "Meta" },
-                    { value: "google", label: "Google" },
-                  ]}
-                />
+                <PlatformSelect label="Marketplace" value={marketplace} onChange={(v) => setMarketplace(v as typeof marketplace)} options={[
+                  { value: "amazon", label: "Amazon" },
+                  { value: "etsy", label: "Etsy" },
+                  { value: "shopify", label: "Shopify" },
+                ]} />
+                <PlatformSelect label="Social" value={socialPlatform} onChange={(v) => setSocialPlatform(v as typeof socialPlatform)} options={[
+                  { value: "instagram", label: "Instagram" },
+                  { value: "facebook", label: "Facebook" },
+                  { value: "pinterest", label: "Pinterest" },
+                ]} />
+                <PlatformSelect label="Ad" value={adPlatform} onChange={(v) => setAdPlatform(v as typeof adPlatform)} options={[
+                  { value: "facebook", label: "Meta" },
+                  { value: "google", label: "Google" },
+                ]} />
               </div>
 
-              {/* Feature checklist */}
+              {/* Feature list w/ per-feature config */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-semibold text-secondary">Generate</p>
+                  <p className="text-xs font-semibold text-secondary">Features</p>
                   <button
                     onClick={() =>
                       setSelected(
@@ -390,37 +477,21 @@ export default function MasterPage() {
                     {selected.size === FEATURES.length ? "Clear all" : "Select all"}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {FEATURES.map((f) => {
-                    const isOn = selected.has(f.key);
-                    const Icon = f.icon;
-                    return (
-                      <button
-                        key={f.key}
-                        onClick={() => toggleFeature(f.key)}
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs transition-colors",
-                          isOn ? `${f.border} ${f.bg}` : "border-border bg-surface hover:bg-surface-alt",
-                        )}
-                      >
-                        <Icon className={cn("h-4 w-4 flex-shrink-0", isOn ? f.color : "text-text-muted")} />
-                        <div className="flex-1 min-w-0">
-                          <p className={cn("font-semibold truncate", isOn ? "text-secondary" : "text-text")}>
-                            {f.label}
-                          </p>
-                          <p className="text-[10px] text-text-muted truncate">{f.description}</p>
-                        </div>
-                        <div
-                          className={cn(
-                            "w-4 h-4 rounded border flex items-center justify-center flex-shrink-0",
-                            isOn ? "border-primary bg-primary" : "border-border",
-                          )}
-                        >
-                          {isOn && <Check className="h-3 w-3 text-white" />}
-                        </div>
-                      </button>
-                    );
-                  })}
+                <div className="space-y-1.5">
+                  {FEATURES.map((f) => (
+                    <FeatureRow
+                      key={f.key}
+                      feature={f}
+                      selected={selected.has(f.key)}
+                      expanded={expanded.has(f.key)}
+                      onToggleSelect={() => toggleFeature(f.key)}
+                      onToggleExpand={() => toggleExpanded(f.key)}
+                      configs={configs}
+                      updateConfig={updateConfig}
+                      addPhotoshootTheme={addPhotoshootTheme}
+                      removePhotoshootThemeAt={removePhotoshootThemeAt}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -438,7 +509,7 @@ export default function MasterPage() {
               </Button>
 
               <p className="text-[11px] text-text-muted leading-relaxed">
-                Vision extracts product info (~5s), then each selected feature runs in parallel. Cards stream in as they finish.
+                Vision extracts product info (~5s), then each selected feature runs in parallel. Each call counts against your plan quota.
               </p>
             </CardBody>
           </Card>
@@ -446,7 +517,6 @@ export default function MasterPage() {
 
         {/* Results column */}
         <div className="space-y-4 min-w-0">
-          {/* Product card */}
           {(extracting || product) && (
             <Card>
               <CardHeader>
@@ -469,9 +539,7 @@ export default function MasterPage() {
                     <Field k="Color" v={product.color} />
                     <Field k="Materials" v={product.materials} />
                     <Field k="Audience" v={product.target_audience} full />
-                    {product.key_features.length > 0 && (
-                      <Field k="Features" v={product.key_features.join(" · ")} full />
-                    )}
+                    {product.key_features.length > 0 && <Field k="Features" v={product.key_features.join(" · ")} full />}
                     {product.description && <Field k="Auto-description" v={product.description} full />}
                   </div>
                 )}
@@ -479,7 +547,6 @@ export default function MasterPage() {
             </Card>
           )}
 
-          {/* Feature result cards */}
           {product && (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {FEATURES.filter((f) => selected.has(f.key)).map((f) => (
@@ -488,7 +555,6 @@ export default function MasterPage() {
             </div>
           )}
 
-          {/* Empty state */}
           {!extracting && !product && (
             <Card>
               <CardBody className="py-16 text-center">
@@ -497,13 +563,207 @@ export default function MasterPage() {
                 </div>
                 <h3 className="text-base font-semibold text-secondary mb-1">One image → six outputs</h3>
                 <p className="text-sm text-text-muted max-w-md mx-auto">
-                  Upload a product photo on the left. We'll extract its details once, then run every feature you pick in parallel.
+                  Upload a product photo on the left. Expand any feature to customize it, then generate everything in parallel.
                 </p>
               </CardBody>
             </Card>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Feature row with inline config ---------- */
+function FeatureRow({
+  feature,
+  selected,
+  expanded,
+  onToggleSelect,
+  onToggleExpand,
+  configs,
+  updateConfig,
+  addPhotoshootTheme,
+  removePhotoshootThemeAt,
+}: {
+  feature: FeatureDef;
+  selected: boolean;
+  expanded: boolean;
+  onToggleSelect: () => void;
+  onToggleExpand: () => void;
+  configs: FeatureConfigs;
+  updateConfig: <K extends keyof FeatureConfigs>(key: K, patch: Partial<FeatureConfigs[K]>) => void;
+  addPhotoshootTheme: (t: PhotoshootTheme) => void;
+  removePhotoshootThemeAt: (i: number) => void;
+}) {
+  const Icon = feature.icon;
+  return (
+    <div className={cn("rounded-lg border transition-colors", selected ? `${feature.border} ${feature.bg}` : "border-border bg-surface")}>
+      <div className="flex items-center gap-2 px-2.5 py-2">
+        <button onClick={onToggleSelect} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+          <Icon className={cn("h-4 w-4 flex-shrink-0", selected ? feature.color : "text-text-muted")} />
+          <div className="flex-1 min-w-0">
+            <p className={cn("text-xs font-semibold truncate", selected ? "text-secondary" : "text-text")}>
+              {feature.label}
+            </p>
+            <p className="text-[10px] text-text-muted truncate">{feature.description}</p>
+          </div>
+          <div className={cn("w-4 h-4 rounded border flex items-center justify-center flex-shrink-0", selected ? "border-primary bg-primary" : "border-border")}>
+            {selected && <Check className="h-3 w-3 text-white" />}
+          </div>
+        </button>
+        {selected && (
+          <button
+            onClick={onToggleExpand}
+            className="text-text-muted hover:text-text p-1 rounded"
+            aria-label={expanded ? "Hide config" : "Show config"}
+          >
+            {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          </button>
+        )}
+      </div>
+
+      {selected && expanded && (
+        <div className="border-t border-border/50 px-3 py-2.5 space-y-2 bg-surface/50 dark:bg-black/10">
+          {feature.key === "listing" && (
+            <Textarea
+              label="Extra instructions"
+              placeholder="e.g. 'Emphasize eco-friendly materials, target young parents'"
+              value={configs.listing.notes}
+              onChange={(e) => updateConfig("listing", { notes: e.target.value })}
+              rows={2}
+            />
+          )}
+
+          {feature.key === "social" && (
+            <>
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1 block">Tone</label>
+                <select
+                  value={configs.social.tone}
+                  onChange={(e) => updateConfig("social", { tone: e.target.value })}
+                  className="w-full text-xs rounded-lg border border-border bg-surface px-2 py-1.5 text-text"
+                >
+                  {TONES.map((t) => <option key={t} value={t}>{t[0].toUpperCase() + t.slice(1)}</option>)}
+                </select>
+              </div>
+              <Textarea
+                label="Extra instructions"
+                placeholder="e.g. 'Focus on weekend use-cases, include emoji'"
+                value={configs.social.notes}
+                onChange={(e) => updateConfig("social", { notes: e.target.value })}
+                rows={2}
+              />
+            </>
+          )}
+
+          {feature.key === "ads" && (
+            <>
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1 block">
+                  Variants: {configs.ads.num_variants}
+                </label>
+                <input
+                  type="range"
+                  min={1}
+                  max={5}
+                  value={configs.ads.num_variants}
+                  onChange={(e) => updateConfig("ads", { num_variants: Number(e.target.value) })}
+                  className="w-full"
+                />
+              </div>
+              <Input
+                label="Target audience override"
+                placeholder="Overrides vision-detected audience"
+                value={configs.ads.target_audience}
+                onChange={(e) => updateConfig("ads", { target_audience: e.target.value })}
+              />
+              <Textarea
+                label="Extra instructions"
+                placeholder="e.g. 'Punchy, urgent copy for a flash sale'"
+                value={configs.ads.notes}
+                onChange={(e) => updateConfig("ads", { notes: e.target.value })}
+                rows={2}
+              />
+            </>
+          )}
+
+          {feature.key === "research" && (
+            <Textarea
+              label="Custom research query (optional)"
+              placeholder="Leave blank to auto-use '{product name} in {category}'"
+              value={configs.research.query_override}
+              onChange={(e) => updateConfig("research", { query_override: e.target.value })}
+              rows={2}
+            />
+          )}
+
+          {feature.key === "image" && (
+            <>
+              <div className="grid grid-cols-3 gap-2">
+                <MiniSelect label="Type" value={configs.image.image_type} onChange={(v) => updateConfig("image", { image_type: v })} options={IMAGE_TYPES} />
+                <MiniSelect label="Style" value={configs.image.style} onChange={(v) => updateConfig("image", { style: v })} options={IMAGE_STYLES} />
+                <MiniSelect label="Ratio" value={configs.image.aspect_ratio} onChange={(v) => updateConfig("image", { aspect_ratio: v })} options={ASPECT_RATIOS} />
+              </div>
+              <Textarea
+                label="Extra instructions"
+                placeholder="e.g. 'Morning light, neutral kitchen backdrop'"
+                value={configs.image.notes}
+                onChange={(e) => updateConfig("image", { notes: e.target.value })}
+                rows={2}
+              />
+            </>
+          )}
+
+          {feature.key === "photoshoot" && (
+            <>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                  Themes ({configs.photoshoot.themes.length}/10)
+                </label>
+                <Badge variant={configs.photoshoot.themes.length <= 10 ? "primary" : "danger"}>
+                  {configs.photoshoot.themes.length} images
+                </Badge>
+              </div>
+              <div className="space-y-1.5">
+                {PHOTOSHOOT_THEMES.map((theme) => {
+                  const count = configs.photoshoot.themes.filter((t) => t === theme.id).length;
+                  const ThemeIcon = theme.icon;
+                  return (
+                    <div key={theme.id} className="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5">
+                      <ThemeIcon className={cn("h-3.5 w-3.5", theme.color)} />
+                      <p className="text-xs font-medium text-text flex-1">{theme.label}</p>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            const idx = configs.photoshoot.themes.lastIndexOf(theme.id);
+                            if (idx >= 0) removePhotoshootThemeAt(idx);
+                          }}
+                          disabled={count === 0 || configs.photoshoot.themes.length <= 1}
+                          className="h-6 w-6 rounded border border-border disabled:opacity-30 hover:bg-surface-alt flex items-center justify-center"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="text-xs font-mono w-5 text-center">{count}</span>
+                        <button
+                          onClick={() => addPhotoshootTheme(theme.id)}
+                          disabled={configs.photoshoot.themes.length >= 10}
+                          className="h-6 w-6 rounded border border-border disabled:opacity-30 hover:bg-surface-alt flex items-center justify-center"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-text-muted leading-relaxed">
+                Adjust per-theme counts. Backend caps at 10 total images per run.
+              </p>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -519,32 +779,47 @@ function Field({ k, v, full }: { k: string; v: string; full?: boolean }) {
 }
 
 function PlatformSelect({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-}) {
+  label, value, onChange, options,
+}: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
   return (
     <div>
       <label className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1 block">
         {label}
       </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full text-xs rounded-lg border border-border bg-surface px-2 py-1.5 text-text"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full text-xs rounded-lg border border-border bg-surface px-2 py-1.5 text-text">
+        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
+    </div>
+  );
+}
+
+function MiniSelect({
+  label, value, onChange, options,
+}: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
+  return (
+    <div>
+      <label className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1 block">{label}</label>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full text-xs rounded-lg border border-border bg-surface px-2 py-1.5 text-text">
+        {options.map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function QuotaBar({ usage }: { usage: UsageCurrent }) {
+  const pct = usage.limit > 0 ? Math.min(100, Math.round((usage.used / usage.limit) * 100)) : 0;
+  const tone = pct >= 90 ? "bg-red-500" : pct >= 75 ? "bg-amber-500" : "bg-emerald-500";
+  return (
+    <div className="hidden sm:flex items-center gap-3 rounded-lg border border-border bg-surface-alt/50 px-3 py-2 min-w-[220px]">
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">Quota</p>
+          <p className="text-[10px] text-text-muted">{usage.used}/{usage.limit}</p>
+        </div>
+        <div className="h-1.5 bg-border rounded-full overflow-hidden">
+          <div className={cn("h-full transition-all", tone)} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -561,13 +836,10 @@ function FeatureCard({ feature, state }: { feature: FeatureDef; state: FeatureSt
         <StatusBadge status={state.status} />
       </CardHeader>
       <CardBody>
-        {state.status === "idle" && (
-          <p className="text-xs text-text-muted">Queued.</p>
-        )}
+        {state.status === "idle" && <p className="text-xs text-text-muted">Queued.</p>}
         {state.status === "loading" && (
           <div className="flex items-center gap-2 text-sm text-text-muted">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Generating…
+            <Loader2 className="h-4 w-4 animate-spin" /> Generating…
           </div>
         )}
         {state.status === "error" && (
@@ -586,17 +858,13 @@ function FeatureCard({ feature, state }: { feature: FeatureDef; state: FeatureSt
 
 function StatusBadge({ status }: { status: FeatureStatus }) {
   const map: Record<FeatureStatus, { label: string; cls: string }> = {
-    idle: { label: "Queued", cls: "bg-surface-alt text-text-muted" },
+    idle:    { label: "Queued",  cls: "bg-surface-alt text-text-muted" },
     loading: { label: "Running", cls: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300" },
-    success: { label: "Ready", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" },
-    error: { label: "Failed", cls: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" },
+    success: { label: "Ready",   cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" },
+    error:   { label: "Failed",  cls: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" },
   };
   const m = map[status];
-  return (
-    <span className={cn("text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5", m.cls)}>
-      {m.label}
-    </span>
-  );
+  return <span className={cn("text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5", m.cls)}>{m.label}</span>;
 }
 
 function FeatureResult({ featureKey, data }: { featureKey: FeatureKey; data: unknown }) {
@@ -632,9 +900,7 @@ function FeatureResult({ featureKey, data }: { featureKey: FeatureKey; data: unk
     return (
       <div className="space-y-2 text-sm">
         <ResultBlock label="Caption" text={String(d.caption || "")} />
-        {Array.isArray(d.hashtags) && (
-          <p className="text-xs text-primary">{(d.hashtags as string[]).join(" ")}</p>
-        )}
+        {Array.isArray(d.hashtags) && <p className="text-xs text-primary">{(d.hashtags as string[]).join(" ")}</p>}
         {d.cta_text ? <p className="text-xs text-text-muted">CTA: {String(d.cta_text)}</p> : null}
       </div>
     );
@@ -661,9 +927,7 @@ function FeatureResult({ featureKey, data }: { featureKey: FeatureKey; data: unk
     const keywords = Array.isArray(d.keywords_found) ? (d.keywords_found as string[]) : [];
     return (
       <div className="space-y-2 text-sm">
-        <p className="text-xs text-text-muted">
-          {competitors.length} competitors · {keywords.length} keywords
-        </p>
+        <p className="text-xs text-text-muted">{competitors.length} competitors · {keywords.length} keywords</p>
         {keywords.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {keywords.slice(0, 10).map((k, i) => (
@@ -673,10 +937,7 @@ function FeatureResult({ featureKey, data }: { featureKey: FeatureKey; data: unk
             ))}
           </div>
         )}
-        <Link
-          href={`/research?id=${d.id}`}
-          className="text-xs text-primary hover:underline inline-block mt-1"
-        >
+        <Link href={`/research?id=${d.id}`} className="text-xs text-primary hover:underline inline-block mt-1">
           View full analysis →
         </Link>
       </div>
