@@ -90,6 +90,11 @@ export const api = {
   getResearchHistory: (token: string) =>
     apiFetch("/research", { token }),
 
+  // Master suite — vision-extract product info from an uploaded image.
+  // Frontend fans out to individual feature endpoints in parallel for independent loading.
+  masterExtract: (data: unknown, token: string) =>
+    apiFetch("/master/extract", { method: "POST", body: JSON.stringify(data), token }),
+
   // Usage
   getCurrentUsage: (token: string) =>
     apiFetch("/usage/current", { token }),

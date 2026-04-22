@@ -31,6 +31,15 @@ import {
 /* ---------- Quick actions data ---------- */
 const createActions = [
   {
+    title: "Master Suite",
+    description: "One image → listing + photoshoot + social + ads + research",
+    href: "/master",
+    icon: Sparkles,
+    gradient: "from-primary to-blue-700",
+    lightBg: "bg-purple-50",
+    lightText: "text-primary",
+  },
+  {
     title: "Create Listing",
     description: "Generate an optimized product listing",
     href: "/listings/new",

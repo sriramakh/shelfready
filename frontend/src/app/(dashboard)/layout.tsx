@@ -28,10 +28,12 @@ import {
   ArrowUpRight,
   Sun,
   Moon,
+  Sparkles,
 } from "lucide-react";
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Master Suite", href: "/master", icon: Sparkles },
   { label: "Listings", href: "/listings", icon: FileText },
   { label: "Images", href: "/images/generate", icon: Image },
   { label: "Social", href: "/social/generate", icon: Share2 },
@@ -47,6 +49,7 @@ const bottomNav = [
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
+  "/master": "Master Suite",
   "/listings": "Listings",
   "/listings/new": "New Listing",
   "/images/generate": "Image Studio",
