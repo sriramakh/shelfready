@@ -47,8 +47,8 @@ def _parse_json(raw: str) -> dict:
 
 async def generate_photoshoot(req: PhotoshootRequest) -> dict:
     """Generate photoshoot images using Grok vision + Grok Imagine."""
-    if len(req.themes) > 5:
-        raise ValueError("Maximum 5 images per run")
+    if len(req.themes) > 10:
+        raise ValueError("Maximum 10 images per run")
     if len(req.themes) < 1:
         raise ValueError("Select at least 1 theme")
 

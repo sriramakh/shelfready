@@ -146,7 +146,7 @@ export default function ImageGeneratePage() {
   }, [session?.access_token]);
 
   const totalImages = selectedThemes.length;
-  const canAddMore = totalImages < 5;
+  const canAddMore = totalImages < 10;
   const hasContext = selectedThemes.includes("context");
 
   // ── Resize image to max 1024px and compress as JPEG ──
@@ -209,13 +209,13 @@ export default function ImageGeneratePage() {
         if (prev.length <= 1) return prev;
         return prev.filter((t) => t !== themeId);
       }
-      if (prev.length >= 5) return prev;
+      if (prev.length >= 10) return prev;
       return [...prev, themeId];
     });
   };
 
   const addTheme = (themeId: ThemeId) => {
-    if (selectedThemes.length >= 5) return;
+    if (selectedThemes.length >= 10) return;
     setSelectedThemes((prev) => [...prev, themeId]);
   };
 
@@ -430,8 +430,8 @@ export default function ImageGeneratePage() {
                     <h2 className="text-sm font-semibold text-secondary">
                       Shot Types
                     </h2>
-                    <Badge variant={totalImages <= 5 ? "primary" : "danger"}>
-                      {totalImages}/5 images
+                    <Badge variant={totalImages <= 10 ? "primary" : "danger"}>
+                      {totalImages}/10 images
                     </Badge>
                   </div>
                 </CardHeader>
