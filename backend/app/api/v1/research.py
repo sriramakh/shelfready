@@ -20,18 +20,18 @@ async def search_competitors(
     user: UserProfile = Depends(get_current_user),
 ):
     """Conduct competitor/keyword research using web search + AI analysis."""
-    # Quota check handles feature gating (0 = blocked on free plan)
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.RESEARCH)
-
-    result = await conduct_research(request, str(user.id))
-
-    await quota_manager.consume(
-        str(user.id),
-        GenerationType.SEARCH,
-        Feature.RESEARCH,
-        metadata={"query": request.query},
+    log_id = await quota_manager.reserve(
+        str(user.id), user.current_plan,
+        feature=Feature.RESEARCH,
+        generation_type=GenerationType.SEARCH,
+        cost=1,
+        metadata={"query": request.query[:120]},
     )
-
+    try:
+        result = await conduct_research(request, str(user.id))
+    except Exception:
+        await quota_manager.release(log_id, str(user.id))
+        raise
     return result
 
 

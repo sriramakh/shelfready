@@ -22,17 +22,34 @@ async def create_social_post(
     request: SocialGenerateRequest,
     user: UserProfile = Depends(get_current_user),
 ):
-    """Generate a social media post with optional image."""
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.SOCIAL)
+    """Generate a social media post, optionally with an image.
 
-    result = await generate_social_post(request, str(user.id))
+    When generate_image=True, the service also calls the image pipeline, so
+    we must reserve an IMAGE slot too (previously undercounted).
+    """
+    reservations = [{
+        "feature": Feature.SOCIAL,
+        "generation_type": GenerationType.TEXT,
+        "cost": 1,
+        "metadata": {"platform": request.platform.value},
+    }]
+    if request.generate_image:
+        reservations.append({
+            "feature": Feature.IMAGE,
+            "generation_type": GenerationType.IMAGE,
+            "cost": 1,
+            "metadata": {"source": "social", "platform": request.platform.value},
+        })
 
-    await quota_manager.consume(
-        str(user.id),
-        GenerationType.TEXT,
-        Feature.SOCIAL,
-        metadata={"platform": request.platform.value},
+    log_ids = await quota_manager.reserve_many(
+        str(user.id), user.current_plan, reservations,
     )
+
+    try:
+        result = await generate_social_post(request, str(user.id))
+    except Exception:
+        await quota_manager.release_all(log_ids, str(user.id))
+        raise
 
     return result
 

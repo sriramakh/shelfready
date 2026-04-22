@@ -25,22 +25,18 @@ async def create_listing(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate an optimized product listing using AI."""
-    
-
-    # Check quota
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.LISTING)
-
-    # Generate
-    result = await generate_listing(request, str(user.id))
-
-    # Consume quota
-    await quota_manager.consume(
-        str(user.id),
-        GenerationType.TEXT,
-        Feature.LISTING,
+    log_id = await quota_manager.reserve(
+        str(user.id), user.current_plan,
+        feature=Feature.LISTING,
+        generation_type=GenerationType.TEXT,
+        cost=1,
         metadata={"platform": request.platform.value, "product": request.product_name},
     )
-
+    try:
+        result = await generate_listing(request, str(user.id))
+    except Exception:
+        await quota_manager.release(log_id, str(user.id))
+        raise
     return result
 
 
@@ -116,9 +112,6 @@ async def regenerate_listing(
 
         raise HTTPException(status_code=404, detail="Listing not found")
 
-    
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.LISTING)
-
     # Rebuild request from stored input
     request = ListingGenerateRequest(
         platform=item["platform"],
@@ -129,13 +122,16 @@ async def regenerate_listing(
         category=item["input_details"].get("category", ""),
     )
 
-    result = await generate_listing(request, str(user.id))
-
-    await quota_manager.consume(
-        str(user.id),
-        GenerationType.TEXT,
-        Feature.LISTING,
+    log_id = await quota_manager.reserve(
+        str(user.id), user.current_plan,
+        feature=Feature.LISTING,
+        generation_type=GenerationType.TEXT,
+        cost=1,
         metadata={"platform": request.platform.value, "regenerate": True},
     )
-
+    try:
+        result = await generate_listing(request, str(user.id))
+    except Exception:
+        await quota_manager.release(log_id, str(user.id))
+        raise
     return result

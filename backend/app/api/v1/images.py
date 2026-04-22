@@ -24,19 +24,18 @@ async def create_image(
     user: UserProfile = Depends(get_current_user),
 ):
     """Generate a lifestyle/product image using AI."""
-    
-
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
-
-    result = await generate_product_image(request, str(user.id))
-
-    await quota_manager.consume(
-        str(user.id),
-        GenerationType.IMAGE,
-        Feature.IMAGE,
+    log_id = await quota_manager.reserve(
+        str(user.id), user.current_plan,
+        feature=Feature.IMAGE,
+        generation_type=GenerationType.IMAGE,
+        cost=1,
         metadata={"image_type": request.image_type.value, "style": request.style.value},
     )
-
+    try:
+        result = await generate_product_image(request, str(user.id))
+    except Exception:
+        await quota_manager.release(log_id, str(user.id))
+        raise
     return result
 
 

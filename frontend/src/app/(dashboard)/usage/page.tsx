@@ -11,11 +11,13 @@ import type { UsageCurrent, UsageLogEntry } from "@/types/api";
 import { BarChart3, Clock, Zap, TrendingUp, RefreshCw, AlertTriangle } from "lucide-react";
 
 const FEATURE_META: Record<string, { label: string; color: string }> = {
-  listing:  { label: "Listings",     color: "#2563eb" },
-  image:    { label: "Images",       color: "#7c3aed" },
-  social:   { label: "Social Posts", color: "#ec4899" },
-  ad:       { label: "Ad Copy",      color: "#f59e0b" },
-  research: { label: "Research",     color: "#10b981" },
+  listing:    { label: "Listings",        color: "#2563eb" },
+  image:      { label: "Images",          color: "#7c3aed" },
+  photoshoot: { label: "Photoshoot Runs", color: "#a855f7" },
+  social:     { label: "Social Posts",    color: "#ec4899" },
+  ad:         { label: "Ad Copy",         color: "#f59e0b" },
+  research:   { label: "Research",        color: "#10b981" },
+  vision:     { label: "Vision Extracts", color: "#0ea5e9" },
 };
 
 function relTime(iso: string): string {

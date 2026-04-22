@@ -1,4 +1,11 @@
-"""Production photoshoot endpoint — persists to DB & Supabase Storage."""
+"""Production photoshoot endpoint — persists to DB & Supabase Storage.
+
+Quota accounting:
+- 1 PHOTOSHOOT slot per run (gates max_photoshoots_per_month — free plan has 0
+  here so free users are blocked before any image is generated).
+- N IMAGE slots per run where N = number of themes requested (each theme is a
+  separate Grok Imagine call, so each costs us money and must count separately).
+"""
 
 import base64
 import logging
@@ -23,10 +30,35 @@ async def generate_photoshoot_prod(
     req: PhotoshootRequest,
     user: UserProfile = Depends(get_current_user),
 ):
-    """Generate AI photoshoot images — persists results to DB and Supabase Storage."""
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
+    """Generate AI photoshoot images — persists to DB and Supabase Storage."""
+    num_images = max(1, len(req.themes or []))
 
-    result = await generate_photoshoot(req)
+    # Atomic reserve: photoshoot run + each image as a separate IMAGE slot.
+    # If either fails, neither is charged.
+    log_ids = await quota_manager.reserve_many(
+        str(user.id),
+        user.current_plan,
+        [
+            {
+                "feature": Feature.PHOTOSHOOT,
+                "generation_type": GenerationType.IMAGE,
+                "cost": 1,
+                "metadata": {"themes": req.themes, "num_images": num_images},
+            },
+            {
+                "feature": Feature.IMAGE,
+                "generation_type": GenerationType.IMAGE,
+                "cost": num_images,
+                "metadata": {"source": "photoshoot", "themes": req.themes},
+            },
+        ],
+    )
+
+    try:
+        result = await generate_photoshoot(req)
+    except Exception:
+        await quota_manager.release_all(log_ids, str(user.id))
+        raise
 
     saved_images = []
     for img in result["images"]:
@@ -55,8 +87,6 @@ async def generate_photoshoot_prod(
             logger.error("Failed to persist photoshoot image: %s", e)
 
         saved_images.append(img)
-
-    await quota_manager.consume(str(user.id), GenerationType.IMAGE, Feature.IMAGE, metadata={"source": "photoshoot", "themes": req.themes})
 
     result["images"] = saved_images
     return result

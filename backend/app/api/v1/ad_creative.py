@@ -23,17 +23,35 @@ async def generate_ad_creative_prod(
     req: AdCreativeRequest,
     user: UserProfile = Depends(get_current_user),
 ):
-    """Generate visual ad creatives — persists results to DB and Supabase Storage."""
-    try:
-        await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.IMAGE)
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Quota check failed: {exc}")
+    """Generate visual ad creatives — persists to DB and Supabase Storage.
+
+    Each creative size is a separate Grok Imagine call, so each image counts
+    as a single IMAGE slot. (Prior behavior counted the whole run as 1 AD
+    slot, which under-counted and also used the wrong bucket.)
+    """
+    num_creatives = max(1, len(req.creative_sizes or []))
+
+    log_id = await quota_manager.reserve(
+        str(user.id),
+        user.current_plan,
+        feature=Feature.IMAGE,
+        generation_type=GenerationType.IMAGE,
+        cost=num_creatives,
+        metadata={
+            "source": "ad_creative",
+            "sizes": req.creative_sizes,
+            "product": req.product_name,
+            "ad_platform": req.ad_platform,
+        },
+    )
 
     try:
         result = await generate_ad_creative(req)
+    except HTTPException:
+        await quota_manager.release(log_id, str(user.id))
+        raise
     except Exception as exc:
+        await quota_manager.release(log_id, str(user.id))
         logger.exception("Ad creative generation failed")
         raise HTTPException(status_code=500, detail=f"Creative generation failed: {str(exc)[:200]}")
 
@@ -64,8 +82,6 @@ async def generate_ad_creative_prod(
             logger.error("Failed to persist ad creative: %s", e)
 
         saved_creatives.append(creative)
-
-    await quota_manager.consume(str(user.id), GenerationType.IMAGE, Feature.AD, metadata={"source": "ad_creative", "sizes": req.creative_sizes, "product": req.product_name})
 
     result["creatives"] = saved_creatives
     return result

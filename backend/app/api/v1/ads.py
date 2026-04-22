@@ -22,22 +22,29 @@ async def create_ad_copy(
     request: AdGenerateRequest,
     user: UserProfile = Depends(get_current_user),
 ):
-    """Generate ad copy variants for Facebook or Google ads."""
-    
+    """Generate ad copy variants for Facebook or Google ads.
 
-    await quota_manager.check_quota(str(user.id), user.current_plan, feature=Feature.AD)
+    Each variant is a separate LLM call, so cost scales with num_variants.
+    """
+    num_variants = max(1, request.num_variants or 1)
 
-    result = await generate_ad_copy(request, str(user.id))
-
-    await quota_manager.consume(
+    log_id = await quota_manager.reserve(
         str(user.id),
-        GenerationType.TEXT,
-        Feature.AD,
+        user.current_plan,
+        feature=Feature.AD,
+        generation_type=GenerationType.TEXT,
+        cost=num_variants,
         metadata={
             "ad_platform": request.ad_platform.value,
-            "num_variants": request.num_variants,
+            "num_variants": num_variants,
         },
     )
+
+    try:
+        result = await generate_ad_copy(request, str(user.id))
+    except Exception:
+        await quota_manager.release(log_id, str(user.id))
+        raise
 
     return result
 

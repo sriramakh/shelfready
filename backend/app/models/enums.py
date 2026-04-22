@@ -27,6 +27,8 @@ class Feature(str, Enum):
     AD = "ad"
     IMAGE = "image"
     RESEARCH = "research"
+    VISION = "vision"          # Master Suite product-info extraction from an image
+    PHOTOSHOOT = "photoshoot"  # Multi-angle photoshoot RUN (separate bucket from IMAGE)
 
 
 class AdPlatform(str, Enum):
@@ -62,6 +64,7 @@ PLAN_QUOTAS = {
         "max_social_per_month": 5,
         "max_ads_per_month": 5,
         "max_research_per_month": 0,
+        "max_vision_per_month": 5,
     },
     PlanTier.STARTER: {
         "max_listings_per_month": 50,
@@ -70,6 +73,7 @@ PLAN_QUOTAS = {
         "max_social_per_month": 50,
         "max_ads_per_month": 50,
         "max_research_per_month": 20,
+        "max_vision_per_month": 100,
     },
     PlanTier.PRO: {
         "max_listings_per_month": 300,
@@ -78,6 +82,7 @@ PLAN_QUOTAS = {
         "max_social_per_month": 300,
         "max_ads_per_month": 300,
         "max_research_per_month": 100,
+        "max_vision_per_month": 500,
     },
     PlanTier.BUSINESS: {
         "max_listings_per_month": -1,
@@ -86,5 +91,6 @@ PLAN_QUOTAS = {
         "max_social_per_month": -1,
         "max_ads_per_month": -1,
         "max_research_per_month": -1,
+        "max_vision_per_month": -1,
     },
 }
