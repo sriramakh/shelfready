@@ -10,7 +10,7 @@ import { Textarea, Input } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/shared/copy-button";
-import { ErrorOrQuota, getQuotaMessage } from "@/components/shared/quota-exceeded";
+import { ErrorOrQuota, getQuotaMessage, isQuotaError, cleanErrorMessage } from "@/components/shared/quota-exceeded";
 import type { UsageCurrent } from "@/types/api";
 import {
   ArrowLeft, Upload, X, Sparkles, FileText, Camera, Image as ImageIcon,
@@ -318,7 +318,9 @@ export default function MasterPage() {
         });
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}));
-          throw new Error(err.detail || `Server error ${resp.status}`);
+          const detail = err?.detail ?? err;
+          const msg = typeof detail === "string" ? detail : JSON.stringify(detail);
+          throw new Error(msg || `Server error ${resp.status}`);
         }
         data = await resp.json();
       }
@@ -518,6 +520,17 @@ export default function MasterPage() {
 
         {/* Results column */}
         <div className="space-y-4 min-w-0">
+          {/* Page-level quota modal: fires once when any feature hits a plan limit. */}
+          {(() => {
+            const hit = Object.values(features).find(
+              (s) => s.status === "error" && !!s.error && isQuotaError(s.error),
+            );
+            return hit?.error ? <ErrorOrQuota error={hit.error} /> : null;
+          })()}
+
+          {/* Extract-step error (e.g. vision quota exhausted). */}
+          {topError && !extracting && <ErrorOrQuota error={topError} />}
+
           {(extracting || product) && (
             <Card>
               <CardHeader>
@@ -853,7 +866,7 @@ function FeatureCard({ feature, state }: { feature: FeatureDef; state: FeatureSt
         {state.status === "error" && (
           <div className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-400">
             <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-            <p className="break-words">{state.error}</p>
+            <p className="break-words">{cleanErrorMessage(state.error || "")}</p>
           </div>
         )}
         {state.status === "success" && state.data !== undefined && (

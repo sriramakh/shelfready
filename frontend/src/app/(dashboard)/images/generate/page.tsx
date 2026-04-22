@@ -282,7 +282,9 @@ export default function ImageGeneratePage() {
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => ({}));
-        throw new Error(errData.detail || `Server error ${resp.status}`);
+        const detail = errData?.detail ?? errData;
+        const msg = typeof detail === "string" ? detail : JSON.stringify(detail);
+        throw new Error(msg || `Server error ${resp.status}`);
       }
 
       const data = (await resp.json()) as PhotoshootResult;
@@ -294,8 +296,9 @@ export default function ImageGeneratePage() {
         setImageHistory(items);
       } catch {}
     } catch (err) {
+      const quotaMsg = getQuotaMessage(err);
       setPhotoshootError(
-        err instanceof Error ? err.message : "Photoshoot generation failed.",
+        quotaMsg || (err instanceof Error ? err.message : "Photoshoot generation failed."),
       );
     } finally {
       setPhotoshootLoading(false);

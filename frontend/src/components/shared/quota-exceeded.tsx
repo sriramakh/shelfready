@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Zap, X, Sparkles } from "lucide-react";
+import { PLANS } from "@/lib/constants";
 
 const QUOTA_KEYWORDS = [
   "limit reached",
@@ -50,7 +51,31 @@ export function getQuotaMessage(err: unknown): string | null {
  * Check if an error string looks like a quota message.
  */
 export function isQuotaError(errorStr: string): boolean {
-  return QUOTA_KEYWORDS.some((kw) => errorStr.includes(kw));
+  if (!errorStr) return false;
+  return (
+    errorStr.includes("quota_exceeded") ||
+    QUOTA_KEYWORDS.some((kw) => errorStr.includes(kw))
+  );
+}
+
+/**
+ * Extract a clean user-facing message from a raw error string. Handles three
+ * shapes: (a) a plain message — returned as-is; (b) a stringified backend
+ * payload like '{"error":"quota_exceeded","message":"..."}' — returns the
+ * message field; (c) a FastAPI-wrapped '{"detail":{...}}' — returns
+ * detail.message.
+ */
+export function cleanErrorMessage(raw: string): string {
+  if (!raw) return raw;
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "string") return parsed;
+    if (parsed?.detail?.message) return String(parsed.detail.message);
+    if (parsed?.message) return String(parsed.message);
+  } catch {
+    // Not JSON — fall through.
+  }
+  return raw;
 }
 
 /**
@@ -120,8 +145,8 @@ export function QuotaExceededModal({
         <div className="rounded-lg bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20 p-3 mb-5 flex items-start gap-2">
           <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
           <p className="text-[12px] text-text leading-relaxed">
-            Starter plan starts at $19/mo and unlocks 50 listings, 100 images,
-            social, ads, and research each month.
+            Starter plan is ${PLANS.starter.priceMonthly}/mo and unlocks {PLANS.starter.maxListings} listings,{" "}
+            {PLANS.starter.maxImages} images, {PLANS.starter.maxPhotoshoots} photoshoots, social, ads, and research each month.
           </p>
         </div>
 
@@ -199,10 +224,15 @@ export function ErrorOrQuota({
 
   if (!error) return null;
 
-  if (isQuotaError(error) && !dismissed) {
+  // Extract a clean human message if the error is a stringified JSON payload
+  // (happens when pages forward raw fetch errors without parsing them).
+  const display = cleanErrorMessage(error);
+  const quota = isQuotaError(error) || isQuotaError(display);
+
+  if (quota && !dismissed) {
     return (
       <QuotaExceededModal
-        message={error}
+        message={display}
         onClose={() => {
           setDismissed(true);
           onDismiss?.();
@@ -211,11 +241,10 @@ export function ErrorOrQuota({
     );
   }
 
-  if (dismissed) {
-    // User closed the modal — leave a subtle inline note pointing to /billing.
+  if (quota && dismissed) {
     return (
       <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-3 py-2 text-xs text-amber-800 dark:text-amber-300 flex items-center justify-between gap-2">
-        <span>{error}</span>
+        <span>{display}</span>
         <Link href="/billing" className="font-semibold hover:underline whitespace-nowrap">
           Upgrade →
         </Link>
@@ -225,7 +254,7 @@ export function ErrorOrQuota({
 
   return (
     <div className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 px-4 py-3 text-sm text-red-700 dark:text-red-400">
-      {error}
+      {display}
     </div>
   );
 }
