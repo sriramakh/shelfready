@@ -5,6 +5,7 @@ class Platform(str, Enum):
     AMAZON = "amazon"
     ETSY = "etsy"
     SHOPIFY = "shopify"
+    EBAY = "ebay"
 
 
 class PlanTier(str, Enum):

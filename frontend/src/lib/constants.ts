@@ -89,6 +89,7 @@ export const PLATFORMS = {
   amazon: { name: "Amazon", color: "#FF9900" },
   etsy: { name: "Etsy", color: "#F1641E" },
   shopify: { name: "Shopify", color: "#96BF48" },
+  ebay: { name: "eBay", color: "#E53238" },
 } as const;
 
 export const SOCIAL_PLATFORMS = {

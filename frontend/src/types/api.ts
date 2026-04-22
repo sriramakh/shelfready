@@ -1,5 +1,5 @@
 export interface ListingGenerateRequest {
-  platform: "amazon" | "etsy" | "shopify";
+  platform: "amazon" | "etsy" | "shopify" | "ebay";
   product_name: string;
   product_details: string;
   target_audience?: string;

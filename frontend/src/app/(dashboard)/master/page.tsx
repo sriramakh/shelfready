@@ -99,7 +99,7 @@ export default function MasterPage() {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [fileName, setFileName] = useState("");
   const [description, setDescription] = useState("");
-  const [marketplace, setMarketplace] = useState<"amazon" | "etsy" | "shopify">("amazon");
+  const [marketplace, setMarketplace] = useState<"amazon" | "etsy" | "shopify" | "ebay">("amazon");
   const [socialPlatform, setSocialPlatform] = useState<"instagram" | "facebook" | "pinterest">("instagram");
   const [adPlatform, setAdPlatform] = useState<"facebook" | "google">("facebook");
 
@@ -448,6 +448,7 @@ export default function MasterPage() {
                   { value: "amazon", label: "Amazon" },
                   { value: "etsy", label: "Etsy" },
                   { value: "shopify", label: "Shopify" },
+                  { value: "ebay", label: "eBay" },
                 ]} />
                 <PlatformSelect label="Social" value={socialPlatform} onChange={(v) => setSocialPlatform(v as typeof socialPlatform)} options={[
                   { value: "instagram", label: "Instagram" },

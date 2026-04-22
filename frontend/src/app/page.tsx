@@ -26,7 +26,7 @@ const TOOL_SLIDES = [
       ],
       keywords: ["bamboo cutting board", "cutting board set 3 piece", "organic kitchen", "juice groove board", "eco kitchen tools", "knife friendly", "housewarming gift", "meal prep board"],
       description: "<b>Elevate Your Kitchen</b><br>Transform meal prep with premium organic bamboo...",
-      platforms: { amazon: "A9 optimized · 200 char title", etsy: "13 long-tail tags · story description", shopify: "SEO meta · conversion copy" },
+      platforms: { amazon: "A9 optimized · 200 char title", etsy: "13 long-tail tags · story description", shopify: "SEO meta · conversion copy", ebay: "80 char title · spec bullets" },
     },
   },
   {

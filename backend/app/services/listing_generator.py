@@ -44,6 +44,15 @@ def _get_listing_system_prompt(platform: Platform) -> str:
             "a persuasive product description using clear formatting, "
             "and relevant SEO keywords (comma-separated)."
         ),
+        Platform.EBAY: (
+            "You are an expert eBay product listing copywriter. "
+            "Follow eBay's best practices: keyword-dense titles up to 80 characters "
+            "(lead with brand, model, key specs — buyers search these fields), "
+            "5 bullet points covering condition, fit/compatibility, dimensions, materials, "
+            "and what's in the box; a clear HTML-free description that restates "
+            "specifications and buyer-relevant details; and relevant eBay search keywords "
+            "(comma-separated, no HTML, no special characters)."
+        ),
     }
 
     base = platform_guidelines.get(
@@ -183,6 +192,10 @@ async def generate_listing(
         title = title[:137] + "..."
     elif platform_str == "amazon" and len(title) > 200:
         title = title[:197] + "..."
+    elif platform_str == "ebay" and len(title) > 80:
+        title = title[:77] + "..."
+    elif platform_str == "shopify" and len(title) > 70:
+        title = title[:67] + "..."
     if not isinstance(bullets, list):
         bullets = [str(bullets)]
     # Filter empty bullets

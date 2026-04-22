@@ -272,13 +272,14 @@ function ResearchShowcase() {
 }
 
 function MultiPlatformShowcase() {
-  const [activePlatform, setActivePlatform] = useState<"amazon" | "etsy" | "shopify">("amazon");
+  const [activePlatform, setActivePlatform] = useState<"amazon" | "etsy" | "shopify" | "ebay">("amazon");
   const [showAllBullets, setShowAllBullets] = useState(false);
 
   const platforms = [
     { id: "amazon" as const, name: "Amazon", color: "#FF9900", style: "Keyword-dense, A9 optimized" },
     { id: "etsy" as const, name: "Etsy", color: "#F1641E", style: "Story-driven, tag-rich" },
     { id: "shopify" as const, name: "Shopify", color: "#96BF48", style: "Conversion-focused DTC" },
+    { id: "ebay" as const, name: "eBay", color: "#E53238", style: "Spec-driven, buyer-searchable" },
   ];
 
   const data = (multiData as Record<string, { title?: string; bullets?: string[]; tags?: string[]; meta_description?: string; style?: string }>)[activePlatform] || {};
