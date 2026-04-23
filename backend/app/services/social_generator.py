@@ -10,6 +10,8 @@ import re
 from datetime import datetime, timezone
 from uuid import UUID
 
+import base64
+
 from ..db.repositories import social_repo
 from ..models.enums import SocialPlatform
 from ..models.schemas import (
@@ -19,6 +21,7 @@ from ..models.schemas import (
 )
 from .image_generator import generate_product_image
 from .minimax_text import generate_text
+from .storage_service import upload_image
 
 logger = logging.getLogger(__name__)
 
@@ -180,9 +183,23 @@ async def generate_social_post(
         if isinstance(h, str) and h.strip()
     ]
 
-    # Optionally generate an image
+    # Attach an image if one was uploaded or requested.
+    # Precedence: uploaded_image_base64 (free) > generate_image (AI, IMAGE quota)
     image_url: str | None = None
-    if request.generate_image:
+
+    if request.uploaded_image_base64:
+        try:
+            raw_bytes = base64.b64decode(request.uploaded_image_base64)
+            if len(raw_bytes) > 10 * 1024 * 1024:
+                raise ValueError("Uploaded image exceeds 10MB.")
+            _, image_url = await upload_image(raw_bytes, user_id, "jpg")
+            logger.info("Social post using uploaded image for user %s", user_id)
+        except Exception as exc:
+            logger.warning(
+                "Failed to persist uploaded image for social post, proceeding without image: %s",
+                exc,
+            )
+    elif request.generate_image:
         try:
             image_request = ImageGenerateRequest(
                 description=(
@@ -196,7 +213,7 @@ async def generate_social_post(
             image_url = image_response.public_url
         except Exception as exc:
             logger.warning(
-                "Image generation failed for social post, proceeding without image: %s",
+                "AI image generation failed for social post, proceeding without image: %s",
                 exc,
             )
 
@@ -211,6 +228,8 @@ async def generate_social_post(
 
     if request.listing_id is not None:
         db_data["listing_id"] = str(request.listing_id)
+    if image_url is not None:
+        db_data["image_url"] = image_url
 
     db_record = social_repo.create(db_data)
 
@@ -222,6 +241,6 @@ async def generate_social_post(
         caption=db_record["caption"],
         hashtags=db_record["hashtags"],
         cta_text=db_record.get("cta_text"),
-        image_url=db_record.get("image_url"),
+        image_url=db_record.get("image_url") or image_url,
         created_at=db_record["created_at"],
     )

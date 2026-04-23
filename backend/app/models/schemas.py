@@ -96,7 +96,12 @@ class SocialGenerateRequest(BaseModel):
     product_name: str = Field(..., min_length=2, max_length=200)
     product_details: str = Field(..., min_length=10, max_length=3000)
     listing_id: UUID | None = None
+    # Image options (mutually informative):
+    #  - uploaded_image_base64 present → use user's own image (free, no quota)
+    #  - generate_image=True and no upload → AI generates one (consumes IMAGE quota)
+    #  - neither → text-only post
     generate_image: bool = False
+    uploaded_image_base64: str | None = Field(default=None, max_length=12_000_000)
     tone: str = Field(default="professional", max_length=50)
 
 

@@ -40,7 +40,12 @@ export interface SocialGenerateRequest {
   product_name: string;
   product_details: string;
   listing_id?: string;
+  // Image options:
+  //  - uploaded_image_base64 present → user's own image (free)
+  //  - generate_image=true + no upload → AI generation (consumes IMAGE quota)
+  //  - neither → text-only post
   generate_image?: boolean;
+  uploaded_image_base64?: string;
   tone?: string;
 }
 

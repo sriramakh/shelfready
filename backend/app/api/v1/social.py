@@ -24,16 +24,23 @@ async def create_social_post(
 ):
     """Generate a social media post, optionally with an image.
 
-    When generate_image=True, the service also calls the image pipeline, so
-    we must reserve an IMAGE slot too (previously undercounted).
+    Image options and their quota impact:
+      - uploaded_image_base64 present  → user's own image, no IMAGE quota
+      - generate_image=True (no upload) → AI generates, consumes IMAGE quota
+      - neither                         → text-only post
+
+    An upload always wins over generate_image so a user can't be charged for
+    AI generation when they've already supplied their own image.
     """
+    wants_ai_image = request.generate_image and not request.uploaded_image_base64
+
     reservations = [{
         "feature": Feature.SOCIAL,
         "generation_type": GenerationType.TEXT,
         "cost": 1,
         "metadata": {"platform": request.platform.value},
     }]
-    if request.generate_image:
+    if wants_ai_image:
         reservations.append({
             "feature": Feature.IMAGE,
             "generation_type": GenerationType.IMAGE,

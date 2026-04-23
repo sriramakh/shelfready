@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -12,8 +12,10 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { CopyButton } from "@/components/shared/copy-button";
 import { HistoryPanel } from "@/components/shared/history-panel";
 import type { SocialGenerateRequest, SocialResponse } from "@/types/api";
-import { Share2, Sparkles, ArrowLeft, ImageIcon } from "lucide-react";
+import { Share2, Sparkles, ArrowLeft, ImageIcon, Upload, X, Type, Wand2 } from "lucide-react";
 import Link from "next/link";
+
+type ImageMode = "none" | "upload" | "generate";
 
 type SocialPlatform = keyof typeof SOCIAL_PLATFORMS;
 
@@ -37,7 +39,12 @@ export default function SocialGeneratePage() {
   const [productName, setProductName] = useState("");
   const [productDetails, setProductDetails] = useState("");
   const [tone, setTone] = useState("casual");
-  const [generateImage, setGenerateImage] = useState(false);
+  const [imageMode, setImageMode] = useState<ImageMode>("none");
+  const [uploadedBase64, setUploadedBase64] = useState<string>("");
+  const [uploadedPreview, setUploadedPreview] = useState<string>("");
+  const [uploadedName, setUploadedName] = useState<string>("");
+  const [uploadError, setUploadError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<SocialResponse | null>(null);
@@ -58,9 +65,67 @@ export default function SocialGeneratePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.access_token]);
 
+  const compressImage = (file: File): Promise<{ base64: string; dataUrl: string }> =>
+    new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const scale = MAX / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas unsupported"));
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+        resolve({ base64: dataUrl.split(",")[1], dataUrl });
+      };
+      img.onerror = () => reject(new Error("Load failed"));
+      img.src = URL.createObjectURL(file);
+    });
+
+  const handleFile = async (file: File) => {
+    setUploadError("");
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please upload an image (PNG, JPG, WebP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("Image must be under 10MB.");
+      return;
+    }
+    try {
+      const { base64, dataUrl } = await compressImage(file);
+      setUploadedBase64(base64);
+      setUploadedPreview(dataUrl);
+      setUploadedName(file.name);
+    } catch {
+      setUploadError("Could not process that file. Try another.");
+    }
+  };
+
+  const clearUpload = () => {
+    setUploadedBase64("");
+    setUploadedPreview("");
+    setUploadedName("");
+    setUploadError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.access_token) return;
+
+    // If user chose "upload" but didn't upload → prompt them.
+    if (imageMode === "upload" && !uploadedBase64) {
+      setError("Please upload an image or choose a different option.");
+      return;
+    }
 
     setError("");
     setLoading(true);
@@ -72,7 +137,8 @@ export default function SocialGeneratePage() {
         product_name: productName,
         product_details: productDetails,
         tone,
-        generate_image: generateImage,
+        generate_image: imageMode === "generate",
+        uploaded_image_base64: imageMode === "upload" ? uploadedBase64 : undefined,
       };
 
       const data = (await api.generateSocial(
@@ -197,34 +263,124 @@ export default function SocialGeneratePage() {
                 </div>
               </div>
 
-              {/* Generate image toggle */}
-              <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <ImageIcon className="h-5 w-5 text-text-muted" />
-                  <div>
-                    <p className="text-sm font-medium text-text">
-                      Generate image too
-                    </p>
-                    <p className="text-xs text-text-muted">
-                      AI will create a matching social media image
-                    </p>
-                  </div>
+              {/* Image option — three-way picker */}
+              <div>
+                <label className="block text-sm font-medium text-text mb-2">
+                  Image
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { key: "none",     label: "Text only",  icon: Type,      hint: "No image" },
+                    { key: "upload",   label: "Upload",     icon: Upload,    hint: "Your photo · free" },
+                    { key: "generate", label: "AI image",   icon: Wand2,     hint: "Uses image quota" },
+                  ] as const).map((opt) => {
+                    const active = imageMode === opt.key;
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => {
+                          setImageMode(opt.key);
+                          setUploadError("");
+                          if (opt.key !== "upload") clearUpload();
+                        }}
+                        className={cn(
+                          "flex flex-col items-center gap-1 rounded-lg border px-2 py-3 text-center transition-all cursor-pointer",
+                          active
+                            ? "border-pink-400 bg-pink-50 dark:bg-pink-950/30"
+                            : "border-border bg-white dark:bg-transparent hover:bg-surface-alt",
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "h-4 w-4",
+                            active ? "text-pink-600" : "text-text-muted",
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "text-xs font-semibold",
+                            active ? "text-pink-700 dark:text-pink-300" : "text-text",
+                          )}
+                        >
+                          {opt.label}
+                        </span>
+                        <span className="text-[10px] text-text-muted leading-tight">
+                          {opt.hint}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setGenerateImage(!generateImage)}
-                  className={cn(
-                    "relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer",
-                    generateImage ? "bg-primary" : "bg-slate-200",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "inline-block h-4 w-4 rounded-full bg-white transition-transform shadow-sm",
-                      generateImage ? "translate-x-6" : "translate-x-1",
+
+                {/* Upload widget (shown only in upload mode) */}
+                {imageMode === "upload" && (
+                  <div className="mt-3">
+                    {!uploadedPreview ? (
+                      <div
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const f = e.dataTransfer.files?.[0];
+                          if (f) handleFile(f);
+                        }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-pink-400 hover:bg-pink-50/50 dark:hover:bg-pink-950/10 transition-colors"
+                      >
+                        <Upload className="h-6 w-6 mx-auto text-text-muted mb-1.5" />
+                        <p className="text-xs font-medium text-secondary">
+                          Drop an image or click to browse
+                        </p>
+                        <p className="text-[10px] text-text-muted mt-0.5">
+                          PNG, JPG, WebP · up to 10MB
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="relative rounded-lg overflow-hidden border border-border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={uploadedPreview}
+                          alt="Upload preview"
+                          className="w-full max-h-48 object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={clearUpload}
+                          className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 hover:bg-black/80"
+                          aria-label="Remove image"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                        <p className="absolute bottom-1 left-2 text-[10px] text-white bg-black/50 rounded px-1.5 py-0.5 max-w-[70%] truncate">
+                          {uploadedName}
+                        </p>
+                      </div>
                     )}
-                  />
-                </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleFile(f);
+                      }}
+                      className="hidden"
+                    />
+                    {uploadError && (
+                      <p className="mt-2 text-[11px] text-red-600 dark:text-red-400">
+                        {uploadError}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {imageMode === "generate" && (
+                  <p className="mt-2 text-[11px] text-text-muted flex items-center gap-1.5">
+                    <ImageIcon className="h-3 w-3" />
+                    Uses 1 slot from your monthly image quota.
+                  </p>
+                )}
               </div>
 
               {error && <ErrorOrQuota error={error} />}
