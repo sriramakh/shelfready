@@ -1,336 +1,687 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+/*
+ * ShelfReady landing — v3 (editorial handoff from Claude Design).
+ * Ported from shelfready-handoff/project/ShelfReady v3.html and its JSX
+ * components. Design system tokens live in ./landing.css. All CTAs point
+ * at /signup so cold traffic lands in the real funnel.
+ */
+
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { PLANS } from "@/lib/constants";
-import allTemplates from "@/lib/creative-templates.json";
-import {
-  ArrowRight, Check, Star, Package, Camera, Megaphone,
-  Share2, Search, Layers, Sparkles, Play, ChevronRight, X,
-} from "lucide-react";
+import "./landing.css";
 
-/* ── Data ──────────────────────────────────────────────────────────── */
-const TOOL_SLIDES = [
-  {
-    id: "listing", label: "Listing Optimizer", icon: Package, color: "#3b82f6", tag: "Amazon · Etsy · Shopify",
-    steps: ["Analyzing product keywords...", "Optimizing for A9 algorithm...", "Generating SEO title...", "Writing 5 bullet points...", "Creating HTML description...", "Extracting backend keywords..."],
-    output: {
-      type: "listing",
-      title: "Premium Organic Bamboo Cutting Board Set — 3 Piece Kitchen Chopping Boards with Deep Juice Grooves, Anti-Slip Rubber Feet, BPA-Free & Knife-Friendly, Eco-Friendly Gift for Home Chefs",
-      bullets: [
-        "VERSATILE 3-PIECE SET: Includes Large (18×12\"), Medium (14×10\"), and Small (10×7\") for every kitchen task",
-        "HEALTHIER COOKING: 100% organic moso bamboo, naturally antimicrobial, BPA-free and food-safe",
-        "MESS-FREE PREP: Deep juice grooves catch liquids, non-slip rubber feet keep boards stable",
-        "ECO-CONSCIOUS: Sustainable bamboo is biodegradable and renewable, recyclable packaging",
-        "PERFECT GIFT: Ideal for housewarming, weddings, holidays — dishwasher safe, oil occasionally",
-      ],
-      keywords: ["bamboo cutting board", "cutting board set 3 piece", "organic kitchen", "juice groove board", "eco kitchen tools", "knife friendly", "housewarming gift", "meal prep board"],
-      description: "<b>Elevate Your Kitchen</b><br>Transform meal prep with premium organic bamboo...",
-      platforms: { amazon: "A9 optimized · 200 char title", etsy: "13 long-tail tags · story description", shopify: "SEO meta · conversion copy", ebay: "80 char title · spec bullets" },
-    },
-  },
-  {
-    id: "photoshoot", label: "Product Photoshoot", icon: Camera, color: "#8b5cf6", tag: "5 pro shots from 1 photo",
-    steps: ["Analyzing product shape & color...", "Detecting product category: kitchen...", "Selecting AI model: female, lifestyle...", "Generating studio shot...", "Generating lifestyle scene...", "Generating model + product shot..."],
-    output: {
-      type: "images",
-      images: [
-        { src: "/showcase/studio.png", label: "Studio" },
-        { src: "/showcase/model.png", label: "With Model" },
-        { src: "/showcase/outdoor.png", label: "Lifestyle" },
-        { src: "/showcase/context.png", label: "In Context" },
-      ],
-      input: "/showcase/input.png",
-    },
-  },
-  {
-    id: "ads", label: "Ad Creatives", icon: Megaphone, color: "#f59e0b", tag: "200+ templates",
-    steps: ["Analyzing product for ad context...", "Matching template: Flash Sale...", "Compositing product into template...", "Adding text overlays: 25% OFF...", "Generating variant: New Arrival...", "Generating variant: Premium..."],
-    output: {
-      type: "creatives",
-      images: [
-        { src: "/showcase/creative_flash_sale.png", label: "Flash Sale" },
-        { src: "/showcase/creative_new_arrival.png", label: "New Arrival" },
-        { src: "/showcase/creative_premium.png", label: "Premium" },
-        { src: "/showcase/creative_comparison.png", label: "Comparison" },
-      ],
-      input: "/showcase/input.png",
-    },
-  },
-  {
-    id: "social", label: "Social Content", icon: Share2, color: "#ec4899", tag: "IG · FB · Pinterest",
-    steps: ["Crafting Instagram hook...", "Generating 25 tiered hashtags...", "Writing engagement CTA...", "Adapting for Facebook...", "Creating Pinterest pin description...", "Optimizing for each algorithm..."],
-    output: {
-      type: "social",
-      platforms: [
-        { name: "Instagram", handle: "@ecochop_kitchen", caption: "There's something magical about cooking with tools that love the planet back. 🌿\n\nOur bamboo cutting board set brings warmth and sustainability to your kitchen counter. Crafted from organic bamboo, these beauties are naturally antibacterial and gentle on your knives.", hashtags: "#ecokitchen #sustainableliving #bamboo #handmade #shopsmall #kitchenessentials #mealprep #organickitchen #ecofriendly #homecooking", cta: "🔗 Link in bio — 25% off with code CHOP25" },
-        { name: "Facebook", caption: "Is your plastic cutting board scratched up and harboring bacteria? Time to upgrade. 🪵\n\nOur organic bamboo set is naturally antimicrobial, knife-friendly, and actually looks good on your counter.", cta: "Shop now → Free shipping over $30" },
-        { name: "Pinterest", caption: "Premium Organic Bamboo Cutting Board Set — the eco-friendly kitchen essential every home cook needs. Deep juice grooves, anti-slip feet, and beautiful enough to display. Perfect housewarming gift.", cta: "Save this pin · Shop the set" },
-      ],
-    },
-  },
-  {
-    id: "research", label: "Market Insights", icon: Search, color: "#10b981", tag: "Live competitive intel",
-    steps: ["Searching DuckDuckGo for market data...", "Analyzing 72 search results...", "Identifying top 5 competitors...", "Extracting keyword gaps...", "Calculating pricing intelligence...", "Generating actionable recommendations..."],
-    output: {
-      type: "research",
-      analysis: "The bamboo cutting board market on Amazon is valued at $400-500M annually with 18-22% YoY growth in the eco-friendly segment.",
-      competitors: [
-        { name: "Lipper International", price: "$25-35", weakness: "No juice grooves" },
-        { name: "Bambu", price: "$40-55", weakness: "Single piece only" },
-        { name: "Royal Craft Wood", price: "$18-30", weakness: "Not organic certified" },
-      ],
-      keywords: ["bamboo cutting board", "eco kitchen", "organic cutting board set", "knife friendly board", "wooden chopping board", "housewarming gift kitchen", "BPA free cutting board", "juice groove board"],
-      opportunity: "No competitor combines organic certification + 3-piece set + juice grooves under $35",
-    },
-  },
-  {
-    id: "multi", label: "Multi-Platform", icon: Layers, color: "#6366f1", tag: "1 product → 3 platforms",
-    steps: ["Generating Amazon A9-optimized listing...", "Adapting to Etsy storytelling format...", "Creating Shopify conversion copy...", "Extracting 13 Etsy long-tail tags...", "Writing Shopify meta description...", "Generating backend keywords..."],
-    output: {
-      type: "multiplatform",
-      platforms: [
-        { name: "Amazon", style: "Keyword-dense · A9 optimized", title: "Premium Organic Bamboo Cutting Board Set — 3 Piece with Juice Grooves & Anti-Slip Feet", detail: "200 char title · 5 CAPS bullets · HTML description · 15 backend keywords" },
-        { name: "Etsy", style: "Story-driven · 13 tags", title: "Handmade Bamboo Cutting Board Set | Organic Kitchen Gift | Eco-Friendly Chopping Board", detail: "140 char title · storytelling description · 13 long-tail tags" },
-        { name: "Shopify", style: "Conversion-focused · SEO meta", title: "EcoChop Bamboo Cutting Board Set | Organic Kitchen Essentials", detail: "60 char SEO title · meta description · landing page copy · 6 selling points" },
-      ],
-    },
-  },
-];
+/* ── Logo mark (SVG shelves) ──────────────────────────────────────── */
+function Logo() {
+  return (
+    <div className="logo">
+      <div className="logo-mark">
+        <svg viewBox="0 0 28 28" width="28" height="28">
+          <rect x="2" y="6" width="24" height="1.5" fill="#1A1814" />
+          <rect x="2" y="14" width="24" height="1.5" fill="#1A1814" />
+          <rect x="2" y="22" width="24" height="1.5" fill="#1A1814" />
+          <rect x="5" y="8" width="3" height="6" fill="#C2562A" />
+          <rect x="10" y="9" width="4" height="5" fill="#1A1814" />
+          <rect x="16" y="7" width="2" height="7" fill="#1A1814" />
+          <rect x="6" y="16" width="5" height="6" fill="#1A1814" />
+          <rect x="13" y="17" width="3" height="5" fill="#C2562A" />
+          <rect x="18" y="15" width="4" height="7" fill="#1A1814" />
+        </svg>
+      </div>
+      <span>ShelfReady</span>
+    </div>
+  );
+}
 
-/* ── 6-Tool Interactive Demo with Streaming ───────────────────────── */
-function ToolDemo() {
-  const [active, setActive] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const [phase, setPhase] = useState<"streaming" | "output">("streaming");
-  const [streamStep, setStreamStep] = useState(0);
+/* ── Nav ──────────────────────────────────────────────────────────── */
+function Nav() {
+  return (
+    <nav className="nav nav-v2">
+      <div className="nav-inner">
+        <Logo />
+        <div className="nav-cta">
+          <a href="#pricing" className="nav-price-link">
+            Pricing
+          </a>
+          <Link href="/login" className="btn btn-ghost nav-signin">
+            Sign in
+          </Link>
+          <Link href="/signup" className="btn btn-clay">
+            Try free
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
 
-  const tool = TOOL_SLIDES[active];
+/* ── Trust bar ────────────────────────────────────────────────────── */
+function TrustBar() {
+  return (
+    <div className="trust-bar">
+      <div className="stars">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <svg key={i} width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+            <path
+              d="M7 1 L8.8 5 L13 5.5 L10 8.5 L10.8 13 L7 10.8 L3.2 13 L4 8.5 L1 5.5 L5.2 5 Z"
+              fill="#C2562A"
+            />
+          </svg>
+        ))}
+      </div>
+      <span className="trust-rating">4.9</span>
+      <span className="trust-sep">·</span>
+      <span className="trust-text">
+        Trusted by <strong>2,800+</strong> Etsy &amp; Shopify sellers
+      </span>
+    </div>
+  );
+}
 
-  // Auto-advance tools
+/* ── Before/after drag slider ─────────────────────────────────────── */
+function BeforeAfter() {
+  const [pos, setPos] = useState(50);
+  const ref = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
   useEffect(() => {
-    if (!autoPlay) return;
-    const t = setInterval(() => setActive((a) => (a + 1) % TOOL_SLIDES.length), 10000);
-    return () => clearInterval(t);
-  }, [autoPlay]);
+    let raf: number | undefined;
+    let t = 0;
+    const sweep = () => {
+      t += 0.018;
+      if (t > Math.PI) return;
+      setPos(50 + Math.sin(t) * 35);
+      raf = requestAnimationFrame(sweep);
+    };
+    const tm = window.setTimeout(() => {
+      raf = requestAnimationFrame(sweep);
+    }, 600);
+    return () => {
+      window.clearTimeout(tm);
+      if (raf !== undefined) cancelAnimationFrame(raf);
+    };
+  }, []);
 
-  // Streaming phase
+  const move = useCallback((clientX: number) => {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const p = ((clientX - r.left) / r.width) * 100;
+    setPos(Math.max(2, Math.min(98, p)));
+  }, []);
+
+  const down = (e: React.MouseEvent | React.TouchEvent) => {
+    dragging.current = true;
+    const clientX =
+      "touches" in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    move(clientX);
+  };
+
   useEffect(() => {
-    setPhase("streaming");
-    setStreamStep(0);
-    const steps = tool.steps.length;
-    // Stream each step
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    for (let i = 0; i < steps; i++) {
-      timers.push(setTimeout(() => setStreamStep(i + 1), 180 * (i + 1)));
-    }
-    // Switch to output after all steps
-    timers.push(setTimeout(() => setPhase("output"), 180 * steps + 420));
-    return () => timers.forEach(clearTimeout);
-  }, [active, tool.steps.length]);
-
-  const TIcon = tool.icon;
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!dragging.current) return;
+      const clientX =
+        "touches" in e ? (e as TouchEvent).touches[0]?.clientX : (e as MouseEvent).clientX;
+      if (typeof clientX === "number") move(clientX);
+    };
+    const onUp = () => {
+      dragging.current = false;
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [move]);
 
   return (
-    <section className="py-24 px-4 bg-white border-y border-neutral-200/60">
-      <div className="max-w-[1400px] mx-auto">
-        <div className="text-center mb-14">
-          <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">See it in action</p>
-          <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Six AI tools. Real output.</h2>
-          <p className="mt-3 text-neutral-500 max-w-md mx-auto">Click any tool to watch ShelfReady generate content from a single product.</p>
+    <div className="ba-slider" ref={ref} onMouseDown={down} onTouchStart={down}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="ba-img" src="/design-img/jewelry-studio01.png" alt="After" />
+      <div className="ba-after-wrap" style={{ width: `${pos}%` }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="ba-img"
+          src="/design-img/jewelry-input.png"
+          alt="Before"
+          style={{ width: `${100 / (pos / 100)}%`, maxWidth: "none" }}
+        />
+      </div>
+      <span className="ba-tag before">Your phone photo</span>
+      <span className="ba-tag after">ShelfReady</span>
+      <div className="ba-handle" style={{ left: `${pos}%` }}>
+        <div className="ba-handle-knob">⇆</div>
+      </div>
+      <span className="ba-hint">← Drag to compare →</span>
+    </div>
+  );
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+function Hero() {
+  return (
+    <section className="hero-v3" id="upload">
+      <div className="hero-v3-inner">
+        <div className="hero-v3-grid">
+          <div>
+            <TrustBar />
+            <h1>
+              Turn 1 product photo into <em>everything</em> you need to sell.
+            </h1>
+            <p className="hero-v3-sub">
+              Studio shots, lifestyle scenes, ads, and listing copy from a single
+              upload. Built for Etsy, Shopify, Amazon, and eBay sellers.
+            </p>
+            <div className="hero-v3-cta-wrap">
+              <Link href="/signup" className="btn btn-clay btn-xl hero-v2-cta">
+                📷 Upload a photo — free
+              </Link>
+              <div
+                className="mono"
+                style={{ fontSize: 12, color: "var(--ink-muted)", letterSpacing: "0.04em" }}
+              >
+                Free · No credit card · Results in 30 seconds
+              </div>
+            </div>
+          </div>
+          <BeforeAfter />
+        </div>
+      </div>
+      <div className="sticky-cta-mobile">
+        <Link
+          href="/signup"
+          className="btn btn-clay btn-lg"
+          style={{ width: "100%", justifyContent: "center" }}
+        >
+          Upload a photo — free
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/* ── Research mini (used inside HowItWorks 06 card, referenced but not rendered) */
+// Kept out — the design passes thumb paths directly in v3.
+
+/* ── How it works — 1 input → 6 outputs radial layout ───────────── */
+interface HowOutput {
+  num: string;
+  title: string;
+  sub: string;
+  thumb: string;
+  pos: "top" | "top-right" | "bottom-right" | "bottom" | "bottom-left" | "top-left";
+}
+
+const HOW_OUTPUTS: HowOutput[] = [
+  { num: "01", title: "Photoshoot", sub: "10 scenes from 1 photo", thumb: "/design-img/jewelry-studio01.png", pos: "top" },
+  { num: "02", title: "Ad creatives", sub: "6 platform-native ads", thumb: "/design-img/ad-valentines.png", pos: "top-right" },
+  { num: "03", title: "Listing copy", sub: "Amazon · Etsy · Shopify · eBay", thumb: "/design-img/listing-etsy.png", pos: "bottom-right" },
+  { num: "04", title: "Social posts", sub: "IG · FB · Pinterest", thumb: "/design-img/social-knot.png", pos: "bottom" },
+  { num: "05", title: "Multi-platform export", sub: "Every format, sized right", thumb: "/design-img/brands-marketplaces.png", pos: "bottom-left" },
+  { num: "06", title: "Market research", sub: "Competitive intel", thumb: "/design-img/research-jewelry.png", pos: "top-left" },
+];
+
+function HowItWorks() {
+  const radialRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
+  const nodeRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [lines, setLines] = useState<Array<{ sx: number; sy: number; ex: number; ey: number }>>([]);
+
+  const compute = useCallback(() => {
+    const radial = radialRef.current;
+    const center = centerRef.current;
+    if (!radial || !center) return;
+    const rb = radial.getBoundingClientRect();
+    const cb = center.getBoundingClientRect();
+    const cx = cb.left + cb.width / 2 - rb.left;
+    const cy = cb.top + cb.height / 2 - rb.top;
+    const centerRadius = Math.min(cb.width, cb.height) / 2;
+    const next = nodeRefs.current
+      .filter((n): n is HTMLDivElement => !!n)
+      .map((n) => {
+        const b = n.getBoundingClientRect();
+        const nx = b.left + b.width / 2 - rb.left;
+        const ny = b.top + b.height / 2 - rb.top;
+        const dx = nx - cx;
+        const dy = ny - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const sx = cx + (dx / dist) * centerRadius;
+        const sy = cy + (dy / dist) * centerRadius;
+        const ex = nx - (dx / dist) * (Math.min(b.width, b.height) / 2);
+        const ey = ny - (dy / dist) * (Math.min(b.width, b.height) / 2);
+        return { sx, sy, ex, ey };
+      });
+    setLines(next);
+  }, []);
+
+  useLayoutEffect(() => {
+    compute();
+    const ro = new ResizeObserver(compute);
+    if (radialRef.current) ro.observe(radialRef.current);
+    window.addEventListener("resize", compute);
+    const t = window.setTimeout(compute, 300);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", compute);
+      window.clearTimeout(t);
+    };
+  }, [compute]);
+
+  return (
+    <section className="section how-section" id="how">
+      <div className="container">
+        <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 40px" }}>
+          <span className="uppercase-label">How it works</span>
+          <h2
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: "clamp(40px, 5vw, 64px)",
+              lineHeight: 1,
+              letterSpacing: "-0.02em",
+              margin: "16px 0 16px",
+              fontWeight: 400,
+            }}
+          >
+            One photo in.{" "}
+            <em style={{ color: "var(--clay)", fontStyle: "italic" }}>Everything</em> out.
+          </h2>
+          <p style={{ fontSize: 17, color: "var(--ink-3)", lineHeight: 1.5, margin: 0 }}>
+            Upload once. ShelfReady generates every asset you need to sell — photos,
+            ads, listings, social, research — all ready to paste.
+          </p>
         </div>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-4 items-stretch">
-          {/* Left — 6 Tool tabs */}
-          <div className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 lg:justify-between" style={{ height: "600px" }}>
-            {TOOL_SLIDES.map((t, i) => {
-              const Icon = t.icon;
-              return (
-                <button key={t.id} onClick={() => { setActive(i); setAutoPlay(false); }}
-                  className={`flex items-center gap-3 px-4 rounded-xl text-left transition-all cursor-pointer flex-shrink-0 lg:w-full lg:flex-1 ${
-                    active === i ? "bg-white border border-neutral-200 shadow-lg" : "hover:bg-neutral-50 border border-transparent"
-                  }`}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style={{ background: active === i ? t.color : "#f0f0f0" }}>
-                    <Icon className={`h-4 w-4 ${active === i ? "text-white" : "text-neutral-400"}`} />
-                  </div>
-                  <div className="min-w-0 hidden lg:block">
-                    <p className={`text-[13px] font-bold truncate ${active === i ? "text-neutral-900" : "text-neutral-500"}`}>{t.label}</p>
-                    <p className="text-[11px] text-neutral-400 truncate">{t.tag}</p>
-                  </div>
-                </button>
-              );
-            })}
+        <div className="how-radial" ref={radialRef}>
+          <svg className="how-mesh" aria-hidden="true">
+            {lines.map((l, i) => (
+              <g key={i}>
+                <line x1={l.sx} y1={l.sy} x2={l.ex} y2={l.ey} />
+                <circle cx={l.sx} cy={l.sy} r="3" className="mesh-dot" />
+                <circle cx={l.ex} cy={l.ey} r="3" className="mesh-dot" />
+              </g>
+            ))}
+          </svg>
+
+          <div className="how-center" ref={centerRef}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/design-img/jewelry-input.png" alt="Source phone photo" onLoad={compute} />
+            <div className="how-center-label">
+              <span className="mono">INPUT</span>
+              <span>Your phone photo</span>
+            </div>
           </div>
 
-          {/* Right — Streaming output */}
-          <div>
-            <div className="bg-[#0c0c0c] rounded-2xl overflow-hidden shadow-2xl flex flex-col" style={{ height: "600px" }}>
-              {/* Header */}
-              <div className="px-4 py-2.5 flex items-center justify-between bg-[#141414] border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${tool.color}25` }}>
-                    <TIcon className="h-3.5 w-3.5" style={{ color: tool.color }} />
-                  </div>
-                  <span className="text-[13px] font-bold text-white">{tool.label}</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${tool.color}15`, color: tool.color }}>{tool.tag}</span>
+          {HOW_OUTPUTS.map((o, i) => (
+            <div
+              key={i}
+              className={`how-node pos-${o.pos}`}
+              ref={(el) => {
+                nodeRefs.current[i] = el;
+              }}
+            >
+              <div className="how-card">
+                <div className="how-thumb">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={o.thumb} alt={o.title} loading="lazy" onLoad={compute} />
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${phase === "streaming" ? "bg-amber-400 animate-pulse" : "bg-[#2563eb]"}`} />
-                  <span className="text-[10px] text-neutral-500 font-mono">{phase === "streaming" ? "generating..." : "complete"}</span>
+                <div className="how-meta">
+                  <span className="mono how-num">{o.num}</span>
+                  <div className="how-title">{o.title}</div>
+                  <div className="how-sub">{o.sub}</div>
                 </div>
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-              {/* Body */}
-              <div className="p-5 flex-1" key={active}>
-                {/* Input prompt */}
-                <div className="flex gap-2.5 mb-4">
-                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-[10px]">👤</span>
+/* ── Outputs section — "Ten ways to sell." ───────────────────────── */
+const OUTPUT_TILES = [
+  { src: "/design-img/jewelry-studio01.png", label: "Studio · soft", num: "01", price: "$120" },
+  { src: "/design-img/jewelry-studio02.png", label: "Studio · clean", num: "02", price: "$120" },
+  { src: "/design-img/jewelry-studio03.png", label: "Studio · minimal", num: "03", price: "$120" },
+  { src: "/design-img/jewelry-model01.png", label: "On model", num: "04", price: "$180" },
+  { src: "/design-img/jewelry-model02.png", label: "Lifestyle", num: "05", price: "$180" },
+  { src: "/design-img/jewelry-outdoor01.png", label: "Outdoor", num: "06", price: "$140" },
+];
+
+function OutputsSection() {
+  return (
+    <section className="outputs-section" id="outputs">
+      <div className="container">
+        <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
+          <span className="uppercase-label">02 · The transformation</span>
+          <h2
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: "clamp(40px, 5vw, 64px)",
+              lineHeight: 1,
+              letterSpacing: "-0.02em",
+              margin: "16px 0 16px",
+              fontWeight: 400,
+            }}
+          >
+            One upload.{" "}
+            <em style={{ color: "var(--clay)", fontStyle: "italic" }}>Ten</em> ways to sell.
+          </h2>
+          <p style={{ fontSize: 17, color: "var(--ink-3)", lineHeight: 1.5, margin: 0 }}>
+            Real outputs from a real seller&apos;s phone photo. Studio. Lifestyle. On
+            model. Outdoor. Paste straight into Etsy, Shopify, Amazon, or eBay.
+          </p>
+        </div>
+
+        <div className="outputs-grid">
+          <div className="outputs-source">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/design-img/jewelry-input.png" alt="Source phone photo" />
+            <div className="outputs-source-meta">
+              <span>Source · IMG_4812</span>
+              <span style={{ color: "var(--clay)" }}>1 upload →</span>
+            </div>
+          </div>
+          <div className="outputs-tiles">
+            {OUTPUT_TILES.map((t, i) => (
+              <div className="output-real" key={i}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.src} alt={t.label} loading="lazy" />
+                <span className="num">{t.num}</span>
+                <span className="price">replaces {t.price}</span>
+                <span className="label">{t.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="savings">
+          <div className="left">
+            Replaces <em>$860</em> in photographer + retoucher fees.
+          </div>
+          <div className="right">Done in 28 seconds · Pro plan: ${PLANS.pro.priceMonthly}/mo</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Section head helper (used by feature sections) ──────────────── */
+function SectionHead({
+  label,
+  title,
+  sub,
+  num,
+}: {
+  label: string;
+  title: string;
+  sub: string;
+  num: string;
+}) {
+  return (
+    <div className="section-head">
+      <div>
+        <div className="uppercase-label">
+          {num} · {label}
+        </div>
+        <h2 dangerouslySetInnerHTML={{ __html: title }} />
+      </div>
+      <p>{sub}</p>
+    </div>
+  );
+}
+
+/* ── Ads section ─────────────────────────────────────────────────── */
+const AD_VARIANTS = [
+  { platform: "META · FEED", headline: "Chop like a chef,\ncare like a host.", body: "Organic moso bamboo. Juice grooves. Non-slip feet. Built for the kitchen you actually cook in.", cta: "Shop the set →", src: "/design-img/board-context01.png" },
+  { platform: "GOOGLE · DISPLAY", headline: "The last cutting\nboard you'll buy.", body: "3 sizes. BPA-free. Antimicrobial bamboo that won't dull your knives. Free shipping today.", cta: "See it →", src: "/design-img/board-studio02.png" },
+  { platform: "PINTEREST", headline: "A kitchen worth\nphotographing.", body: "Naturally antimicrobial bamboo. Deep juice grooves. Anti-slip feet. Hand-finished.", cta: "Save →", src: "/design-img/board-model01.png" },
+  { platform: "META · STORY", headline: "Personalized.\nPractical.\nPass it down.", body: "The Williams engraved board — host-worthy, hand-finished, free engraving with every order.", cta: "Tap to shop", src: "/design-img/ad-williams-board.png" },
+  { platform: "META · FEED", headline: "Organic. Antimicrobial.\nActually pretty.", body: "Moso bamboo, three sizes, deep juice grooves. Starting at $39.", cta: "Add to cart →", src: "/design-img/board-outdoor01.png" },
+  { platform: "GOOGLE · SEARCH", headline: "Bamboo Cutting Board Set — 3pc · Free Shipping", body: "Organic moso bamboo · juice grooves · anti-slip · BPA-free · 4.8★ (2,400+)", cta: "shelfready.app/shop", src: "/design-img/board-input.png" },
+];
+
+function AdsSection() {
+  const [variant, setVariant] = useState(0);
+  return (
+    <section className="section" id="ads" style={{ background: "var(--paper-2)" }}>
+      <div className="container">
+        <SectionHead
+          num="02"
+          label="Ad creatives"
+          title="Six ads in <em>thirty seconds</em>, already sized for the platform."
+          sub="Feed, Story, Pinterest, Google — each with platform-native dimensions, copy length, and CTA conventions. Pick your favorites, export, launch."
+        />
+        <div className="feature-row reverse" style={{ gridTemplateColumns: "1fr" }}>
+          <div className="feature-media" style={{ background: "var(--paper)" }}>
+            <div className="ads-demo">
+              {AD_VARIANTS.map((v, i) => (
+                <div
+                  key={i}
+                  className="ad-card"
+                  style={{
+                    opacity: variant === i ? 1 : 0.55,
+                    transform: variant === i ? "scale(1.02)" : "scale(1)",
+                    transition: "all .25s",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setVariant(i)}
+                >
+                  <div className="platform">
+                    <span>{v.platform}</span>
+                    <span>{String(i + 1).padStart(2, "0")}/06</span>
                   </div>
-                  <div className="bg-white/5 border border-white/8 rounded-xl px-3.5 py-2.5 flex-1">
-                    <p className="text-[12px] text-neutral-400">Generate {tool.label.toLowerCase()} for: <span className="text-neutral-200">Organic Bamboo Cutting Board Set — 3-piece, juice grooves, anti-slip feet, $34.99</span></p>
+                  <div className="visual">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={v.src}
+                      alt={v.platform}
+                      loading="lazy"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                   </div>
+                  <div className="headline" style={{ whiteSpace: "pre-line" }}>
+                    {v.headline}
+                  </div>
+                  <div className="body">{v.body}</div>
+                  <div className="cta">{v.cta}</div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-                {/* Streaming steps */}
-                <div className="flex gap-2.5">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${tool.color}20` }}>
-                    <Sparkles className="h-3 w-3" style={{ color: tool.color }} />
+/* ── Social section ──────────────────────────────────────────────── */
+const SOCIAL_POSTS = [
+  { handle: "@kindledkitchen", plat: "Instagram", avatar: "K", src: "/design-img/board-model01.png", body: "A quiet Saturday, one board, every chop of the day. Our personalized Williams board is back in stock. ↗", tags: "#cookathome #etsyfinds #kitchenessentials", meta: "♥ 1.2k · 84 · 3 days" },
+  { handle: "Kindled Kitchen", plat: "Facebook", avatar: "K", src: "/design-img/ad-williams-board.png", body: "Why acacia? Naturally antimicrobial, easier on your knives than plastic, and lighter than walnut. Read the full guide on our journal.", tags: "", meta: "👍 842 · 💬 46" },
+  { handle: "Kindled Kitchen", plat: "Pinterest", avatar: "K", src: "/design-img/board-context01.png", body: "Host-worthy chopping boards that disappear into your counter. Save for your next dinner party refresh.", tags: "#kitchenstyling #hosting #acacia", meta: "📌 3.4k saves" },
+];
+
+function SocialSection() {
+  return (
+    <section className="section" id="social">
+      <div className="container">
+        <SectionHead
+          num="03"
+          label="Social content"
+          title="Post in <em>three places</em>, sound like <em>three people</em>."
+          sub="Instagram is visual and breezy. Facebook is longer and more informative. Pinterest is keyword-dense and aspirational. ShelfReady writes to each — same product, different room."
+        />
+        <div className="feature-row">
+          <div className="feature-media">
+            <div className="social-demo">
+              {SOCIAL_POSTS.map((p, i) => (
+                <div className="social-card" key={i}>
+                  <div className="social-head">
+                    <div className="avatar">{p.avatar}</div>
+                    <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                      <span>{p.handle}</span>
+                      <span
+                        className="mono"
+                        style={{
+                          fontSize: 9,
+                          color: "var(--ink-muted)",
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {p.plat}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-2">
-                    {/* Stream steps */}
-                    {phase === "streaming" && (
-                      <div className="space-y-1.5">
-                        {tool.steps.slice(0, streamStep).map((step, i) => (
-                          <p key={i} className="text-[11px] text-neutral-500 fade-slide" style={{ animationDelay: `${i * 0.05}s` }}>
-                            <span className="text-[#2563eb]">✓</span> {step}
-                          </p>
-                        ))}
-                        {streamStep < tool.steps.length && (
-                          <div className="flex items-center gap-1.5">
-                            {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-neutral-600 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
-                          </div>
-                        )}
+                  <div className="social-visual">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={p.src}
+                      alt={p.handle}
+                      loading="lazy"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </div>
+                  <div className="social-body">
+                    {p.body}
+                    {p.tags && (
+                      <div style={{ marginTop: 6 }}>
+                        <span className="tag">{p.tags}</span>
                       </div>
                     )}
-
-                    {/* Output */}
-                    {phase === "output" && (
-                      <div className="space-y-3 fade-slide">
-                        {/* Listing output */}
-                        {tool.output.type === "listing" && (
-                          <>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tool.color }}>Optimized Title</p>
-                              <p className="text-[13px] font-semibold text-neutral-200 leading-snug">{tool.output.title as string}</p>
-                            </div>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5 space-y-1.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tool.color }}>5 Bullet Points</p>
-                              {((tool.output as any).bullets || []).map((b: string, i: number) => (
-                                <p key={i} className="text-[11px] text-neutral-400 flex gap-1.5"><Check className="h-3 w-3 text-[#2563eb] flex-shrink-0 mt-0.5" />{b}</p>
-                              ))}
-                            </div>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: tool.color }}>Backend Keywords</p>
-                              <div className="flex flex-wrap gap-1">
-                                {((tool.output as any).keywords || []).map((k: string) => <span key={k} className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">{k}</span>)}
-                              </div>
-                            </div>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: tool.color }}>Platform Versions</p>
-                              <div className="grid grid-cols-3 gap-2">
-                                {Object.entries((tool.output as any).platforms || {}).map(([k, v]) => (
-                                  <div key={k} className="text-center">
-                                    <p className="text-[11px] font-bold text-neutral-300 capitalize">{k}</p>
-                                    <p className="text-[9px] text-neutral-500">{v as string}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </>
-                        )}
-
-                        {/* Images output (photoshoot + creatives) */}
-                        {(tool.output.type === "images" || tool.output.type === "creatives") && (
-                          <div className="grid grid-cols-4 gap-2">
-                            {((tool.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
-                              <div key={i} className="rounded-lg border border-white/10 fade-slide overflow-hidden" style={{ animationDelay: `${i * 0.12}s` }}>
-                                <div className="aspect-square overflow-hidden">
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
-                                </div>
-                                <div className="bg-white/5 px-2 py-1 h-6 flex items-center"><p className="text-[10px] text-neutral-400 font-medium truncate">{img.label}</p></div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Social output */}
-                        {tool.output.type === "social" && (
-                          <div className="space-y-2.5">
-                            {((tool.output as any).platforms || []).map((p: { name: string; handle?: string; caption: string; hashtags?: string; cta: string }, i: number) => (
-                              <div key={p.name} className="bg-white/5 border border-white/8 rounded-xl p-3 fade-slide" style={{ animationDelay: `${i * 0.15}s` }}>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${tool.color}15`, color: tool.color }}>{p.name}</span>
-                                  {p.handle && <span className="text-[10px] text-neutral-500">{p.handle}</span>}
-                                </div>
-                                <p className="text-[11px] text-neutral-400 leading-relaxed whitespace-pre-line">{p.caption.slice(0, 120)}...</p>
-                                {p.hashtags && <p className="text-[10px] text-blue-400 mt-1">{p.hashtags.slice(0, 80)}...</p>}
-                                <p className="text-[10px] text-neutral-500 mt-1.5 font-medium">{p.cta}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Research output */}
-                        {tool.output.type === "research" && (
-                          <>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tool.color }}>Market Analysis</p>
-                              <p className="text-[12px] text-neutral-400 leading-relaxed">{(tool.output as any).analysis}</p>
-                            </div>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: tool.color }}>Top Competitors</p>
-                              {((tool.output as any).competitors || []).map((c: { name: string; price: string; weakness: string }) => (
-                                <div key={c.name} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-                                  <span className="text-[11px] font-semibold text-neutral-300">{c.name}</span>
-                                  <span className="text-[10px] text-neutral-500">{c.price}</span>
-                                  <span className="text-[10px] text-amber-400">{c.weakness}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="bg-white/5 border border-white/8 rounded-xl p-3.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: tool.color }}>Keywords ({((tool.output as any).keywords || []).length})</p>
-                              <div className="flex flex-wrap gap-1">
-                                {((tool.output as any).keywords || []).map((k: string) => <span key={k} className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">{k}</span>)}
-                              </div>
-                            </div>
-                            <div className="bg-[#2563eb]/10 border border-[#2563eb]/20 rounded-xl p-3">
-                              <p className="text-[10px] font-bold text-[#2563eb] uppercase tracking-wider mb-1">Opportunity</p>
-                              <p className="text-[11px] text-neutral-300">{(tool.output as any).opportunity}</p>
-                            </div>
-                          </>
-                        )}
-
-                        {/* Multi-platform output */}
-                        {tool.output.type === "multiplatform" && (
-                          <div className="space-y-2.5">
-                            {((tool.output as any).platforms || []).map((p: { name: string; style: string; title: string; detail: string }, i: number) => (
-                              <div key={p.name} className="bg-white/5 border border-white/8 rounded-xl p-3.5 fade-slide" style={{ animationDelay: `${i * 0.15}s` }}>
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-[12px] font-bold text-white">{p.name}</span>
-                                  <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${tool.color}15`, color: tool.color }}>{p.style}</span>
-                                </div>
-                                <p className="text-[12px] text-neutral-300 leading-snug mb-1">{p.title}</p>
-                                <p className="text-[10px] text-neutral-500">{p.detail}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                  </div>
+                  <div className="social-footer">
+                    <span>{p.meta}</span>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+          <div className="feature-copy">
+            <span className="uppercase-label">Platform-native copy</span>
+            <h3>
+              Not just cross-posting. <em>Cross-writing.</em>
+            </h3>
+            <p>
+              Character counts, hashtag conventions, emoji density, CTA patterns — each
+              platform has unwritten rules. We read them so you don&apos;t have to.
+            </p>
+            <ul className="feature-bullets">
+              <li>
+                <span className="num">IG.</span>
+                <span>Caption ≤ 125ch before the fold · 3–5 tags · visual-first</span>
+              </li>
+              <li>
+                <span className="num">FB.</span>
+                <span>Longer form · link preview · reader-friendly line breaks</span>
+              </li>
+              <li>
+                <span className="num">PT.</span>
+                <span>Keyword-dense title · aspirational voice · rich pin ready</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Research section ────────────────────────────────────────────── */
+function ResearchSection() {
+  const rows: Array<[string, string, string, "hot" | "warm"]> = [
+    ["bamboo cutting board set", "18.1k", "High", "hot"],
+    ["anti-slip cutting board", "4.3k", "Medium", "hot"],
+    ["dishwasher safe bamboo board", "2.1k", "Low", "hot"],
+    ["organic moso bamboo board", "1.2k", "Low", "warm"],
+    ["large bamboo cutting board", "6.8k", "Medium", "warm"],
+  ];
+  return (
+    <section className="section" id="research" style={{ background: "var(--paper-2)" }}>
+      <div className="container">
+        <SectionHead
+          num="04"
+          label="Market research"
+          title="What your <em>five closest competitors</em> won't tell you."
+          sub="Live web search digs into your category — price bands, review gripes, keyword gaps, unclaimed positioning angles. Not a report. An action list."
+        />
+        <div className="feature-row reverse">
+          <div className="feature-copy">
+            <span className="uppercase-label">Competitive intel</span>
+            <h3>
+              Every gap is an <em>angle</em>.
+            </h3>
+            <p>
+              ShelfReady scrapes the top 20 competitors in your category, clusters their
+              reviews, and surfaces the complaints they haven&apos;t solved. Those are
+              your bullet points.
+            </p>
+            <ul className="feature-bullets">
+              <li>
+                <span className="num">$.</span>
+                <span>Price distribution · where to slot in</span>
+              </li>
+              <li>
+                <span className="num">⌖.</span>
+                <span>Keyword gaps · what they forgot to target</span>
+              </li>
+              <li>
+                <span className="num">★.</span>
+                <span>Review clusters · pain points &amp; praise</span>
+              </li>
+              <li>
+                <span className="num">⇡.</span>
+                <span>Positioning map · unclaimed quadrants</span>
+              </li>
+            </ul>
+          </div>
+          <div className="feature-media" style={{ background: "var(--paper)", padding: 0 }}>
+            <div className="research-demo">
+              <div className="research-head">
+                <span>Research · Bamboo cutting boards</span>
+                <span>24 competitors · 2,847 reviews</span>
+              </div>
+              <div className="research-title">Three gaps worth claiming.</div>
+              <div className="research-stats">
+                <div className="research-stat">
+                  <div className="k">Median price</div>
+                  <div className="v">$34</div>
+                  <div className="d">↗ +12% YoY</div>
+                </div>
+                <div className="research-stat">
+                  <div className="k">Review avg</div>
+                  <div className="v">4.3★</div>
+                  <div className="d down">↘ warping (38%)</div>
+                </div>
+                <div className="research-stat">
+                  <div className="k">Top unmet need</div>
+                  <div className="v">dishwasher</div>
+                  <div className="d">↗ 412 mentions</div>
+                </div>
+              </div>
+              <div className="research-table">
+                <div className="row head">
+                  <span>Keyword</span>
+                  <span>Volume</span>
+                  <span>Difficulty</span>
+                  <span>Opportunity</span>
+                </div>
+                {rows.map((r, i) => (
+                  <div className="row" key={i}>
+                    <span>{r[0]}</span>
+                    <span className="mono">{r[1]}</span>
+                    <span className="mono">{r[2]}</span>
+                    <span>
+                      <span className={`chip ${r[3]}`}>{r[3] === "hot" ? "HOT" : "WARM"}</span>
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -340,553 +691,337 @@ function ToolDemo() {
   );
 }
 
-/* ── Streaming Hero Demo ───────────────────────────────────────────── */
-function HeroDemo({ slide, setSlide, autoRef }: { slide: number; setSlide: (n: number) => void; autoRef: React.MutableRefObject<boolean> }) {
-  const [phase, setPhase] = useState<"input" | "generating" | "output">("input");
-  const [genProgress, setGenProgress] = useState(0);
-  const [typedChars, setTypedChars] = useState(0);
-  const current = TOOL_SLIDES[slide];
+/* ── Listing section ─────────────────────────────────────────────── */
+const LISTING_CARDS = [
+  {
+    plat: "Amazon",
+    tag: "Keyword density",
+    c: "#F5CB7A",
+    title:
+      "Gold Knot Necklace — Dainty 14K Gold-Plated Love Knot Pendant, Minimalist Everyday Jewelry, Anniversary & Bridesmaid Gift for Her",
+    bullets: [
+      "PREMIUM GOLD-PLATED STAINLESS STEEL — tarnish-resistant, hypoallergenic, long-lasting shine",
+      'ADJUSTABLE CHAIN — 16" + 2" extender fits every neckline',
+      "ELEGANT LOVE KNOT PENDANT — symbol of connection and eternity",
+      "LIGHTWEIGHT & COMFORTABLE for all-day wear",
+      "GIFT-READY PACKAGING — ships in a branded gift box",
+    ],
+  },
+  {
+    plat: "Etsy",
+    tag: "Story-led",
+    c: "#F1A472",
+    title:
+      "Gold Knot Necklace · dainty · symbol of love & connection · everyday jewelry",
+    bullets: [
+      "A delicate gold knot — the quiet symbol for love that keeps going",
+      'Hand-finished gold-plated pendant on a 16" + 2" adjustable chain',
+      "Hypoallergenic and tarnish-resistant so it lives where you do",
+      "Ships in a gift box for birthdays, bridesmaids, and just-becauses",
+      "A little thing that means a lot",
+    ],
+  },
+  {
+    plat: "Shopify",
+    tag: "Brand voice",
+    c: "#C4D1A8",
+    title: "The Knot Necklace",
+    bullets: [
+      "A quiet gold knot, for the everyday.",
+      "14K gold-plated · hypoallergenic · tarnish-resistant",
+      'Adjustable 16" + 2" chain',
+      "Gift-boxed. Always.",
+      "Lifetime replacement on manufacturing defects",
+    ],
+  },
+  {
+    plat: "eBay",
+    tag: "Title-tag density",
+    c: "#9EB5C9",
+    title:
+      "Gold Knot Necklace 14K Gold Plated Love Knot Pendant Dainty Minimalist Chain NEW",
+    bullets: [
+      "Condition: NEW with tags · ships same business day",
+      "Metal: 14K gold-plated stainless steel, hypoallergenic",
+      'Chain length: 16" + 2" extender, lobster clasp',
+      "Pendant: love knot, ~12mm · weight ~3g",
+      "Returns: 30-day free returns, authenticity guaranteed",
+    ],
+  },
+];
 
-  // Reset phases when slide changes
-  useEffect(() => {
-    setPhase("input");
-    setGenProgress(0);
-    setTypedChars(0);
-
-    // Phase 1: Show input for 0.6s
-    const t1 = setTimeout(() => setPhase("generating"), 600);
-    // Phase 2: Generating animation for 1.4s, then output
-    const t2 = setTimeout(() => setPhase("output"), 2000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [slide]);
-
-  // Progress bar during generating phase
-  useEffect(() => {
-    if (phase !== "generating") return;
-    const interval = setInterval(() => {
-      setGenProgress((p) => Math.min(p + 1, 100));
-    }, 14);
-    return () => clearInterval(interval);
-  }, [phase]);
-
-  // Typing effect for listing text
-  useEffect(() => {
-    if (phase !== "output" || current.output.type !== "listing") return;
-    const text = (current.output as any).title;
-    if (typedChars >= text.length) return;
-    const t = setTimeout(() => setTypedChars((c) => c + 1), 12);
-    return () => clearTimeout(t);
-  }, [phase, typedChars, current]);
-
+function ListingSection() {
   return (
-    <div className="bg-[#0f0f0f] rounded-[20px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)] overflow-hidden">
-      {/* Terminal-style header */}
-      <div className="px-4 py-2.5 flex items-center gap-2 bg-[#1a1a1a]">
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-        </div>
-        <div className="flex-1 text-center">
-          <span className="text-[11px] text-neutral-500 font-mono">ShelfReady AI</span>
-        </div>
-        <div className="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse" />
-      </div>
-
-      {/* Tool selector */}
-      <div className="px-3 pt-2.5 pb-1 flex gap-1 border-b border-white/5">
-        {TOOL_SLIDES.map((t, i) => (
-          <button key={t.label} onClick={() => { setSlide(i); autoRef.current = false; }}
-            className={`relative px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-              slide === i ? "text-white bg-white/10" : "text-neutral-500 hover:text-neutral-300"
-            }`}>
-            {t.label}
-            {slide === i && <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: t.color }} />}
-          </button>
-        ))}
-      </div>
-
-      {/* Content area */}
-      <div className="p-4 min-h-[330px]">
-        {/* Phase: Input */}
-        {phase === "input" && (
-          <div className="space-y-3 animate-[fadeSlide_0.3s_ease-out]">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-[#2563eb]/20 flex items-center justify-center">
-                <span className="text-[10px]">👤</span>
-              </div>
-              <span className="text-[12px] text-neutral-400">You</span>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
-              <p className="text-[13px] text-neutral-300 leading-relaxed">
-                Generate {current.label.toLowerCase()} for my organic bamboo cutting board set — 3-piece, juice grooves, anti-slip feet. Price $34.99. Target: home cooks.
-              </p>
+    <section className="section" id="listing">
+      <div className="container">
+        <SectionHead
+          num="05"
+          label="Listing optimizer"
+          title="<em>SEO-ready</em> copy for every marketplace you sell on."
+          sub="One product, four listings — each written to the rules and readers of its marketplace. Amazon gets keyword-dense bullets. Etsy gets story-led copy. Shopify gets brand voice. eBay gets title-tag density."
+        />
+        <div className="listing-showcase">
+          <div className="listing-preview">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/design-img/listing-goldknot.png" alt="Gold Knot Necklace listing preview" />
+            <div className="listing-preview-cap">
+              <span className="mono">Etsy listing preview</span>
+              <span>Auto-generated from one photo</span>
             </div>
           </div>
-        )}
-
-        {/* Phase: Generating */}
-        {phase === "generating" && (
-          <div className="space-y-4 animate-[fadeSlide_0.3s_ease-out]">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: `${current.color}30` }}>
-                <Sparkles className="h-3 w-3" style={{ color: current.color }} />
-              </div>
-              <span className="text-[12px] text-neutral-400">ShelfReady AI</span>
-              <span className="text-[10px] text-neutral-600 ml-auto font-mono">generating...</span>
-            </div>
-
-            {/* Thinking dots */}
-            <div className="flex items-center gap-1.5 px-2">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="w-2 h-2 rounded-full bg-neutral-600 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
-              ))}
-            </div>
-
-            {/* Progress bar */}
-            <div className="bg-white/5 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] text-neutral-500">{current.label}</span>
-                <span className="text-[11px] font-mono" style={{ color: current.color }}>{genProgress}%</span>
-              </div>
-              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-75" style={{ width: `${genProgress}%`, background: current.color }} />
-              </div>
-            </div>
-
-            {/* Streaming tokens */}
-            <div className="bg-white/5 rounded-lg p-3 space-y-1.5">
-              {genProgress > 20 && <p className="text-[11px] text-neutral-500 animate-[fadeSlide_0.3s_ease-out]">✓ Analyzing product details...</p>}
-              {genProgress > 45 && <p className="text-[11px] text-neutral-500 animate-[fadeSlide_0.3s_ease-out]">✓ Optimizing for target audience...</p>}
-              {genProgress > 70 && <p className="text-[11px] animate-[fadeSlide_0.3s_ease-out]" style={{ color: current.color }}>⟳ Generating {current.label.toLowerCase()}...</p>}
-              {genProgress > 90 && <p className="text-[11px] text-neutral-500 animate-[fadeSlide_0.3s_ease-out]">✓ Finalizing output...</p>}
-            </div>
-          </div>
-        )}
-
-        {/* Phase: Output */}
-        {phase === "output" && (
-          <div className="space-y-3 animate-[fadeSlide_0.4s_ease-out]">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: `${current.color}30` }}>
-                <Sparkles className="h-3 w-3" style={{ color: current.color }} />
-              </div>
-              <span className="text-[12px] text-neutral-400">ShelfReady AI</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto" style={{ background: `${current.color}20`, color: current.color }}>
-                {current.tag}
-              </span>
-            </div>
-
-            {/* Images — photoshoots + creatives */}
-            {(current.output.type === "images" || current.output.type === "creatives") && (
-              <div className="grid grid-cols-4 gap-2">
-                {((current.output as any).images || []).map((img: { src: string; label: string }, i: number) => (
-                  <div key={i} className="rounded-lg overflow-hidden border border-white/10 animate-[fadeSlide_0.4s_ease-out]" style={{ animationDelay: `${i * 0.15}s` }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.src} alt={img.label} className="w-full aspect-square object-cover" />
-                    <div className="bg-white/5 px-2 py-1"><p className="text-[10px] text-neutral-400">{img.label}</p></div>
+          <div className="listing-cards">
+            {LISTING_CARDS.map((l, i) => (
+              <div key={i} className="listing-card">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 10, height: 10, background: l.c }} />
+                    <span
+                      className="mono"
+                      style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}
+                    >
+                      {l.plat}
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Listing — typing effect */}
-            {current.output.type === "listing" && (
-              <div className="space-y-2">
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: current.color }}>Optimized Title</p>
-                  <p className="text-[13px] text-neutral-200 font-semibold leading-snug">
-                    {(current.output as any).title.slice(0, typedChars)}
-                    {typedChars < (current.output as any).title.length && <span className="inline-block w-0.5 h-4 bg-white/60 animate-pulse ml-0.5 align-middle" />}
-                  </p>
+                  <span className="uppercase-label">{l.tag}</span>
                 </div>
-                {typedChars >= (current.output as any).title.length && (current.output as any).bullets.map((b: string, i: number) => (
-                  <div key={i} className="flex gap-2 text-[12px] text-neutral-400 animate-[fadeSlide_0.3s_ease-out] px-1" style={{ animationDelay: `${i * 0.12}s` }}>
-                    <Check className="h-3.5 w-3.5 text-[#2563eb] flex-shrink-0 mt-0.5" />
-                    <span>{b}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Social — stream in */}
-            {current.output.type === "social" && (
-              <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-purple-600" />
-                  <span className="text-[12px] font-bold text-neutral-300">{((current.output as any).platforms?.[0])?.handle}</span>
-                  <span className="text-[9px] bg-pink-500/20 text-pink-400 font-bold px-1.5 py-0.5 rounded-full ml-auto">IG</span>
+                <div
+                  className="serif"
+                  style={{ fontSize: 18, lineHeight: 1.15, letterSpacing: "-0.015em" }}
+                >
+                  {l.title}
                 </div>
-                <p className="text-[12px] text-neutral-400 leading-relaxed">{((current.output as any).platforms?.[0])?.caption}</p>
-                <p className="text-[10px] text-blue-400 mt-2">{((current.output as any).platforms?.[0])?.hashtags}</p>
-              </div>
-            )}
-
-            {/* Research */}
-            {current.output.type === "research" && (
-              <div className="space-y-2">
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: current.color }}>Market Analysis</p>
-                  <p className="text-[12px] text-neutral-400 leading-relaxed">{((current.output as any).analysis || "").slice(0, 180)}...</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: current.color }}>Top Competitors</p>
-                  {((current.output as any).competitors || []).slice(0, 3).map((c: { name: string; price: string; weakness: string }, i: number) => (
-                    <div key={i} className="flex items-center justify-between text-[11px] py-1 border-b border-white/5 last:border-0">
-                      <span className="text-neutral-300 font-medium">{c.name}</span>
-                      <span className="text-neutral-500">{c.price}</span>
-                    </div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 12, color: "var(--ink-3)" }}>
+                  {l.bullets.map((b, j) => (
+                    <li
+                      key={j}
+                      style={{
+                        padding: "8px 0",
+                        borderTop: "1px solid var(--rule-soft)",
+                        display: "flex",
+                        gap: 8,
+                      }}
+                    >
+                      <span className="mono" style={{ color: "var(--clay)", minWidth: 14 }}>
+                        {String(j + 1).padStart(2, "0")}
+                      </span>
+                      <span>{b}</span>
+                    </li>
                   ))}
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {((current.output as any).keywords || []).slice(0, 6).map((k: string) => (
-                    <span key={k} className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">{k}</span>
-                  ))}
+                </ul>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  <button className="btn btn-outline" style={{ fontSize: 11, padding: "8px 12px" }}>
+                    Copy
+                  </button>
+                  <button className="btn btn-ghost" style={{ fontSize: 11, padding: "8px 12px" }}>
+                    Export CSV
+                  </button>
                 </div>
               </div>
-            )}
-
-            {/* Multi-platform */}
-            {current.output.type === "multiplatform" && (
-              <div className="space-y-2">
-                {((current.output as any).platforms || []).map((p: { name: string; style: string; title: string; detail: string }, i: number) => (
-                  <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-3 animate-[fadeSlide_0.3s_ease-out]" style={{ animationDelay: `${i * 0.12}s` }}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${current.color}15`, color: current.color }}>{p.name}</span>
-                      <span className="text-[9px] text-neutral-500">{p.style}</span>
-                    </div>
-                    <p className="text-[11px] text-neutral-300 font-medium">{p.title}</p>
-                    <p className="text-[9px] text-neutral-500 mt-0.5">{p.detail}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-const plans_data = [
-  { key: "starter", name: "Starter", price: PLANS.starter.priceMonthly, yearly: PLANS.starter.priceYearly, features: PLANS.starter.features.slice(0, 5), cta: "Start free trial" },
-  { key: "pro", name: "Pro", price: PLANS.pro.priceMonthly, yearly: PLANS.pro.priceYearly, features: PLANS.pro.features.slice(0, 6), popular: true, cta: "Start free trial" },
-  { key: "business", name: "Business", price: PLANS.business.priceMonthly, yearly: PLANS.business.priceYearly, features: PLANS.business.features.slice(0, 6), cta: "Start free trial" },
-];
+/* ── Pricing section — reads from live PLANS constant ────────────── */
+const PLAN_COPY: Record<string, { tagline: string; featured?: boolean; badge?: string; features: string[] }> = {
+  free: {
+    tagline: "Kick the tires.",
+    features: [
+      "5 product listings / month",
+      "5 AI images (lifetime)",
+      "5 social posts / month",
+      "5 ad copies / month",
+      "Watermarked exports",
+    ],
+  },
+  starter: {
+    tagline: "For the solo shop.",
+    features: [
+      "50 listings / month",
+      "100 AI images / month",
+      "10 AI photoshoots / month",
+      "50 social posts · 50 ad creatives",
+      "20 market research reports",
+      "Priority support",
+    ],
+  },
+  pro: {
+    tagline: "The sweet spot.",
+    featured: true,
+    badge: "Most picked",
+    features: [
+      "300 listings / month",
+      "300 AI images · 30 photoshoots",
+      "300 social posts · 300 ad creatives",
+      "100 market research reports",
+      "Export to CSV / JSON",
+      "200+ ad creative templates",
+      "Priority support",
+    ],
+  },
+  business: {
+    tagline: "For the agency.",
+    features: [
+      "Unlimited listings & social",
+      "1,000 AI images · 100 photoshoots",
+      "Unlimited ads & research",
+      "API access",
+      "Team seats · SSO",
+      "Dedicated support",
+    ],
+  },
+};
 
-const templates = (allTemplates as { id: string; category: string; name: string; preview: string }[]);
-
-/* ── Page ──────────────────────────────────────────────────────────── */
-export default function Landing() {
-  const [annual, setAnnual] = useState(false);
-  const [slide, setSlide] = useState(0);
-  const [tplCat, setTplCat] = useState("all");
-  const [tplPreview, setTplPreview] = useState<string | null>(null);
-  const autoRef = useRef(true);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (autoRef.current) setSlide((s) => (s + 1) % TOOL_SLIDES.length);
-    }, 8000);
-    return () => clearInterval(t);
-  }, []);
-
-  const current = TOOL_SLIDES[slide];
-
+function PricingSection() {
+  const orderedKeys = ["free", "starter", "pro", "business"] as const;
   return (
-    <div className="min-h-screen bg-[#fafaf9] text-neutral-900">
-      <style>{`
-        @keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-        @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        .bar-anim{animation:bar 4s linear both;transform-origin:left}
-        .fade-slide{animation:fadeSlide .4s ease-out both}
-      `}</style>
-
-      {/* ── Nav ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-[#fafaf9]/80 backdrop-blur-2xl">
-        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded-[10px]" />
-            <span className="text-[17px] font-bold tracking-[-0.02em]">ShelfReady</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-7 text-[14px] text-neutral-500 font-medium">
-            <a href="#demo" className="hover:text-neutral-900 transition-colors">Product</a>
-            <a href="#templates" className="hover:text-neutral-900 transition-colors">Templates</a>
-            <a href="#pricing" className="hover:text-neutral-900 transition-colors">Pricing</a>
-            <Link href="/use-cases" className="hover:text-neutral-900 transition-colors">Use Cases</Link>
-            <Link href="/blog" className="hover:text-neutral-900 transition-colors">Blog</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-[14px] font-medium text-neutral-500 hover:text-neutral-900 hidden sm:block">Log in</Link>
-            <Link href="/signup" className="text-[14px] font-semibold bg-[#2563eb] text-white px-5 py-2 rounded-full hover:bg-[#1d4ed8] transition-colors">
-              Get started free
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* HERO — Headline left, Product demo right                      */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="pt-32 sm:pt-40 pb-4 px-6">
-        <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left */}
-          <div>
-            <div className="inline-flex items-center gap-2 bg-[#2563eb]/5 border border-[#2563eb]/15 rounded-full px-4 py-1.5 mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse" />
-              <span className="text-[13px] font-semibold text-[#2563eb]">Now available</span>
-            </div>
-
-            <h1 className="text-[clamp(2.4rem,5.5vw,3.75rem)] font-extrabold leading-[1.08] tracking-[-0.03em]">
-              Product in.
-              <br />
-              <span className="text-[#2563eb]">Sales content out.</span>
-            </h1>
-
-            <p className="mt-5 text-[17px] text-neutral-500 leading-[1.6] max-w-[440px]">
-              One photo or description → AI generates listings, professional photos, ad creatives, and social posts. For Amazon, Etsy, and Shopify.
-            </p>
-
-            <div className="mt-8 flex items-center gap-3">
-              <Link href="/signup" className="group flex items-center gap-2 bg-[#2563eb] text-white pl-5 pr-4 py-3 rounded-full text-[15px] font-semibold hover:bg-[#1d4ed8] transition-all shadow-[0_2px_20px_-4px_rgba(25,49,83,0.4)]">
-                Generate your first listing
-                <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Link>
-            </div>
-
-            <div className="mt-6 flex items-center gap-5 text-[13px] text-neutral-400">
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#2563eb]" /> Free to start</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#2563eb]" /> No credit card</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#2563eb]" /> Cancel anytime</span>
-            </div>
-
-            {/* Mini social proof */}
-            <div className="mt-8 flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {[1,2,3,4].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-[#fafaf9] bg-neutral-200" />)}
-              </div>
-              <div>
-                <div className="flex items-center gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}</div>
-                <p className="text-[12px] text-neutral-400">Loved by 10,000+ sellers</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right — Streaming AI Generation Demo */}
-          <div id="demo" className="relative hidden lg:block">
-            <HeroDemo slide={slide} setSlide={setSlide} autoRef={autoRef} />
-          </div>
-        </div>
-
-        {/* Logos */}
-        <div className="max-w-[1200px] mx-auto mt-20 pb-6 flex items-center justify-center gap-10 border-b border-neutral-200/60">
-          {["Amazon", "Etsy", "Shopify", "eBay", "Walmart"].map(n => (
-            <span key={n} className="text-[14px] font-bold tracking-tight text-neutral-300 hover:text-neutral-500 transition-colors cursor-default">{n}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* HOW IT WORKS                                                  */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6">
-        <div className="max-w-[1000px] mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">How it works</p>
-            <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Three steps. Under a minute.</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { n: "01", t: "Describe or upload", d: "Enter product details or drop a photo.", img: "/showcase/input.png" },
-              { n: "02", t: "AI generates everything", d: "Listings, photos, ads, social — per platform.", img: "/showcase/studio.png" },
-              { n: "03", t: "Publish and sell", d: "Export to Amazon, Etsy, Shopify. Go live.", img: "/showcase/creative_flash_sale.png" },
-            ].map(s => (
-              <div key={s.n} className="group">
-                <div className="rounded-2xl overflow-hidden border border-neutral-200 bg-white hover:shadow-xl transition-shadow">
-                  <div className="aspect-[4/3] overflow-hidden bg-neutral-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.img} alt={s.t} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" />
-                  </div>
-                  <div className="p-5">
-                    <span className="text-[11px] font-bold text-neutral-300 tracking-widest">{s.n}</span>
-                    <h3 className="text-[16px] font-bold tracking-[-0.01em] mt-1">{s.t}</h3>
-                    <p className="text-[14px] text-neutral-500 mt-1">{s.d}</p>
-                  </div>
+    <section className="section" id="pricing">
+      <div className="container">
+        <SectionHead
+          num="06"
+          label="Pricing"
+          title="Priced for <em>sellers</em>,<br/>not enterprises."
+          sub="Every plan ships with every feature. You're paying for volume, not capability. Cancel any time, prorated to the day."
+        />
+        <div className="pricing-grid">
+          {orderedKeys.map((key, i) => {
+            const plan = PLANS[key];
+            const copy = PLAN_COPY[key];
+            return (
+              <div key={key} className={`price-card ${copy.featured ? "featured" : ""}`}>
+                {copy.badge && <span className="badge">{copy.badge}</span>}
+                <div className="uppercase-label">
+                  {String(i + 1).padStart(2, "0")} · Plan
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* 6-TOOL DEMO CAROUSEL                                          */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <ToolDemo />
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* CREATIVE TEMPLATES                                            */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <section id="templates" className="py-24 px-6 bg-white border-y border-neutral-200/60">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-            <div>
-              <p className="text-[13px] font-bold text-[#2563eb] uppercase tracking-wider mb-2">200+ ad templates</p>
-              <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Creatives that convert.</h2>
-              <p className="mt-2 text-neutral-500 max-w-md">Pick a template, upload your product, add your offer — get scroll-stopping ad creatives in seconds.</p>
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              {[{id:"all",l:"All"},{id:"sale",l:"Sale"},{id:"pastel",l:"Pastel"},{id:"minimalist",l:"Minimal"},{id:"genz",l:"Gen Z"},{id:"millennial",l:"Millennial"},{id:"lifestyle",l:"Lifestyle"},{id:"luxury",l:"Premium"}].map(c => (
-                <button key={c.id} onClick={() => setTplCat(c.id)} className={`text-[12px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all ${tplCat === c.id ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-500 hover:text-neutral-900"}`}>{c.l}</button>
-              ))}
-            </div>
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-            {templates.filter(t => tplCat === "all" || t.category === tplCat).slice(0, 32).map(t => (
-              <button key={t.id} onClick={() => setTplPreview(t.preview)} className="rounded-lg overflow-hidden border border-neutral-200 hover:shadow-lg hover:-translate-y-0.5 hover:border-[#2563eb]/40 transition-all cursor-pointer group">
-                <div className="aspect-video overflow-hidden bg-neutral-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.preview} alt={t.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+                <div className="price-name">{plan.name}</div>
+                <div className="price-amount">
+                  <span className="v">${plan.priceMonthly}</span>
+                  <span className="per">/mo</span>
                 </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Before → After */}
-          <div className="mt-12 bg-[#fafaf9] rounded-2xl border border-neutral-200 p-6 flex flex-col sm:flex-row items-center gap-5">
-            <div className="w-24 flex-shrink-0">
-              <div className="border-2 border-dashed border-neutral-300 rounded-xl p-2 bg-white">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/showcase/input.png" alt="Input" className="w-full rounded-md" />
-              </div>
-              <p className="text-[10px] text-neutral-400 text-center mt-1 font-semibold">Your photo</p>
-            </div>
-            <ArrowRight className="h-5 w-5 text-neutral-300 flex-shrink-0 hidden sm:block" />
-            <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[{s:"/showcase/creative_flash_sale.png",l:"Flash Sale"},{s:"/showcase/creative_new_arrival.png",l:"New Arrival"},{s:"/showcase/creative_premium.png",l:"Premium"},{s:"/showcase/creative_comparison.png",l:"Comparison"}].map(c => (
-                <div key={c.l} className="rounded-lg overflow-hidden border border-neutral-200">
-                  <div className="aspect-square overflow-hidden bg-neutral-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.s} alt={c.l} className="w-full h-full object-cover" />
-                  </div>
-                  <p className="text-[10px] text-neutral-500 text-center py-1 font-medium bg-white">{c.l}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* SOCIAL PROOF                                                  */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-neutral-900 text-white">
-        <div className="max-w-[1000px] mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-            {[{v:"30s",l:"Avg. time"},{v:"200+",l:"Ad templates"},{v:"6-in-1",l:"Platform"},{v:"$174",l:"Saved/mo"}].map(m => (
-              <div key={m.l} className="text-center">
-                <p className="text-[2.5rem] sm:text-[3rem] font-extrabold tracking-tight">{m.v}</p>
-                <p className="text-[13px] text-neutral-500 mt-1">{m.l}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {q:"Replaced 3 tools I was paying $120/month for. Photoshoots alone are worth it.",n:"Sarah M.",r:"Etsy · 4,200 sales"},
-              {q:"Generated my entire launch in 20 minutes — listings, images, ads, social. All of it.",n:"James K.",r:"Amazon FBA · 6 figures"},
-              {q:"The ad templates are better than what our agency made. And they're instant.",n:"Priya R.",r:"Shopify store owner"},
-            ].map(t => (
-              <div key={t.n} className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-5">
-                <div className="flex gap-0.5 mb-3">{[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}</div>
-                <p className="text-[14px] text-neutral-300 leading-relaxed">&ldquo;{t.q}&rdquo;</p>
-                <div className="mt-4"><p className="text-[13px] font-semibold">{t.n}</p><p className="text-[11px] text-neutral-500">{t.r}</p></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* PRICING                                                       */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <section id="pricing" className="py-24 px-6">
-        <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="text-[2.25rem] sm:text-[2.75rem] font-extrabold tracking-[-0.03em]">Simple pricing</h2>
-          <p className="mt-2 text-neutral-500">Start free. Upgrade when you grow.</p>
-
-          <div className="mt-5 inline-flex items-center bg-neutral-100 rounded-full p-1">
-            <button onClick={() => setAnnual(false)} className={`text-[13px] font-semibold px-5 py-1.5 rounded-full cursor-pointer transition-all ${!annual ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-400"}`}>Monthly</button>
-            <button onClick={() => setAnnual(true)} className={`text-[13px] font-semibold px-5 py-1.5 rounded-full cursor-pointer transition-all flex items-center gap-1.5 ${annual ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-400"}`}>
-              Yearly <span className="text-[10px] text-[#2563eb] font-bold">-20%</span>
-            </button>
-          </div>
-
-          <div className="mt-10 grid md:grid-cols-3 gap-4 text-left">
-            {plans_data.map(p => (
-              <div key={p.key} className={`relative bg-white rounded-2xl p-6 transition-all ${p.popular ? "border-2 border-[#2563eb] shadow-[0_8px_40px_-12px_rgba(206,164,52,0.15)] scale-[1.02]" : "border border-neutral-200 hover:shadow-lg"}`}>
-                {p.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2563eb] text-[#1e3a5f] text-[11px] font-bold px-4 py-1 rounded-full">Most popular</div>}
-                <p className="text-[16px] font-bold">{p.name}</p>
-                <div className="mt-2 mb-4">
-                  <span className="text-[2.5rem] font-extrabold tracking-tight">${annual ? Math.round(p.yearly / 12) : p.price}</span>
-                  <span className="text-neutral-400 text-[14px]">/mo</span>
-                </div>
-                <Link href="/signup" className={`block text-center py-2.5 rounded-xl text-[14px] font-semibold transition-all ${p.popular ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]" : "border border-neutral-200 text-neutral-700 hover:bg-neutral-50"}`}>{p.cta}</Link>
-                <ul className="mt-5 space-y-2">
-                  {p.features.map(f => <li key={f} className="flex items-start gap-2 text-[13px] text-neutral-600"><Check className="h-4 w-4 text-[#2563eb] flex-shrink-0 mt-0.5" />{f}</li>)}
+                <p className="price-muted">{copy.tagline}</p>
+                <ul className="price-bullets">
+                  {copy.features.map((f, j) => (
+                    <li key={j}>
+                      <span className="mk">—</span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
                 </ul>
+                <Link
+                  href="/signup"
+                  className={`btn ${copy.featured ? "btn-clay" : "btn-outline"} btn-lg`}
+                  style={{ justifyContent: "center" }}
+                >
+                  {plan.priceMonthly === 0 ? "Start free" : "Start 14-day trial"}
+                </Link>
               </div>
-            ))}
-          </div>
-          <p className="text-[13px] text-neutral-400 mt-6">Free plan — 5 listings/mo, 5 images, social posts &amp; ad copies. <Link href="/signup" className="text-[#2563eb] hover:underline font-medium">Start free →</Link></p>
+            );
+          })}
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* CTA                                                           */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#0f172a]">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-[2rem] sm:text-[2.5rem] font-extrabold tracking-[-0.03em] text-white">Stop creating content manually.</h2>
-          <p className="mt-3 text-blue-100 text-[16px]">Let AI generate everything in under a minute.</p>
-          <Link href="/signup" className="group inline-flex items-center gap-2 mt-8 bg-white text-[#1e3a5f] px-8 py-3.5 rounded-full text-[15px] font-bold hover:bg-blue-50 transition-colors shadow-xl">
-            Generate your first listing <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+/* ── Dark CTA block ──────────────────────────────────────────────── */
+function CtaBlock() {
+  return (
+    <section className="cta-block">
+      <div className="container">
+        <h2>
+          Your product
+          <br />
+          belongs on the <em>front</em> shelf.
+        </h2>
+        <p>
+          Upload one photo. We&apos;ll handle the rest — listing, photoshoot, ads,
+          social, research. Ship in thirty minutes, not thirty days.
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/signup" className="btn btn-clay btn-lg">
+            Start free · no card
           </Link>
-          <p className="mt-4 text-[13px] text-blue-200/60">Free. No credit card required.</p>
+          <Link
+            href="/use-cases"
+            className="btn btn-lg"
+            style={{ color: "var(--cream)", border: "1px solid rgba(245,240,230,0.3)" }}
+          >
+            See use cases
+          </Link>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* ── Footer ── */}
-      <footer className="py-10 px-6 border-t border-neutral-200/60 bg-[#fafaf9]">
-        <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/logo-icon.png" alt="ShelfReady" className="h-6 w-6 rounded-md" /><span className="text-[13px] font-bold">ShelfReady</span></div>
-          <div className="flex items-center gap-6 text-[13px] text-neutral-400 font-medium">
-            <Link href="/pricing" className="hover:text-neutral-600">Pricing</Link>
-            <Link href="/blog" className="hover:text-neutral-600">Blog</Link>
-            <Link href="/login" className="hover:text-neutral-600">Log in</Link>
-            <Link href="/terms" className="hover:text-neutral-600">Terms</Link>
-            <Link href="/privacy" className="hover:text-neutral-600">Privacy</Link>
-          </div>
-          <p className="text-[11px] text-neutral-300">© 2026 ShelfReady</p>
-        </div>
-      </footer>
-
-      {/* Template preview modal */}
-      {tplPreview && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={() => setTplPreview(null)}>
-          <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setTplPreview(null)} className="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg cursor-pointer hover:bg-neutral-100"><X className="h-4 w-4" /></button>
-            <div className="rounded-2xl overflow-hidden shadow-2xl bg-white">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tplPreview} alt="" className="w-full" />
+/* ── Footer ──────────────────────────────────────────────────────── */
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer-grid">
+          <div>
+            <Logo />
+            <p style={{ color: "var(--ink-3)", maxWidth: 340, marginTop: 16, fontSize: 14, lineHeight: 1.5 }}>
+              Every product, shelf-ready in minutes. Built for the sellers who make
+              things, not the platforms that sell them.
+            </p>
+            <div className="uppercase-label" style={{ marginTop: 24 }}>
+              shelfready.app
             </div>
           </div>
+          <div className="footer-col">
+            <h4>Product</h4>
+            <Link href="/signup">Studio</Link>
+            <Link href="/signup">Listings</Link>
+            <Link href="/signup">Photoshoot</Link>
+            <Link href="/signup">Ad creatives</Link>
+            <Link href="/signup">Social</Link>
+            <Link href="/signup">Research</Link>
+          </div>
+          <div className="footer-col">
+            <h4>Company</h4>
+            <Link href="/use-cases">Use cases</Link>
+            <Link href="/blog">Blog</Link>
+            <Link href="/pricing">Pricing</Link>
+          </div>
+          <div className="footer-col">
+            <h4>Resources</h4>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/login">Sign in</Link>
+            <Link href="/signup">Start free</Link>
+          </div>
         </div>
-      )}
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} ShelfReady, Inc.</span>
+          <span>Made for sellers · vol. 01</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ── Root ───────────────────────────────────────────────────────── */
+export default function Landing() {
+  return (
+    <div className="shelf-landing">
+      <Nav />
+      <Hero />
+      <HowItWorks />
+      <OutputsSection />
+      <AdsSection />
+      <SocialSection />
+      <ResearchSection />
+      <ListingSection />
+      <PricingSection />
+      <CtaBlock />
+      <Footer />
     </div>
   );
 }
