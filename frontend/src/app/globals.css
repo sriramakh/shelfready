@@ -33,28 +33,35 @@
   --color-text:       #1A1814;
   --color-text-muted: #7A7266;
 
-  /* Font stack — next/font exposes these as variables on :root via layout.tsx */
-  --font-sans: var(--font-sans, "Geist"), "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-display, "Instrument Serif"), "Cormorant Garamond", Georgia, serif;
-  --font-mono: var(--font-mono, "JetBrains Mono"), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Font stacks — we don't redeclare --font-sans / --font-display / --font-mono
+   * inside @theme because next/font already defines them on :root with
+   * scrambled names (e.g. "__Instrument_Serif_abc"). Redeclaring here with a
+   * static fallback shadows next/font, so the real web font never loads.
+   * Downstream CSS references the next/font vars directly below. */
 }
 
 /*
  * Editorial typography inside the dashboard — opt-in via .dashboard-root
- * on the layout wrapper. Heading elements (h1/h2/h3) render in the
- * Instrument Serif display face to match the landing's voice, while body
- * text stays in Geist so forms and tables remain easy to skim.
- * Uppercase-tracked labels / eyebrows can opt into font-mono.
+ * on the layout wrapper. Targets semantic headings AND the common Tailwind
+ * heading-shaped utility combinations dashboard pages use for card titles,
+ * section labels, and stat numbers. Body text stays in Geist so forms and
+ * tables remain easy to skim.
  */
-.dashboard-root h1,
-.dashboard-root h2,
-.dashboard-root h3 {
-  font-family: var(--font-display);
+.dashboard-root :is(h1, h2, h3, h4),
+.dashboard-root .font-display,
+/* Card section titles inside headers */
+.dashboard-root [class*="text-2xl"][class*="font-bold"],
+.dashboard-root [class*="text-3xl"][class*="font-bold"],
+.dashboard-root [class*="text-2xl"][class*="font-extrabold"],
+.dashboard-root [class*="text-3xl"][class*="font-extrabold"] {
+  font-family: var(--font-display), "Instrument Serif", "Cormorant Garamond", Georgia, serif;
   font-weight: 400;
   letter-spacing: -0.02em;
 }
-.dashboard-root .mono-label {
-  font-family: var(--font-mono);
+
+.dashboard-root .mono-label,
+.dashboard-root .font-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
