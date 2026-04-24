@@ -8,10 +8,10 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="border-b border-neutral-100 bg-white sticky top-0 z-50 backdrop-blur-xl bg-white/80">
+    <div className="min-h-screen bg-surface">
+      <nav className="border-b border-border bg-white sticky top-0 z-50 backdrop-blur-xl bg-surface/80">
         <div className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[13px] font-medium text-neutral-500 hover:text-neutral-900 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-[13px] font-medium text-text-muted hover:text-secondary transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
           <Link href="/" className="flex items-center gap-2">
@@ -23,12 +23,28 @@ export default function TermsPage() {
       </nav>
 
       <article className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Terms of Service</h1>
-        <p className="text-neutral-400 text-sm mb-10">Last updated: March 29, 2026</p>
+        <p
+          className="text-[11px] uppercase tracking-[0.22em] text-text-muted mb-4"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          Legal
+        </p>
+        <h1
+          className="text-[clamp(36px,5vw,56px)] leading-[1] tracking-[-0.02em] text-secondary mb-3"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 400 }}
+        >
+          Terms of Service
+        </h1>
+        <p
+          className="text-text-muted/80 text-[12px] uppercase tracking-[0.16em] mb-10"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          Last updated · March 29, 2026
+        </p>
 
-        <div className="prose-custom space-y-8 text-[15px] text-neutral-600 leading-relaxed">
+        <div className="prose-custom space-y-8 text-[15px] text-text-muted leading-relaxed">
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">1. Acceptance of Terms</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">1. Acceptance of Terms</h2>
             <p>
               By accessing or using ShelfReady (&quot;Service&quot;), operated by ShelfReady (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, you may not access or use the Service.
             </p>
@@ -38,14 +54,14 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">2. Description of Service</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">2. Description of Service</h2>
             <p>
               ShelfReady is an AI-powered content platform for e-commerce sellers. The Service generates product listings, AI product photography, ad creatives, social media content, and competitive market intelligence for platforms including Amazon, Etsy, and Shopify.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">3. Account Registration</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">3. Account Registration</h2>
             <p>To use the Service, you must create an account and provide accurate, complete information. You are responsible for:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li>Maintaining the confidentiality of your account credentials.</li>
@@ -58,7 +74,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">4. Subscription Plans and Billing</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">4. Subscription Plans and Billing</h2>
             <p>ShelfReady offers the following subscription tiers:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li><strong>Free:</strong> 5 listings/month, 5 AI images (lifetime), 5 social posts/month, 5 ad copies/month.</li>
@@ -72,7 +88,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">5. Payment and Refunds</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">5. Payment and Refunds</h2>
             <p>
               Payments are processed through our third-party payment provider. By subscribing to a paid plan, you authorize recurring charges at the applicable billing interval.
             </p>
@@ -85,7 +101,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">6. Acceptable Use</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">6. Acceptable Use</h2>
             <p>You agree not to:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li>Use the Service for any unlawful purpose or to violate any applicable laws.</li>
@@ -99,7 +115,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">7. AI-Generated Content</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">7. AI-Generated Content</h2>
             <p>
               Content generated by the Service (&quot;AI Output&quot;) is produced using artificial intelligence models. You acknowledge that:
             </p>
@@ -112,7 +128,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">8. Intellectual Property</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">8. Intellectual Property</h2>
             <p>
               <strong>Your Content:</strong> You retain ownership of all content you upload to the Service, including product images, descriptions, and other materials (&quot;Your Content&quot;). By uploading Your Content, you grant us a limited, non-exclusive license to process it for the purpose of providing the Service.
             </p>
@@ -125,21 +141,21 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">9. Third-Party Services</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">9. Third-Party Services</h2>
             <p>
               The Service integrates with third-party platforms (Amazon, Etsy, Shopify, etc.) and AI providers. We are not responsible for the availability, accuracy, or policies of third-party services. Your use of third-party platforms is governed by their respective terms.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">10. Service Availability</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">10. Service Availability</h2>
             <p>
               We strive to maintain high availability but do not guarantee uninterrupted access. The Service may be temporarily unavailable due to maintenance, updates, or circumstances beyond our control. We are not liable for any losses arising from service interruptions.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">11. Limitation of Liability</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">11. Limitation of Liability</h2>
             <p>
               To the maximum extent permitted by law, ShelfReady and its officers, directors, employees, and agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or business opportunities, arising from your use of the Service.
             </p>
@@ -149,35 +165,35 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">12. Disclaimer of Warranties</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">12. Disclaimer of Warranties</h2>
             <p>
               The Service is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind, whether express, implied, or statutory, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">13. Indemnification</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">13. Indemnification</h2>
             <p>
               You agree to indemnify and hold harmless ShelfReady from any claims, damages, losses, or expenses (including reasonable attorney&apos;s fees) arising from your use of the Service, violation of these Terms, or infringement of any third-party rights.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">14. Termination</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">14. Termination</h2>
             <p>
               We may suspend or terminate your access to the Service at any time, with or without cause, upon notice. Upon termination, your right to use the Service ceases immediately. Sections relating to intellectual property, limitation of liability, indemnification, and governing law survive termination.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">15. Governing Law</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">15. Governing Law</h2>
             <p>
               These Terms are governed by and construed in accordance with the laws of India, without regard to conflict of law principles. Any disputes shall be resolved through binding arbitration or in the courts of competent jurisdiction in India.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">16. Contact</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">16. Contact</h2>
             <p>
               For questions about these Terms, contact us at:
             </p>

@@ -4,188 +4,177 @@ import { useState } from "react";
 import Link from "next/link";
 import { PLANS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import {
-  Check,
-  X,
-  ChevronDown,
-  Sparkles,
-  ArrowRight,
-  Zap,
-  Shield,
-  Star,
-  Camera,
-} from "lucide-react";
+import { Check, X, ChevronDown, ArrowRight } from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/*  Data                                                               */
-/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+ * Editorial pricing page — mirrors the landing v3 aesthetic.
+ * Paper cream bg · ink headlines · serif numerals · mono labels.
+ * ---------------------------------------------------------------- */
 
 const planKeys = ["free", "starter", "pro", "business"] as const;
 type PlanKey = (typeof planKeys)[number];
 
-const planMeta: Record<
-  PlanKey,
-  {
-    tagline: string;
-    badge: string;
-    badgeColor: string;
-    features: string[];
-    photoshootLine: string | null;
-    cta: string;
-  }
-> = {
+const planMeta: Record<PlanKey, {
+  tagline: string;
+  features: string[];
+  featured?: boolean;
+  badge?: string;
+}> = {
   free: {
-    tagline: "Perfect for trying things out",
-    badge: "Free",
-    badgeColor: "bg-purple-50 text-slate-600",
+    tagline: "Kick the tires.",
     features: [
-      "5 product listings/month",
+      "5 product listings / month",
       "5 AI images (lifetime)",
-      "5 social media posts/month",
-      "5 ad copies/month",
-      "Community support",
+      "5 social posts / month",
+      "5 ad copies / month",
+      "Watermarked exports",
     ],
-    photoshootLine: null,
-    cta: "Get Started Free",
   },
   starter: {
-    tagline: "Great for small sellers getting started",
-    badge: "Starter",
-    badgeColor: "bg-blue-50 text-blue-600",
+    tagline: "For the solo shop.",
     features: [
-      "50 product listings/month",
-      "100 AI images/month",
-      "50 social media posts/month",
-      "50 ad creatives/month",
-      "20 market research reports/month",
-      "200+ ad creative templates",
+      "50 listings / month",
+      "100 AI images / month",
+      "10 AI photoshoots / month",
+      "50 social posts · 50 ad creatives",
+      "20 market research reports",
       "Priority support",
     ],
-    photoshootLine: "10 AI photoshoots/month",
-    cta: "Start Free Trial",
   },
   pro: {
-    tagline: "For growing brands that need more power",
-    badge: "Pro",
-    badgeColor: "bg-purple-50 text-purple-700",
+    tagline: "The sweet spot.",
+    featured: true,
+    badge: "Most picked",
     features: [
-      "300 product listings/month",
-      "300 AI images/month",
-      "300 social media posts/month",
-      "300 ad creatives/month",
-      "100 market research reports/month",
+      "300 listings / month",
+      "300 AI images · 30 photoshoots",
+      "300 social posts · 300 ad creatives",
+      "100 market research reports",
+      "Export to CSV / JSON",
       "200+ ad creative templates",
-      "Export to CSV/JSON",
       "Priority support",
     ],
-    photoshootLine: "30 AI photoshoots/month",
-    cta: "Start Free Trial",
   },
   business: {
-    tagline: "Scale without limits",
-    badge: "Business",
-    badgeColor: "bg-amber-50 text-amber-700",
+    tagline: "For the agency.",
     features: [
-      "Unlimited product listings",
-      "1,000 AI images/month",
-      "Unlimited social media posts",
-      "Unlimited ad creatives",
-      "Unlimited market research",
-      "200+ ad creative templates",
-      "Export to CSV/JSON",
+      "Unlimited listings & social",
+      "1,000 AI images · 100 photoshoots",
+      "Unlimited ads & research",
       "API access",
+      "Team seats · SSO",
       "Dedicated support",
     ],
-    photoshootLine: "100 AI photoshoots/month",
-    cta: "Start Free Trial",
   },
 };
 
-const comparisonRows: {
-  feature: string;
-  values: (string | boolean)[];
-}[] = [
-  { feature: "Product Listings", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
-  { feature: "AI Images", values: ["5 lifetime", "100/mo", "300/mo", "1,000/mo"] },
-  { feature: "AI Photoshoots", values: ["\u2014", "10/mo", "30/mo", "100/mo"] },
-  { feature: "Social Posts", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
-  { feature: "Ad Creatives", values: ["5/mo", "50/mo", "300/mo", "Unlimited"] },
-  { feature: "Market Research", values: ["\u2014", "20/mo", "100/mo", "Unlimited"] },
-  { feature: "Creative Templates", values: ["\u2014", "200+", "200+", "200+"] },
-  { feature: "Export Formats", values: [false, false, "CSV, JSON", "CSV, JSON"] },
-  { feature: "Support Level", values: ["Community", "Priority", "Priority", "Dedicated"] },
-  { feature: "API Access", values: [false, false, false, true] },
+const comparisonRows: { feature: string; values: (string | boolean)[] }[] = [
+  { feature: "Product listings", values: ["5 / mo", "50 / mo", "300 / mo", "Unlimited"] },
+  { feature: "AI images", values: ["5 lifetime", "100 / mo", "300 / mo", "1,000 / mo"] },
+  { feature: "AI photoshoots", values: ["—", "10 / mo", "30 / mo", "100 / mo"] },
+  { feature: "Social posts", values: ["5 / mo", "50 / mo", "300 / mo", "Unlimited"] },
+  { feature: "Ad creatives", values: ["5 / mo", "50 / mo", "300 / mo", "Unlimited"] },
+  { feature: "Market research", values: ["—", "20 / mo", "100 / mo", "Unlimited"] },
+  { feature: "Creative templates", values: ["—", "200+", "200+", "200+"] },
+  { feature: "Export formats", values: [false, false, "CSV, JSON", "CSV, JSON"] },
+  { feature: "Support", values: ["Community", "Priority", "Priority", "Dedicated"] },
+  { feature: "API access", values: [false, false, false, true] },
 ];
 
 const faqs = [
   {
-    q: 'What counts as a "photoshoot"?',
-    a: "One photoshoot generates up to 5 professional images from your product photo. The AI analyzes your product, selects appropriate scenes, and creates studio, lifestyle, model, and in-context shots.",
+    q: "What counts as a photoshoot?",
+    a: "One photoshoot generates up to 10 professional images from a single product photo. The AI analyzes your product, selects appropriate scenes, and creates studio, lifestyle, model, and in-context shots while preserving the exact product.",
   },
   {
     q: "Can I upgrade or downgrade anytime?",
-    a: "Yes. Upgrades take effect immediately and you only pay the prorated difference. Downgrades apply at the end of your current billing cycle so you never lose access mid-period.",
+    a: "Yes. Upgrades take effect immediately and you only pay the prorated difference. Downgrades apply at the end of the current billing cycle so you never lose access mid-period.",
   },
   {
     q: "What's the difference between AI images and photoshoots?",
-    a: "AI images are generated from text descriptions (no upload needed). Photoshoots use your actual product photo to create professional scenes that preserve your exact product appearance.",
+    a: "AI images are generated from text descriptions — no upload needed. Photoshoots use your actual product photo and re-stage it in multiple scenes, preserving the real product appearance.",
   },
   {
     q: "Do you offer refunds?",
-    a: "Absolutely. Every paid plan comes with a 14-day money-back guarantee. If ShelfReady isn't the right fit, contact our support team and we'll issue a full refund -- no questions asked.",
+    a: "Every paid plan comes with a 14-day money-back guarantee. If ShelfReady isn't the right fit, email support and we'll issue a full refund — no questions asked.",
   },
   {
-    q: "What platforms do you support?",
-    a: "For product listings we support Amazon, Etsy, and Shopify. Social media posts can be generated for Instagram, Facebook, and Pinterest. Ad copy works with Facebook/Instagram Ads and Google Ads.",
+    q: "Which platforms do you support?",
+    a: "Listings for Amazon, Etsy, Shopify, and eBay. Social posts for Instagram, Facebook, and Pinterest. Ads for Meta and Google.",
   },
   {
     q: "Is there an API?",
-    a: "The Business plan includes full REST API access so you can integrate ShelfReady into your own tools and workflows. API documentation is available in your dashboard once you upgrade.",
+    a: "The Business plan includes full REST API access so you can integrate ShelfReady into your own tools and workflows. Docs appear in the dashboard once you upgrade.",
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
+function Logo() {
+  return (
+    <Link href="/" className="flex items-center gap-2.5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-icon.png" alt="ShelfReady" className="h-7 w-7 rounded" />
+      <span className="text-xl tracking-[-0.02em]" style={{ fontFamily: "var(--font-display)" }}>
+        ShelfReady
+      </span>
+    </Link>
+  );
+}
 
 export default function PricingPage() {
   const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ── HEADER ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-20">
-        {/* Subtle background gradient */}
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-slate-50 via-white to-white" />
-        <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.06),transparent_70%)]" />
-
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-            <Sparkles className="h-3 w-3" />
-            14-day money-back guarantee
+    <div className="min-h-screen bg-surface text-text">
+      {/* ── Nav ── */}
+      <nav className="sticky top-0 z-40 border-b border-border/60 bg-surface/85 backdrop-blur">
+        <div className="mx-auto max-w-[1360px] px-5 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+          <Logo />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/login" className="text-[13px] sm:text-[14px] font-medium text-text-muted hover:text-text">
+              Sign in
+            </Link>
+            <Link
+              href="/signup"
+              className="text-[13px] sm:text-[14px] font-semibold bg-primary text-[#FAF6EC] px-4 sm:px-5 py-2 rounded hover:bg-primary-dark transition-colors"
+            >
+              Try free
+            </Link>
           </div>
+        </div>
+      </nav>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            <span className="bg-gradient-to-r from-[#2563eb] to-[#7c3aed] bg-clip-text text-transparent">
-              Simple, Transparent Pricing
-            </span>
+      {/* ── Header ── */}
+      <section className="border-b border-border pt-16 pb-12 sm:pt-24 sm:pb-16">
+        <div className="mx-auto max-w-4xl px-5 sm:px-6 text-center">
+          <p
+            className="text-[11px] uppercase tracking-[0.22em] text-text-muted mb-5"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            06 · Pricing
+          </p>
+          <h1
+            className="text-[clamp(40px,6vw,72px)] leading-[1] tracking-[-0.025em] text-secondary mb-5"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 400 }}
+          >
+            Priced for <em className="italic text-primary">sellers</em>,
+            <br className="hidden sm:block" /> not enterprises.
           </h1>
-
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-slate-500">
-            Start free and scale as you grow. All plans include a 14-day
-            money-back guarantee.
+          <p className="mx-auto max-w-xl text-[16px] sm:text-[17px] text-text-muted leading-relaxed">
+            Every plan ships with every feature. You&apos;re paying for volume, not
+            capability. Cancel any time, prorated to the day.
           </p>
 
-          {/* ── Billing toggle (pill) ───────────────────────────────── */}
-          <div className="mt-10 inline-flex items-center gap-1 rounded-full bg-purple-50 p-1">
+          {/* Billing toggle — editorial pill */}
+          <div
+            className="mt-10 inline-flex items-center gap-0 rounded-full border border-border bg-[#FAF6EC] p-1"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
             <button
               onClick={() => setAnnual(false)}
               className={cn(
-                "relative rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer",
-                !annual
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700",
+                "rounded-full px-5 py-2 text-[11px] uppercase tracking-[0.12em] transition-all cursor-pointer",
+                !annual ? "bg-secondary text-[#FAF6EC]" : "text-text-muted hover:text-text",
               )}
             >
               Monthly
@@ -193,160 +182,142 @@ export default function PricingPage() {
             <button
               onClick={() => setAnnual(true)}
               className={cn(
-                "relative rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer",
-                annual
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700",
+                "rounded-full px-5 py-2 text-[11px] uppercase tracking-[0.12em] transition-all cursor-pointer",
+                annual ? "bg-secondary text-[#FAF6EC]" : "text-text-muted hover:text-text",
               )}
             >
-              Yearly
+              Yearly · save 20%
             </button>
-            {/* Save badge */}
-            <span
-              className={cn(
-                "ml-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm transition-all duration-300",
-                annual
-                  ? "translate-x-0 scale-100 opacity-100"
-                  : "-translate-x-2 scale-90 opacity-0",
-              )}
-            >
-              <Zap className="h-3 w-3" />
-              Save 20%
-            </span>
           </div>
         </div>
       </section>
 
-      {/* ── PRICING CARDS ──────────────────────────────────────────── */}
-      <section className="pb-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {planKeys.map((key) => {
+      {/* ── Pricing grid ── */}
+      <section className="border-b border-border py-16 sm:py-20">
+        <div className="mx-auto max-w-[1360px] px-5 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border border-border bg-surface">
+            {planKeys.map((key, i) => {
               const plan = PLANS[key];
               const meta = planMeta[key];
-              const isPopular = key === "pro";
               const monthlyPrice = annual
                 ? Math.round(plan.priceYearly / 12)
                 : plan.priceMonthly;
+              const isFeatured = meta.featured;
 
-              const card = (
+              return (
                 <div
+                  key={key}
                   className={cn(
-                    "relative flex h-full flex-col rounded-2xl border bg-white p-7 transition-shadow duration-300",
-                    isPopular
-                      ? "border-transparent shadow-xl"
-                      : "border-slate-200 hover:shadow-xl",
+                    "relative flex flex-col p-8 border-r border-border last:border-r-0 border-b md:border-b-0 last:border-b-0 min-h-[560px]",
+                    isFeatured && "bg-secondary text-[#FAF6EC]",
                   )}
                 >
-                  {/* Popular ribbon */}
-                  {isPopular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 py-1.5 text-xs font-bold tracking-wide text-white shadow-md shadow-blue-500/25">
-                        <Star className="h-3 w-3" />
-                        Most Popular
-                      </span>
-                    </div>
+                  {meta.badge && (
+                    <span
+                      className="absolute top-4 right-4 rounded px-2 py-1 text-[10px] uppercase tracking-[0.12em] bg-primary text-[#FAF6EC]"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      {meta.badge}
+                    </span>
                   )}
 
-                  {/* Plan badge */}
-                  <span
+                  <p
                     className={cn(
-                      "mb-4 inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold",
-                      meta.badgeColor,
+                      "text-[11px] uppercase tracking-[0.14em]",
+                      isFeatured ? "text-[#C9BFA8]" : "text-text-muted",
                     )}
+                    style={{ fontFamily: "var(--font-mono)" }}
                   >
-                    {meta.badge}
-                  </span>
+                    {String(i + 1).padStart(2, "0")} · Plan
+                  </p>
 
-                  {/* Price */}
-                  <div className="mb-1 flex items-baseline gap-1">
+                  <div
+                    className="text-[32px] tracking-[-0.02em] mt-4 mb-2"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {plan.name}
+                  </div>
+
+                  <div className="flex items-baseline gap-1.5 mt-5 mb-2">
                     {annual && plan.priceMonthly > 0 && (
-                      <span className="mr-1 text-lg font-medium text-slate-400 line-through">
+                      <span
+                        className={cn(
+                          "text-[18px] line-through mr-1",
+                          isFeatured ? "text-[#A49B8A]" : "text-text-muted",
+                        )}
+                      >
                         ${plan.priceMonthly}
                       </span>
                     )}
-                    <span className="text-5xl font-extrabold tracking-tight text-slate-900">
+                    <span
+                      className="text-[56px] leading-none tracking-[-0.03em]"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
                       ${monthlyPrice}
                     </span>
-                    {monthlyPrice > 0 && (
-                      <span className="text-sm font-medium text-slate-400">
-                        /mo
+                    <span
+                      className={cn(
+                        "text-[11px] uppercase tracking-[0.1em]",
+                        isFeatured ? "text-[#C9BFA8]" : "text-text-muted",
+                      )}
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      /mo
+                    </span>
+                  </div>
+
+                  <p
+                    className={cn(
+                      "text-[13px] mb-6",
+                      isFeatured ? "text-[#C9BFA8]" : "text-text-muted",
+                    )}
+                  >
+                    {meta.tagline}
+                    {annual && plan.priceYearly > 0 && (
+                      <span className="block text-[11px] mt-1 opacity-75">
+                        ${plan.priceYearly} billed yearly
                       </span>
                     )}
-                  </div>
-                  {annual && plan.priceYearly > 0 && (
-                    <p className="mb-3 text-xs text-slate-400">
-                      ${plan.priceYearly} billed annually
-                    </p>
-                  )}
-                  {!annual && plan.priceMonthly === 0 && (
-                    <p className="mb-3 text-xs text-slate-400">
-                      Free forever
-                    </p>
-                  )}
-                  {!annual && plan.priceMonthly > 0 && (
-                    <p className="mb-3 text-xs text-slate-400">&nbsp;</p>
-                  )}
+                  </p>
 
-                  {/* Tagline */}
-                  <p className="mb-6 text-sm text-slate-500">{meta.tagline}</p>
-
-                  {/* Photoshoot highlight */}
-                  {meta.photoshootLine && (
-                    <div className="mb-5 flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-50 to-slate-100 px-4 py-3">
-                      <Camera className="h-4.5 w-4.5 flex-shrink-0 text-[#7c3aed]" />
-                      <span className="text-sm font-semibold text-slate-700">
-                        {meta.photoshootLine}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Feature list */}
-                  <ul className="mb-8 flex-1 space-y-3">
-                    {meta.features.map((feature) => (
+                  <ul className="flex-1 space-y-0">
+                    {meta.features.map((f, j) => (
                       <li
-                        key={feature}
-                        className="flex items-start gap-2.5 text-sm text-slate-600"
+                        key={j}
+                        className={cn(
+                          "py-2.5 flex gap-2 text-[13px] border-t",
+                          isFeatured
+                            ? "border-[#3A342B] text-[#E3D9C4]"
+                            : "border-border text-text",
+                          j === meta.features.length - 1 && "border-b",
+                        )}
                       >
-                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500" />
-                        {feature}
+                        <span
+                          className={cn(
+                            "text-[11px] min-w-[14px] mt-0.5",
+                            isFeatured ? "text-primary-light" : "text-primary",
+                          )}
+                          style={{ fontFamily: "var(--font-mono)" }}
+                        >
+                          —
+                        </span>
+                        <span>{f}</span>
                       </li>
                     ))}
                   </ul>
 
-                  {/* CTA */}
                   <Link
                     href="/signup"
                     className={cn(
-                      "group flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-semibold transition-all duration-200",
-                      isPopular
-                        ? "bg-gradient-to-r from-[#2563eb] to-[#7c3aed] text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:brightness-110"
-                        : key === "free"
-                          ? "bg-slate-900 text-white hover:bg-slate-800"
-                          : "border-2 border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                      "mt-6 inline-flex items-center justify-center gap-2 rounded px-5 py-3 text-[14px] font-semibold transition-colors",
+                      isFeatured
+                        ? "bg-primary text-[#FAF6EC] hover:bg-primary-light"
+                        : "border border-secondary text-secondary hover:bg-secondary hover:text-[#FAF6EC]",
                     )}
                   >
-                    {meta.cta}
-                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                    {plan.priceMonthly === 0 ? "Start free" : "Start 14-day trial"}
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
-                </div>
-              );
-
-              /* Gradient border wrapper for Pro card */
-              if (isPopular) {
-                return (
-                  <div
-                    key={key}
-                    className="relative rounded-2xl bg-gradient-to-b from-[#2563eb] to-[#7c3aed] p-[2px] lg:scale-105 lg:z-10"
-                  >
-                    {card}
-                  </div>
-                );
-              }
-
-              return (
-                <div key={key} className="relative">
-                  {card}
                 </div>
               );
             })}
@@ -354,68 +325,64 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── FEATURE COMPARISON TABLE ───────────────────────────────── */}
-      <section className="border-t border-slate-100 bg-slate-50/60 py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-2 text-center text-3xl font-bold tracking-tight text-slate-900">
-            Compare plan features
-          </h2>
-          <p className="mx-auto mb-14 max-w-xl text-center text-sm text-slate-500">
-            A detailed breakdown so you can pick the right plan for your
-            business.
-          </p>
+      {/* ── Comparison ── */}
+      <section className="border-b border-border py-16 sm:py-20 bg-surface-alt">
+        <div className="mx-auto max-w-[1160px] px-5 sm:px-6">
+          <div className="text-center mb-10">
+            <p
+              className="text-[11px] uppercase tracking-[0.22em] text-text-muted mb-3"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              Compare plans
+            </p>
+            <h2
+              className="text-[clamp(28px,4vw,44px)] tracking-[-0.02em] text-secondary"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 400 }}
+            >
+              Every feature, <em className="italic text-primary">side by side</em>.
+            </h2>
+          </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <table className="w-full min-w-[640px]">
+          <div className="overflow-x-auto border border-border bg-surface">
+            <table className="w-full min-w-[720px] text-[13px]">
               <thead>
-                <tr className="sticky top-0 z-10 border-b border-slate-200 bg-white">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500">
+                <tr className="border-b border-border">
+                  <th
+                    className="px-5 py-4 text-left uppercase tracking-[0.14em] text-[11px] text-text-muted font-semibold"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
                     Feature
                   </th>
                   {planKeys.map((key) => (
                     <th
                       key={key}
                       className={cn(
-                        "px-4 py-4 text-center text-sm font-bold",
-                        key === "pro" ? "text-[#7c3aed]" : "text-slate-900",
+                        "px-4 py-4 text-center text-[14px]",
+                        key === "pro" ? "text-primary" : "text-secondary",
                       )}
+                      style={{ fontFamily: "var(--font-display)" }}
                     >
                       {PLANS[key].name}
-                      {key === "pro" && (
-                        <span className="ml-1.5 inline-block rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">
-                          Popular
-                        </span>
-                      )}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {comparisonRows.map((row, idx) => (
-                  <tr
-                    key={row.feature}
-                    className={cn(
-                      "border-b border-slate-100 last:border-b-0 transition-colors",
-                      idx % 2 === 0 ? "bg-white" : "bg-slate-50/50",
-                    )}
-                  >
-                    <td className="px-6 py-3.5 text-sm font-medium text-slate-700">
-                      {row.feature}
-                    </td>
+                  <tr key={row.feature} className="border-b border-border/60 last:border-b-0">
+                    <td className="px-5 py-3 text-text">{row.feature}</td>
                     {row.values.map((val, i) => (
-                      <td key={i} className="px-4 py-3.5 text-center">
+                      <td key={i} className="px-4 py-3 text-center">
                         {typeof val === "boolean" ? (
                           val ? (
-                            <Check className="mx-auto h-5 w-5 text-emerald-500" />
+                            <Check className="mx-auto h-4 w-4 text-primary" />
                           ) : (
-                            <X className="mx-auto h-4 w-4 text-slate-300" />
+                            <X className="mx-auto h-4 w-4 text-text-muted/50" />
                           )
-                        ) : val === "\u2014" ? (
-                          <span className="text-slate-300">{val}</span>
+                        ) : val === "—" ? (
+                          <span className="text-text-muted/60">—</span>
                         ) : (
-                          <span className="text-sm font-medium text-slate-700">
-                            {val}
-                          </span>
+                          <span className="text-text">{val}</span>
                         )}
                       </td>
                     ))}
@@ -427,51 +394,53 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── FAQ SECTION ────────────────────────────────────────────── */}
-      <section className="py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-2 text-center text-3xl font-bold tracking-tight text-slate-900">
-            Frequently asked questions
-          </h2>
-          <p className="mx-auto mb-12 max-w-lg text-center text-sm text-slate-500">
-            Everything you need to know about our plans and billing.
-          </p>
-
-          <div className="space-y-3">
+      {/* ── FAQ ── */}
+      <section className="border-b border-border py-16 sm:py-20">
+        <div className="mx-auto max-w-[820px] px-5 sm:px-6">
+          <div className="text-center mb-10">
+            <p
+              className="text-[11px] uppercase tracking-[0.22em] text-text-muted mb-3"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              Questions
+            </p>
+            <h2
+              className="text-[clamp(28px,4vw,44px)] tracking-[-0.02em] text-secondary"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 400 }}
+            >
+              Things people ask.
+            </h2>
+          </div>
+          <div className="border-t border-border">
             {faqs.map((faq, i) => {
               const isOpen = openFaq === i;
               return (
-                <div
-                  key={i}
-                  className={cn(
-                    "overflow-hidden rounded-xl border transition-colors duration-200",
-                    isOpen
-                      ? "border-blue-200 bg-blue-50/30"
-                      : "border-slate-200 bg-white hover:border-slate-300",
-                  )}
-                >
+                <div key={i} className="border-b border-border">
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : i)}
-                    className="flex w-full cursor-pointer items-center justify-between px-6 py-5 text-left"
+                    className="flex w-full items-center justify-between px-2 py-5 text-left hover:bg-surface-alt/50 transition-colors cursor-pointer"
                   >
-                    <span className="pr-4 text-sm font-semibold text-slate-800">
+                    <span
+                      className="pr-4 text-[16px] text-secondary tracking-[-0.01em]"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
                       {faq.q}
                     </span>
                     <ChevronDown
                       className={cn(
-                        "h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-200",
+                        "h-5 w-5 flex-shrink-0 text-text-muted transition-transform",
                         isOpen && "rotate-180",
                       )}
                     />
                   </button>
                   <div
                     className={cn(
-                      "grid transition-all duration-200 ease-in-out",
-                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                      "grid transition-all duration-200",
+                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
                     )}
                   >
                     <div className="overflow-hidden">
-                      <p className="px-6 pb-5 text-sm leading-relaxed text-slate-500">
+                      <p className="px-2 pb-5 text-[14px] leading-relaxed text-text-muted">
                         {faq.a}
                       </p>
                     </div>
@@ -483,31 +452,39 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── BOTTOM CTA ─────────────────────────────────────────────── */}
-      <section className="border-t border-slate-100 bg-gradient-to-b from-slate-50 to-white py-24">
-        <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
-          <Shield className="mx-auto mb-5 h-10 w-10 text-[#2563eb]" />
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Still not sure? Start free.
+      {/* ── Bottom CTA (dark editorial) ── */}
+      <section className="bg-secondary text-[#FAF6EC] py-20 sm:py-24">
+        <div className="mx-auto max-w-2xl px-5 sm:px-6 text-center">
+          <h2
+            className="text-[clamp(36px,5vw,60px)] leading-[1] tracking-[-0.02em] mb-4"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 400 }}
+          >
+            Still on the fence?
+            <br />
+            <em className="italic text-primary-light">Start free.</em>
           </h2>
-          <p className="mt-3 text-base text-slate-500">
-            No credit card required. Upgrade anytime.
+          <p className="text-[#C9BFA8] text-[15px] leading-relaxed mb-8">
+            No credit card required. Upgrade any time. 14-day money-back on every paid plan.
           </p>
           <Link
             href="/signup"
-            className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/30 hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded bg-primary hover:bg-primary-light text-[#FAF6EC] px-6 py-3 text-[15px] font-semibold transition-colors"
           >
-            Get Started Free
-            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            Start free
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
 
-      {/* ── FOOTER ─────────────────────────────────────────────────── */}
-      <footer className="border-t border-slate-100 py-8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-slate-400">
-            &copy; {new Date().getFullYear()} ShelfReady. All rights reserved.
+      {/* ── Footer ── */}
+      <footer className="border-t border-border py-8 bg-surface">
+        <div className="mx-auto max-w-[1360px] px-5 sm:px-6 flex flex-wrap items-center justify-between gap-3">
+          <Logo />
+          <p
+            className="text-[11px] uppercase tracking-[0.18em] text-text-muted"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            © {new Date().getFullYear()} ShelfReady
           </p>
         </div>
       </footer>

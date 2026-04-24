@@ -2,36 +2,60 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Editorial commerce palette — ported from the Claude Design v3 handoff.
+ * The whole app reads from these tokens via Tailwind utilities
+ * (bg-surface, text-text, border-border, text-primary…) so swapping the
+ * values here cascades to every page. Dark mode keeps the warm-ink feel.
+ */
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-light: #3b82f6;
-  --color-secondary: #1e3a5f;
-  --color-accent: #2563eb;
-  --color-success: #10b981;
-  --color-danger: #ef4444;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f5f7fa;
-  --color-border: #dfe4ec;
-  --color-text: #0e1f33;
-  --color-text-muted: #5a6b80;
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  /* Primary → Clay terracotta (replaces royal blue) */
+  --color-primary: #C2562A;
+  --color-primary-dark: #9E3E15;
+  --color-primary-light: #E37447;
+
+  /* Ink charcoal headline/brand tone (replaces navy) */
+  --color-secondary: #1A1814;
+
+  /* Accent alias of primary for editorial consistency */
+  --color-accent: #C2562A;
+
+  /* Status colors re-grounded in editorial palette */
+  --color-success: #4A5838;  /* moss */
+  --color-danger:  #9E3E15;  /* clay-dark for warnings (still legible red-ish on paper) */
+
+  /* Paper surfaces */
+  --color-surface:     #F5F0E6;  /* paper */
+  --color-surface-alt: #EDE5D5;  /* paper-2 */
+  --color-border:      #C9BFA8;  /* rule-soft */
+
+  /* Text tones — warm ink, not slate */
+  --color-text:       #1A1814;
+  --color-text-muted: #7A7266;
+
+  /* Font stack — next/font exposes these as variables on :root via layout.tsx */
+  --font-sans: var(--font-sans, "Geist"), "Inter", system-ui, -apple-system, sans-serif;
 }
 
 body {
   font-family: var(--font-sans);
   color: var(--color-text);
   background-color: var(--color-surface);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Dark mode overrides */
+/*
+ * Dark mode — warm ink not cold slate. Keeps editorial feel at night.
+ */
 .dark {
-  --color-surface: #0f1117;
-  --color-surface-alt: #181a23;
-  --color-border: #2a2d3a;
-  --color-text: #e4e6eb;
-  --color-text-muted: #8b8fa3;
-  --color-secondary: #c5cad6;
+  --color-surface:     #161411;
+  --color-surface-alt: #22201C;
+  --color-border:      #3A342B;
+  --color-text:        #F5F0E6;
+  --color-text-muted:  #A49B8A;
+  --color-secondary:   #F5F0E6;
 }
 
 .dark body,

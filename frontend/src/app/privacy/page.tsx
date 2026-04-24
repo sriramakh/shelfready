@@ -8,10 +8,10 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="border-b border-neutral-100 bg-white sticky top-0 z-50 backdrop-blur-xl bg-white/80">
+    <div className="min-h-screen bg-surface">
+      <nav className="border-b border-border bg-white sticky top-0 z-50 backdrop-blur-xl bg-surface/80">
         <div className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[13px] font-medium text-neutral-500 hover:text-neutral-900 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-[13px] font-medium text-text-muted hover:text-secondary transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
           <Link href="/" className="flex items-center gap-2">
@@ -23,21 +23,37 @@ export default function PrivacyPage() {
       </nav>
 
       <article className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Privacy Policy</h1>
-        <p className="text-neutral-400 text-sm mb-10">Last updated: March 29, 2026</p>
+        <p
+          className="text-[11px] uppercase tracking-[0.22em] text-text-muted mb-4"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          Legal
+        </p>
+        <h1
+          className="text-[clamp(36px,5vw,56px)] leading-[1] tracking-[-0.02em] text-secondary mb-3"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 400 }}
+        >
+          Privacy Policy
+        </h1>
+        <p
+          className="text-text-muted/80 text-[12px] uppercase tracking-[0.16em] mb-10"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          Last updated · March 29, 2026
+        </p>
 
-        <div className="prose-custom space-y-8 text-[15px] text-neutral-600 leading-relaxed">
+        <div className="prose-custom space-y-8 text-[15px] text-text-muted leading-relaxed">
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">1. Introduction</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">1. Introduction</h2>
             <p>
               ShelfReady (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store, and share information when you use our AI-powered e-commerce content platform at shelfready.app (&quot;Service&quot;).
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">2. Information We Collect</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">2. Information We Collect</h2>
 
-            <h3 className="text-lg font-semibold text-neutral-800 mt-4 mb-2">2.1 Information You Provide</h3>
+            <h3 className="text-lg font-semibold text-text mt-4 mb-2">2.1 Information You Provide</h3>
             <ul className="list-disc pl-6 space-y-1.5">
               <li><strong>Account Information:</strong> Name, email address, and password when you create an account.</li>
               <li><strong>Payment Information:</strong> Billing details processed securely through our third-party payment provider. We do not store your full credit card number.</li>
@@ -45,7 +61,7 @@ export default function PrivacyPage() {
               <li><strong>Communications:</strong> Messages you send to us via email or support channels.</li>
             </ul>
 
-            <h3 className="text-lg font-semibold text-neutral-800 mt-4 mb-2">2.2 Information Collected Automatically</h3>
+            <h3 className="text-lg font-semibold text-text mt-4 mb-2">2.2 Information Collected Automatically</h3>
             <ul className="list-disc pl-6 space-y-1.5">
               <li><strong>Usage Data:</strong> Pages visited, features used, generation requests, timestamps, and interaction patterns.</li>
               <li><strong>Device Information:</strong> Browser type, operating system, device type, screen resolution, and IP address.</li>
@@ -54,7 +70,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">3. How We Use Your Information</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">3. How We Use Your Information</h2>
             <p>We use your information to:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li><strong>Provide the Service:</strong> Process your product content through AI models to generate listings, images, ad creatives, social posts, and market research.</li>
@@ -67,7 +83,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">4. How We Handle Your Product Content</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">4. How We Handle Your Product Content</h2>
             <p>
               When you upload product images or descriptions, they are processed by third-party AI providers to generate content. We want you to understand:
             </p>
@@ -81,7 +97,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">5. Data Sharing and Third Parties</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">5. Data Sharing and Third Parties</h2>
             <p>We share your data only in the following circumstances:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li><strong>AI Providers:</strong> Product content is sent to AI model providers to generate outputs. These providers process data under strict data processing agreements.</li>
@@ -96,7 +112,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">6. Data Security</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">6. Data Security</h2>
             <p>We implement appropriate technical and organizational measures to protect your data, including:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li>Encryption of data in transit (TLS/HTTPS) and at rest.</li>
@@ -110,7 +126,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">7. Data Retention</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">7. Data Retention</h2>
             <p>
               We retain your account data and generated content for as long as your account is active. If you delete your account:
             </p>
@@ -123,7 +139,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">8. Cookies</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">8. Cookies</h2>
             <p>We use the following types of cookies:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li><strong>Essential Cookies:</strong> Required for authentication, session management, and security. These cannot be disabled.</li>
@@ -135,7 +151,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">9. Your Rights</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">9. Your Rights</h2>
             <p>Depending on your jurisdiction, you may have the following rights:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1.5">
               <li><strong>Access:</strong> Request a copy of the personal data we hold about you.</li>
@@ -151,28 +167,28 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">10. International Data Transfers</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">10. International Data Transfers</h2>
             <p>
               Your data may be processed in countries other than your country of residence, including the United States and other jurisdictions where our infrastructure and AI providers operate. We ensure appropriate safeguards are in place for international transfers in accordance with applicable data protection laws.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">11. Children&apos;s Privacy</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">11. Children&apos;s Privacy</h2>
             <p>
               The Service is not intended for use by anyone under the age of 18. We do not knowingly collect personal data from children. If you believe we have collected data from a child, contact us and we will promptly delete it.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">12. Changes to This Policy</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">12. Changes to This Policy</h2>
             <p>
               We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on this page and updating the &quot;Last updated&quot; date. Your continued use of the Service after changes constitutes acceptance.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-neutral-900 mb-3">13. Contact Us</h2>
+            <h2 className="text-xl font-bold text-secondary mb-3">13. Contact Us</h2>
             <p>
               If you have questions or concerns about this Privacy Policy or our data practices, contact us at:
             </p>
