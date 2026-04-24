@@ -35,6 +35,28 @@
 
   /* Font stack — next/font exposes these as variables on :root via layout.tsx */
   --font-sans: var(--font-sans, "Geist"), "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-display, "Instrument Serif"), "Cormorant Garamond", Georgia, serif;
+  --font-mono: var(--font-mono, "JetBrains Mono"), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/*
+ * Editorial typography inside the dashboard — opt-in via .dashboard-root
+ * on the layout wrapper. Heading elements (h1/h2/h3) render in the
+ * Instrument Serif display face to match the landing's voice, while body
+ * text stays in Geist so forms and tables remain easy to skim.
+ * Uppercase-tracked labels / eyebrows can opt into font-mono.
+ */
+.dashboard-root h1,
+.dashboard-root h2,
+.dashboard-root h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.dashboard-root .mono-label {
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 body {

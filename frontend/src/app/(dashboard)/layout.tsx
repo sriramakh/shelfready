@@ -141,7 +141,7 @@ export default function DashboardLayout({
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-surface-alt dark:bg-surface">
+      <div className="dashboard-root min-h-screen bg-surface-alt dark:bg-surface">
         {/* Mobile sidebar overlay */}
         <div
           className={cn(
@@ -168,9 +168,9 @@ export default function DashboardLayout({
               className="flex items-center gap-3 group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-mark.png" alt="" className="h-[72px] w-[72px] rounded-xl shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200 relative -top-[4px]" />
+              <img src="/logo-mark.png" alt="" className="h-[44px] w-[44px] rounded-xl shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200 relative -top-[3px]" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[48px] w-auto" />
+              <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[28px] w-auto" />
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -182,7 +182,7 @@ export default function DashboardLayout({
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto py-5 px-3">
-            <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted/60">
+            <p className="mono-label px-3 mb-2 text-[10.5px] font-semibold text-text-muted/60">
               Main
             </p>
             <div className="space-y-0.5">
@@ -223,7 +223,7 @@ export default function DashboardLayout({
 
             <div className="my-5 mx-3 border-t border-border/40" />
 
-            <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted/60">
+            <p className="mono-label px-3 mb-2 text-[10.5px] font-semibold text-text-muted/60">
               Account
             </p>
             <div className="space-y-0.5">
