@@ -65,8 +65,9 @@ export default function ResetPasswordPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-border p-8">
           <div className="flex items-center justify-center gap-2 mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded-lg" />
-            <span className="text-xl font-bold text-secondary">ShelfReady</span>
+            <img src="/logo-mark.png" alt="" className="h-[72px] w-[72px] rounded-lg relative -top-[4px]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[48px] w-auto" />
           </div>
 
           {success ? (

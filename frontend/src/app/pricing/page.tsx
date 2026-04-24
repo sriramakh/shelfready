@@ -61,9 +61,9 @@ const planMeta: Record<PlanKey, {
       "Unlimited listings & social",
       "1,000 AI images · 100 photoshoots",
       "Unlimited ads & research",
-      "API access",
-      "Team seats · SSO",
+      "Team seats",
       "Dedicated support",
+      "Early access to new features",
     ],
   },
 };
@@ -78,7 +78,6 @@ const comparisonRows: { feature: string; values: (string | boolean)[] }[] = [
   { feature: "Creative templates", values: ["—", "200+", "200+", "200+"] },
   { feature: "Export formats", values: [false, false, "CSV, JSON", "CSV, JSON"] },
   { feature: "Support", values: ["Community", "Priority", "Priority", "Dedicated"] },
-  { feature: "API access", values: [false, false, false, true] },
 ];
 
 const faqs = [
@@ -102,20 +101,15 @@ const faqs = [
     q: "Which platforms do you support?",
     a: "Listings for Amazon, Etsy, Shopify, and eBay. Social posts for Instagram, Facebook, and Pinterest. Ads for Meta and Google.",
   },
-  {
-    q: "Is there an API?",
-    a: "The Business plan includes full REST API access so you can integrate ShelfReady into your own tools and workflows. Docs appear in the dashboard once you upgrade.",
-  },
 ];
 
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2.5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo-icon.png" alt="ShelfReady" className="h-7 w-7 rounded" />
-      <span className="text-xl tracking-[-0.02em]" style={{ fontFamily: "var(--font-display)" }}>
-        ShelfReady
-      </span>
+      <img src="/logo-mark.png" alt="" className="h-[66px] w-[66px] rounded relative -top-[4px]" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[48px] w-auto" />
     </Link>
   );
 }
@@ -128,7 +122,7 @@ export default function PricingPage() {
     <div className="min-h-screen bg-surface text-text">
       {/* ── Nav ── */}
       <nav className="sticky top-0 z-40 border-b border-border/60 bg-surface/85 backdrop-blur">
-        <div className="mx-auto max-w-[1360px] px-5 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+        <div className="mx-auto max-w-[1360px] px-5 sm:px-6 py-4 flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/login" className="text-[13px] sm:text-[14px] font-medium text-text-muted hover:text-text">
@@ -315,7 +309,7 @@ export default function PricingPage() {
                         : "border border-secondary text-secondary hover:bg-secondary hover:text-[#FAF6EC]",
                     )}
                   >
-                    {plan.priceMonthly === 0 ? "Start free" : "Start 14-day trial"}
+                    {plan.priceMonthly === 0 ? "Start free" : `Get ${plan.name}`}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
@@ -464,7 +458,7 @@ export default function PricingPage() {
             <em className="italic text-primary-light">Start free.</em>
           </h2>
           <p className="text-[#C9BFA8] text-[15px] leading-relaxed mb-8">
-            No credit card required. Upgrade any time. 14-day money-back on every paid plan.
+            No credit card required. Cancel any time, prorated to the day.
           </p>
           <Link
             href="/signup"

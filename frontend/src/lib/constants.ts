@@ -79,7 +79,7 @@ export const PLANS = {
       "Unlimited market research",
       "200+ ad creative templates",
       "Export to CSV/JSON",
-      "API access",
+      "Team seats",
       "Dedicated support",
     ],
   },

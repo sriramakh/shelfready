@@ -21,8 +21,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // Next.js auto-registers app/icon.png as the favicon.
+  // We only need to declare the Apple touch icon manually here.
   icons: {
-    icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
   title: {

@@ -199,13 +199,12 @@ export default function UseCasesPage() {
     <div className="min-h-screen bg-surface">
       {/* Nav — editorial */}
       <nav className="sticky top-0 z-50 bg-surface/85 backdrop-blur-xl border-b border-border/60">
-        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded-[10px]" />
-            <span className="text-[17px] tracking-[-0.02em]" style={{ fontFamily: "var(--font-display)" }}>
-              ShelfReady
-            </span>
+            <img src="/logo-mark.png" alt="" className="h-[72px] w-[72px] rounded-[10px] relative -top-[4px]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[56px] w-auto" />
           </Link>
           <div className="hidden md:flex items-center gap-7 text-[14px] text-text-muted font-medium">
             <Link href="/pricing" className="hover:text-secondary transition-colors">Pricing</Link>

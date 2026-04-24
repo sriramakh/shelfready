@@ -12,24 +12,26 @@ import Link from "next/link";
 import { PLANS } from "@/lib/constants";
 import "./landing.css";
 
-/* ── Logo mark (SVG shelves) ──────────────────────────────────────── */
+/* ── Logo mark — camera-bracket S sparkle ──────────────────────────── */
 function Logo() {
   return (
     <div className="logo">
       <div className="logo-mark">
-        <svg viewBox="0 0 28 28" width="28" height="28">
-          <rect x="2" y="6" width="24" height="1.5" fill="#1A1814" />
-          <rect x="2" y="14" width="24" height="1.5" fill="#1A1814" />
-          <rect x="2" y="22" width="24" height="1.5" fill="#1A1814" />
-          <rect x="5" y="8" width="3" height="6" fill="#C2562A" />
-          <rect x="10" y="9" width="4" height="5" fill="#1A1814" />
-          <rect x="16" y="7" width="2" height="7" fill="#1A1814" />
-          <rect x="6" y="16" width="5" height="6" fill="#1A1814" />
-          <rect x="13" y="17" width="3" height="5" fill="#C2562A" />
-          <rect x="18" y="15" width="4" height="7" fill="#1A1814" />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo-mark.png"
+          alt="ShelfReady"
+          width={66}
+          height={66}
+          style={{ display: "block", objectFit: "contain" }}
+        />
       </div>
-      <span>ShelfReady</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/logo-wordmark.png"
+        alt="shelfready"
+        style={{ height: 50, width: "auto", display: "block" }}
+      />
     </div>
   );
 }
@@ -60,20 +62,8 @@ function Nav() {
 function TrustBar() {
   return (
     <div className="trust-bar">
-      <div className="stars">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <svg key={i} width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-            <path
-              d="M7 1 L8.8 5 L13 5.5 L10 8.5 L10.8 13 L7 10.8 L3.2 13 L4 8.5 L1 5.5 L5.2 5 Z"
-              fill="#C2562A"
-            />
-          </svg>
-        ))}
-      </div>
-      <span className="trust-rating">4.9</span>
-      <span className="trust-sep">·</span>
       <span className="trust-text">
-        Trusted by <strong>2,800+</strong> Etsy &amp; Shopify sellers
+        Trusted by Etsy, Amazon, eBay and Shopify sellers
       </span>
     </div>
   );
@@ -219,7 +209,7 @@ interface HowOutput {
 
 const HOW_OUTPUTS: HowOutput[] = [
   { num: "01", title: "Photoshoot", sub: "10 scenes from 1 photo", thumb: "/design-img/jewelry-studio01.png", pos: "top" },
-  { num: "02", title: "Ad creatives", sub: "6 platform-native ads", thumb: "/design-img/ad-valentines.png", pos: "top-right" },
+  { num: "02", title: "Ad creatives", sub: "Up to 5 platform-native ads", thumb: "/design-img/ad-valentines.png", pos: "top-right" },
   { num: "03", title: "Listing copy", sub: "Amazon · Etsy · Shopify · eBay", thumb: "/design-img/listing-etsy.png", pos: "bottom-right" },
   { num: "04", title: "Social posts", sub: "IG · FB · Pinterest", thumb: "/design-img/social-knot.png", pos: "bottom" },
   { num: "05", title: "Multi-platform export", sub: "Every format, sized right", thumb: "/design-img/brands-marketplaces.png", pos: "bottom-left" },
@@ -276,14 +266,14 @@ function HowItWorks() {
     <section className="section how-section" id="how">
       <div className="container">
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 40px" }}>
-          <span className="uppercase-label">How it works</span>
+          <span className="uppercase-label">06 · How it works</span>
           <h2
             style={{
               fontFamily: "var(--serif)",
-              fontSize: "clamp(40px, 5vw, 64px)",
+              fontSize: "clamp(48px, 6.2vw, 92px)",
               lineHeight: 1,
-              letterSpacing: "-0.02em",
-              margin: "16px 0 16px",
+              letterSpacing: "-0.025em",
+              margin: "18px 0 18px",
               fontWeight: 400,
             }}
           >
@@ -358,14 +348,14 @@ function OutputsSection() {
     <section className="outputs-section" id="outputs">
       <div className="container">
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
-          <span className="uppercase-label">02 · The transformation</span>
+          <span className="uppercase-label">01 · The transformation</span>
           <h2
             style={{
               fontFamily: "var(--serif)",
-              fontSize: "clamp(40px, 5vw, 64px)",
+              fontSize: "clamp(48px, 6.2vw, 92px)",
               lineHeight: 1,
-              letterSpacing: "-0.02em",
-              margin: "16px 0 16px",
+              letterSpacing: "-0.025em",
+              margin: "18px 0 18px",
               fontWeight: 400,
             }}
           >
@@ -454,7 +444,7 @@ function AdsSection() {
         <SectionHead
           num="02"
           label="Ad creatives"
-          title="Six ads in <em>thirty seconds</em>, already sized for the platform."
+          title="Ads in <em>thirty seconds</em>, already sized for the platform."
           sub="Feed, Story, Pinterest, Google — each with platform-native dimensions, copy length, and CTA conventions. Pick your favorites, export, launch."
         />
         <div className="feature-row reverse" style={{ gridTemplateColumns: "1fr" }}>
@@ -768,6 +758,23 @@ function ListingSection() {
               <span className="mono">Etsy listing preview</span>
               <span>Auto-generated from one photo</span>
             </div>
+            <div
+              style={{
+                marginTop: 10,
+                padding: "10px 12px",
+                background: "var(--paper-2)",
+                border: "1px dashed var(--rule-soft)",
+                fontFamily: "var(--font-mono)",
+                fontSize: 10.5,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+                lineHeight: 1.5,
+                textAlign: "center",
+              }}
+            >
+              Image is for representation · Actual output delivered in text / listing-friendly format
+            </div>
           </div>
           <div className="listing-cards">
             {LISTING_CARDS.map((l, i) => (
@@ -870,9 +877,9 @@ const PLAN_COPY: Record<string, { tagline: string; featured?: boolean; badge?: s
       "Unlimited listings & social",
       "1,000 AI images · 100 photoshoots",
       "Unlimited ads & research",
-      "API access",
-      "Team seats · SSO",
+      "Team seats",
       "Dedicated support",
+      "Early access to new features",
     ],
   },
 };
@@ -883,7 +890,7 @@ function PricingSection() {
     <section className="section" id="pricing">
       <div className="container">
         <SectionHead
-          num="06"
+          num="07"
           label="Pricing"
           title="Priced for <em>sellers</em>,<br/>not enterprises."
           sub="Every plan ships with every feature. You're paying for volume, not capability. Cancel any time, prorated to the day."
@@ -917,7 +924,7 @@ function PricingSection() {
                   className={`btn ${copy.featured ? "btn-clay" : "btn-outline"} btn-lg`}
                   style={{ justifyContent: "center" }}
                 >
-                  {plan.priceMonthly === 0 ? "Start free" : "Start 14-day trial"}
+                  {plan.priceMonthly === 0 ? "Start free" : `Get ${plan.name}`}
                 </Link>
               </div>
             );
@@ -1013,12 +1020,12 @@ export default function Landing() {
     <div className="shelf-landing">
       <Nav />
       <Hero />
-      <HowItWorks />
       <OutputsSection />
       <AdsSection />
       <SocialSection />
       <ResearchSection />
       <ListingSection />
+      <HowItWorks />
       <PricingSection />
       <CtaBlock />
       <Footer />

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// Logo uses /logo-icon.png image
+// Logo uses /logo-mark.png image
 
 export default function LoginPage() {
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function LoginPage() {
         <div className="relative flex flex-col justify-between px-16 py-16 w-full">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-9 w-9 rounded bg-white/10 p-1" />
+            <img src="/logo-mark.png" alt="ShelfReady" className="h-[72px] w-[72px] rounded bg-white/10 p-1 relative -top-[4px]" />
             <span
               className="text-2xl tracking-[-0.02em]"
               style={{ fontFamily: "var(--font-display)" }}
@@ -123,10 +123,9 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-10 justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-8 w-8 rounded" />
-            <span className="text-xl font-bold text-secondary" style={{ fontFamily: "var(--font-display)" }}>
-              ShelfReady
-            </span>
+            <img src="/logo-mark.png" alt="" className="h-[72px] w-[72px] rounded relative -top-[4px]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[48px] w-auto" />
           </div>
 
           <div className="text-center mb-8">

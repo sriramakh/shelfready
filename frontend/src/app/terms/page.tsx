@@ -10,14 +10,15 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-surface">
       <nav className="border-b border-border bg-white sticky top-0 z-50 backdrop-blur-xl bg-surface/80">
-        <div className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-[13px] font-medium text-text-muted hover:text-secondary transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
           <Link href="/" className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-6 w-6 rounded-md" />
-            <span className="font-semibold text-[14px]">ShelfReady</span>
+            <img src="/logo-mark.png" alt="" className="h-[60px] w-[60px] rounded-md relative -top-[4px]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[40px] w-auto" />
           </Link>
         </div>
       </nav>
@@ -80,7 +81,7 @@ export default function TermsPage() {
               <li><strong>Free:</strong> 5 listings/month, 5 AI images (lifetime), 5 social posts/month, 5 ad copies/month.</li>
               <li><strong>Starter ($29/month):</strong> 50 listings, 100 images, 10 photoshoots, 50 social, 50 ads, 20 research reports/month.</li>
               <li><strong>Pro ($79/month):</strong> 300 listings, 300 images, 30 photoshoots, 300 social, 300 ads, 100 research/month, CSV/JSON export.</li>
-              <li><strong>Business ($149/month):</strong> Unlimited listings/social/ads/research, 1,000 images, 100 photoshoots, API access, dedicated support.</li>
+              <li><strong>Business ($149/month):</strong> Unlimited listings/social/ads/research, 1,000 images, 100 photoshoots, team seats, dedicated support.</li>
             </ul>
             <p className="mt-3">
               Annual billing is available at a discounted rate. All prices are in USD. We reserve the right to modify pricing with 30 days&apos; notice to existing subscribers.

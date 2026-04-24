@@ -168,10 +168,9 @@ export default function DashboardLayout({
               className="flex items-center gap-3 group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-icon.png" alt="ShelfReady" className="h-9 w-9 rounded-xl shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200" />
-              <span className="text-[17px] font-bold tracking-tight text-secondary">
-                ShelfReady
-              </span>
+              <img src="/logo-mark.png" alt="" className="h-[72px] w-[72px] rounded-xl shadow-md shadow-primary/20 group-hover:shadow-lg group-hover:shadow-primary/30 transition-shadow duration-200 relative -top-[4px]" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[48px] w-auto" />
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}

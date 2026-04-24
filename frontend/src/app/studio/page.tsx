@@ -594,8 +594,9 @@ export default function StudioPage() {
         <div className="h-14 border-b border-white/5 flex items-center justify-between px-6">
           <div className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="ShelfReady" className="h-7 w-7 rounded-lg" />
-            <span className="text-[15px] font-bold">ShelfReady</span>
+            <img src="/logo-mark.png" alt="" className="h-[66px] w-[66px] rounded-lg relative -top-[4px]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark.png" alt="ShelfReady" className="h-[40px] w-auto" />
           </div>
           <div className="flex items-center gap-3">
             <div className="flex gap-1">
@@ -734,7 +735,7 @@ export default function StudioPage() {
       <div className="h-14 border-b border-white/5 flex items-center justify-between px-6">
         <div className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-icon.png" alt="ShelfReady" className="h-7 w-7 rounded-lg" />
+          <img src="/logo-mark.png" alt="ShelfReady" className="h-[66px] w-[66px] rounded-lg relative -top-[4px]" />
           <span className="text-[15px] font-bold">ShelfReady Studio</span>
           <span className="text-[10px] bg-white/10 text-neutral-400 px-2 py-0.5 rounded-full font-medium ml-1">Reel Mode</span>
         </div>

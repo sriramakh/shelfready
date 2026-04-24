@@ -60,14 +60,35 @@ def _get_listing_system_prompt(platform: Platform) -> str:
         "You are an expert e-commerce product listing copywriter.",
     )
 
+    # Structural requirement applied to every platform so the description isn't
+    # a wall of prose — buyers skim for specs + gift fit. We embed labeled
+    # sub-sections (Product details, Perfect for) inside the description field
+    # rather than adding new JSON keys, to avoid schema churn.
+    structure_rules = (
+        "\n\nDESCRIPTION STRUCTURE (required):\n"
+        "Structure the description in this exact order, using the headings verbatim:\n"
+        "  1. One opening paragraph (2–3 sentences) that tells the product story and hooks the buyer.\n"
+        "  2. A line containing exactly: ✦ Product details\n"
+        "     Followed by 4–6 concrete spec bullets, one per line, prefixed with '• '.\n"
+        "     Include (as applicable): Material / Dimensions or size / Finish or color /\n"
+        "     Weight / Included items / Care instructions. Skip lines that don't apply.\n"
+        "  3. A line containing exactly: ✦ Perfect for\n"
+        "     Followed by 3–5 gift occasions or use-cases, one per line, prefixed with '• '.\n"
+        "  4. A closing line (1 sentence) that restates the value.\n\n"
+        "Do NOT include shipping times, return policies, store trust signals, or review\n"
+        "counts — those live in platform-separate fields, never in listing copy.\n"
+        "Use plain text (no HTML). Preserve the ✦ symbol so the structure renders as headers."
+    )
+
     return (
-        f"{base}\n\n"
-        "IMPORTANT: Respond ONLY with a valid JSON object in this exact format, "
+        f"{base}"
+        f"{structure_rules}"
+        "\n\nIMPORTANT: Respond ONLY with a valid JSON object in this exact format, "
         "with no additional text, markdown, or explanation:\n"
         "{\n"
         '  "title": "Product title here",\n'
         '  "bullets": ["Bullet 1", "Bullet 2", "Bullet 3", "Bullet 4", "Bullet 5"],\n'
-        '  "description": "Full product description here",\n'
+        '  "description": "Opening paragraph.\\n\\n✦ Product details\\n• Material: ...\\n• Dimensions: ...\\n\\n✦ Perfect for\\n• ...\\n\\nClosing line.",\n'
         '  "keywords": ["keyword1", "keyword2", "keyword3"]\n'
         "}"
     )
