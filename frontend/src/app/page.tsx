@@ -164,18 +164,17 @@ function Hero() {
               Turn 1 product photo into <em>everything</em> you need to sell.
             </h1>
             <p className="hero-v3-sub">
-              Studio shots, lifestyle scenes, ads, and listing copy from a single
-              upload. Built for Etsy, Shopify, Amazon, and eBay sellers.
+              Upload one photo. Get photos, ads, and listings that actually drive sales.
             </p>
             <div className="hero-v3-cta-wrap">
               <Link href="/signup" className="btn btn-clay btn-xl hero-v2-cta">
-                📷 Upload a photo — free
+                📷 Upload your photo — free
               </Link>
               <div
                 className="mono"
                 style={{ fontSize: 12, color: "var(--ink-muted)", letterSpacing: "0.04em" }}
               >
-                Free · No credit card · Results in 30 seconds
+                See results in 30 seconds • No credit card required
               </div>
             </div>
           </div>
@@ -188,7 +187,7 @@ function Hero() {
           className="btn btn-clay btn-lg"
           style={{ width: "100%", justifyContent: "center" }}
         >
-          Upload a photo — free
+          Upload your photo — free
         </Link>
       </div>
     </section>
@@ -277,8 +276,8 @@ function HowItWorks() {
               fontWeight: 400,
             }}
           >
-            One photo in.{" "}
-            <em style={{ color: "var(--clay)", fontStyle: "italic" }}>Everything</em> out.
+            From 1 photo →{" "}
+            <em style={{ color: "var(--clay)", fontStyle: "italic" }}>everything</em> you need to sell.
           </h2>
           <p style={{ fontSize: 17, color: "var(--ink-3)", lineHeight: 1.5, margin: 0 }}>
             Upload once. ShelfReady generates every asset you need to sell — photos,
@@ -335,12 +334,12 @@ function HowItWorks() {
 
 /* ── Outputs section — "Ten ways to sell." ───────────────────────── */
 const OUTPUT_TILES = [
-  { src: "/design-img/jewelry-studio01.png", label: "Studio · soft", num: "01", price: "$120" },
-  { src: "/design-img/jewelry-studio02.png", label: "Studio · clean", num: "02", price: "$120" },
-  { src: "/design-img/jewelry-studio03.png", label: "Studio · minimal", num: "03", price: "$120" },
-  { src: "/design-img/jewelry-model01.png", label: "On model", num: "04", price: "$180" },
-  { src: "/design-img/jewelry-model02.png", label: "Lifestyle", num: "05", price: "$180" },
-  { src: "/design-img/jewelry-outdoor01.png", label: "Outdoor", num: "06", price: "$140" },
+  { src: "/design-img/jewelry-studio01.png", label: "Studio shots that get clicks", num: "01", price: "$120" },
+  { src: "/design-img/jewelry-studio02.png", label: "Click-ready studio shots", num: "02", price: "$120" },
+  { src: "/design-img/jewelry-studio03.png", label: "Minimalist, conversion-focused", num: "03", price: "$120" },
+  { src: "/design-img/jewelry-model01.png", label: "See how it looks on real people", num: "04", price: "$180" },
+  { src: "/design-img/jewelry-model02.png", label: "Make your product feel premium", num: "05", price: "$180" },
+  { src: "/design-img/jewelry-outdoor01.png", label: "Natural shots customers trust", num: "06", price: "$140" },
 ];
 
 function OutputsSection() {
@@ -359,12 +358,11 @@ function OutputsSection() {
               fontWeight: 400,
             }}
           >
-            One upload.{" "}
-            <em style={{ color: "var(--clay)", fontStyle: "italic" }}>Ten</em> ways to sell.
+            One photo.{" "}
+            <em style={{ color: "var(--clay)", fontStyle: "italic" }}>More clicks.</em> More sales.
           </h2>
           <p style={{ fontSize: 17, color: "var(--ink-3)", lineHeight: 1.5, margin: 0 }}>
-            Real outputs from a real seller&apos;s phone photo. Studio. Lifestyle. On
-            model. Outdoor. Paste straight into Etsy, Shopify, Amazon, or eBay.
+            Turn one dull photo into high-converting images for every platform.
           </p>
         </div>
 
@@ -444,8 +442,8 @@ function AdsSection() {
         <SectionHead
           num="02"
           label="Ad creatives"
-          title="Ads in <em>thirty seconds</em>, already sized for the platform."
-          sub="Feed, Story, Pinterest, Google — each with platform-native dimensions, copy length, and CTA conventions. Pick your favorites, export, launch."
+          title="Create ads in <em>30 seconds</em>."
+          sub="Stop paying designers. Generate ads that convert instantly."
         />
         <div className="feature-row reverse" style={{ gridTemplateColumns: "1fr" }}>
           <div className="feature-media" style={{ background: "var(--paper)" }}>
@@ -504,8 +502,8 @@ function SocialSection() {
         <SectionHead
           num="03"
           label="Social content"
-          title="Post in <em>three places</em>, sound like <em>three people</em>."
-          sub="Instagram is visual and breezy. Facebook is longer and more informative. Pinterest is keyword-dense and aspirational. ShelfReady writes to each — same product, different room."
+          title="Create content for <em>every platform</em> in seconds."
+          sub="Instagram, Etsy, and ads — ready to post instantly."
         />
         <div className="feature-row">
           <div className="feature-media">
@@ -599,7 +597,7 @@ function ResearchSection() {
           num="04"
           label="Market research"
           title="What your <em>five closest competitors</em> won't tell you."
-          sub="Live web search digs into your category — price bands, review gripes, keyword gaps, unclaimed positioning angles. Not a report. An action list."
+          sub="Most sellers lose sales because of poor product photos. Fix that first."
         />
         <div className="feature-row reverse">
           <div className="feature-copy">
@@ -747,8 +745,8 @@ function ListingSection() {
         <SectionHead
           num="05"
           label="Listing optimizer"
-          title="<em>SEO-ready</em> copy for every marketplace you sell on."
-          sub="One product, four listings — each written to the rules and readers of its marketplace. Amazon gets keyword-dense bullets. Etsy gets story-led copy. Shopify gets brand voice. eBay gets title-tag density."
+          title="Copy-paste listings that <em>rank and convert</em>."
+          sub="Generate titles, descriptions, and keywords ready for Etsy, Amazon, and Shopify."
         />
         <div className="listing-showcase">
           <div className="listing-preview">
@@ -892,7 +890,7 @@ function PricingSection() {
         <SectionHead
           num="07"
           label="Pricing"
-          title="Priced for <em>sellers</em>,<br/>not enterprises."
+          title="<em>Start free.</em><br/>Upgrade when you scale."
           sub="Every plan ships with every feature. You're paying for volume, not capability. Cancel any time, prorated to the day."
         />
         <div className="pricing-grid">
@@ -951,7 +949,7 @@ function CtaBlock() {
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/signup" className="btn btn-clay btn-lg">
-            Start free · no card
+            Upload your photo — free
           </Link>
           <Link
             href="/use-cases"
@@ -960,6 +958,18 @@ function CtaBlock() {
           >
             See use cases
           </Link>
+        </div>
+        <div
+          className="mono"
+          style={{
+            marginTop: 16,
+            fontSize: 12,
+            color: "var(--cream)",
+            opacity: 0.7,
+            letterSpacing: "0.04em",
+          }}
+        >
+          Takes 30 seconds • No credit card needed
         </div>
       </div>
     </section>
