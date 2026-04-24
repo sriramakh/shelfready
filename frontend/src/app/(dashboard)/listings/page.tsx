@@ -36,10 +36,14 @@ export default function ListingsPage() {
       }
       setLoading(true);
       try {
-        const data = (await api.getListings(session.access_token, page)) as {
-          items: ListingResponse[];
-        };
-        setListings(data?.items || []);
+        // Backend returns a bare array for GET /listings; some callers wrap
+        // it as { items: [...] }. Accept both shapes so this page works even
+        // if the response shape ever changes.
+        const data = (await api.getListings(session.access_token, page)) as
+          | ListingResponse[]
+          | { items: ListingResponse[] };
+        const items = Array.isArray(data) ? data : data?.items || [];
+        setListings(items);
       } catch {
         setListings([]);
       } finally {
