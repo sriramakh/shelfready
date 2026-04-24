@@ -46,18 +46,37 @@
  * heading-shaped utility combinations dashboard pages use for card titles,
  * section labels, and stat numbers. Body text stays in Geist so forms and
  * tables remain easy to skim.
+ *
+ * Note on sizing: Instrument Serif reads ~15-20% smaller optically than
+ * Geist at the same pixel size, so we bump sizes and loosen tracking so
+ * dashboard headings don't feel cramped.
  */
 .dashboard-root :is(h1, h2, h3, h4),
 .dashboard-root .font-display,
-/* Card section titles inside headers */
 .dashboard-root [class*="text-2xl"][class*="font-bold"],
 .dashboard-root [class*="text-3xl"][class*="font-bold"],
 .dashboard-root [class*="text-2xl"][class*="font-extrabold"],
-.dashboard-root [class*="text-3xl"][class*="font-extrabold"] {
+.dashboard-root [class*="text-3xl"][class*="font-extrabold"],
+.dashboard-root [class*="text-4xl"][class*="font-bold"],
+.dashboard-root [class*="text-4xl"][class*="font-extrabold"] {
   font-family: var(--font-display), "Instrument Serif", "Cormorant Garamond", Georgia, serif;
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.012em;  /* serif needs less negative tracking than sans */
+  line-height: 1.12;
 }
+
+/* Size bumps — Instrument Serif reads ~15-20% smaller optically than Geist
+ * at the same pixel size. These rules target the exact Tailwind size+weight
+ * combinations the 6 feature pages use for headings, bumping each up so the
+ * switch to serif doesn't shrink the visual hierarchy. */
+.dashboard-root [class*="text-2xl"][class*="font-bold"],
+.dashboard-root [class*="text-2xl"][class*="font-extrabold"]  { font-size: 2rem;     line-height: 1.1;  }  /* 32px ← 24px */
+.dashboard-root [class*="text-3xl"][class*="font-bold"],
+.dashboard-root [class*="text-3xl"][class*="font-extrabold"]  { font-size: 2.5rem;   line-height: 1.08; }  /* 40px ← 30px */
+.dashboard-root [class*="text-4xl"][class*="font-bold"],
+.dashboard-root [class*="text-4xl"][class*="font-extrabold"]  { font-size: 3rem;     line-height: 1.05; }  /* 48px ← 36px */
+.dashboard-root [class*="text-lg"][class*="font-semibold"]    { font-size: 1.25rem;  line-height: 1.3;  }  /* 20px ← 18px */
+.dashboard-root [class*="text-base"][class*="font-semibold"]  { font-size: 1.125rem; line-height: 1.3;  }  /* 18px ← 16px */
 
 .dashboard-root .mono-label,
 .dashboard-root .font-mono {
