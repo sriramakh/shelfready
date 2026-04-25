@@ -381,7 +381,6 @@ function OutputsSection() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={t.src} alt={t.label} loading="lazy" />
                 <span className="num">{t.num}</span>
-                <span className="price">replaces {t.price}</span>
                 <span className="label">{t.label}</span>
               </div>
             ))}
@@ -390,7 +389,7 @@ function OutputsSection() {
 
         <div className="savings">
           <div className="left">
-            Replaces <em>$860</em> in photographer + retoucher fees.
+            Replaces <em>$300+</em> in photographer + retoucher fees.
           </div>
           <div className="right">Done in 28 seconds · Pro plan: ${PLANS.pro.priceMonthly}/mo</div>
         </div>
@@ -453,7 +452,6 @@ function AdsSection() {
                   key={i}
                   className="ad-card"
                   style={{
-                    opacity: variant === i ? 1 : 0.55,
                     transform: variant === i ? "scale(1.02)" : "scale(1)",
                     transition: "all .25s",
                     cursor: "pointer",
