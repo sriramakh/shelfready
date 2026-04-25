@@ -1015,7 +1015,7 @@ function Footer() {
         </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} ShelfReady, Inc.</span>
-          <span>Made for sellers · vol. 01</span>
+          <span>Made for sellers</span>
         </div>
       </div>
     </footer>

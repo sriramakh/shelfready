@@ -48,7 +48,7 @@ export default function BlogPage() {
             className="text-[11px] uppercase tracking-[0.24em] text-text-muted mb-4"
             style={{ fontFamily: "var(--font-mono)" }}
           >
-            Journal · Vol. 01
+            Journal
           </p>
           <h1
             className="text-[clamp(48px,7vw,96px)] leading-[1] tracking-[-0.025em] text-secondary"
