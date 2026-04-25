@@ -27,7 +27,11 @@ logger = logging.getLogger(__name__)
 # ── Search query generation ──────────────────────────────────────────────────
 
 def _build_search_queries(query: str, platform: Platform | None) -> list[str]:
-    """Generate comprehensive search queries for maximum coverage."""
+    """Generate comprehensive search queries for maximum coverage.
+
+    Excludes review/complaint queries — those go to _build_review_queries
+    so review snippets stay routed to the dedicated pain-point extractor.
+    """
     marketplace = platform.value.capitalize() if platform else "Amazon"
     base = query.strip()
 
@@ -39,18 +43,31 @@ def _build_search_queries(query: str, platform: Platform | None) -> list[str]:
         # Pricing intelligence
         f"{base} price comparison {marketplace}",
         f"{base} pricing strategy e-commerce",
+        f"{base} average price {marketplace}",
         # Keyword / SEO queries
         f"{base} most searched keywords {marketplace}",
         f"{base} SEO keywords product listing",
         # Market trends
         f"{base} market size trends 2026",
         f"{base} growing demand e-commerce trends",
-        # Review / sentiment queries
-        f"{base} customer reviews common complaints {marketplace}",
-        f"{base} what customers want",
     ]
 
     return queries
+
+
+def _build_review_queries(query: str, platform: Platform | None) -> list[str]:
+    """Review/complaint-flavored queries. Their snippets get routed to a
+    dedicated pain-point extractor so we surface real buyer voice instead
+    of generic 'what customers want' fluff."""
+    marketplace = platform.value.capitalize() if platform else "Amazon"
+    base = query.strip()
+    return [
+        f"{base} 1 star reviews complaints",
+        f"{base} negative reviews disappointing",
+        f"{base} reddit problems issues",
+        f"{base} return reasons {marketplace}",
+        f'"{base}" "I wish" OR "broke" OR "disappointed"',
+    ]
 
 
 # ── Pass 1: Extract structured data from search results ──────────────────────
@@ -82,6 +99,77 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown or explanation:
   "trending_features": ["feature 1", "feature 2", "...what customers are looking for"],
   "market_signals": ["Any data about market size, growth, seasonality, trends"]
 }"""
+
+
+# ── Pass 1b: Review-only extraction (pain points in buyer voice) ──────────────
+
+_REVIEW_EXTRACTION_PROMPT = """You are a customer review analyst. Given web search results pulled from review-flavored queries (1-star reviews, complaints, return reasons, Reddit problems), extract the actual buyer voice.
+
+ONLY include real customer complaints, frustrations, or unmet needs — NOT marketing fluff, NOT generic "people want quality" platitudes. Look for:
+- "I wish it had..."
+- "broke after..."
+- "doesn't fit / doesn't work for..."
+- "1 star because..."
+- "returned because..."
+- "the worst part is..."
+
+If a snippet doesn't contain a real complaint, skip it.
+
+IMPORTANT: Respond ONLY with valid JSON, no markdown:
+{
+  "pain_points": [
+    "Specific customer complaint in their voice (e.g. 'warped after first dishwasher cycle', 'too small for my pocket')",
+    "..."
+  ],
+  "unmet_needs": [
+    "Feature or capability customers wish existed",
+    "..."
+  ],
+  "deal_breakers": [
+    "Reason customers returned or 1-starred",
+    "..."
+  ]
+}"""
+
+
+# ── Pass 1c: Pricing retry (only fires if pass 1 returned empty pricing) ──────
+
+_PRICING_RETRY_PROMPT = """You are a pricing data extractor. Extract EVERY dollar amount mentioned in the search snippets — be exhaustive.
+
+Look for: $XX.XX, $XX, "around $X", "starting at $X", "from $X to $Y", "MSRP $X", etc.
+
+After listing every price found, compute low / mid / high / sweet_spot.
+
+IMPORTANT: Respond ONLY with valid JSON, no markdown:
+{
+  "prices_found": ["$24.99", "$39", "$15.50", "..."],
+  "low": "Lowest price as $XX.XX",
+  "mid": "Median or typical price as $XX.XX",
+  "high": "Highest price as $XX.XX",
+  "sweet_spot": "Most common price band (e.g. '$25-$40')"
+}"""
+
+
+def _build_review_prompt(query: str, review_results: list[dict]) -> str:
+    parts = [f"Product/Category: {query}", "",
+             f"Total review-flavored snippets: {len(review_results)}", "",
+             "--- SEARCH RESULTS (review queries) ---"]
+    for i, r in enumerate(review_results, 1):
+        title = r.get("title", "")
+        url = r.get("url", "")
+        snippet = r.get("snippet", "")
+        parts.append(f"{i}. [{title}]({url})\n   {snippet}\n")
+    return "\n".join(parts)
+
+
+def _build_pricing_prompt(query: str, search_results: list[dict]) -> str:
+    parts = [f"Product/Category: {query}", "",
+             "--- SEARCH SNIPPETS — extract every $ amount ---"]
+    for i, r in enumerate(search_results, 1):
+        snippet = r.get("snippet", "")
+        if "$" in snippet:
+            parts.append(f"{i}. {snippet}\n")
+    return "\n".join(parts)
 
 
 def _build_extraction_prompt(query: str, search_results: list[dict], platform: Platform | None) -> str:
@@ -203,10 +291,11 @@ async def conduct_research(
     """
     logger.info("Research pipeline started for user %s: %s", user_id, request.query)
 
-    # Step 1: Generate search queries
-    search_queries = _build_search_queries(request.query, request.platform)
+    # Step 1: Generate search queries (general + review-flavored buckets)
+    main_queries = _build_search_queries(request.query, request.platform)
+    review_queries = _build_review_queries(request.query, request.platform)
 
-    # Step 2: Execute searches in parallel
+    # Step 2: Execute searches in parallel — both buckets at once
     async def _search(q: str) -> list[dict]:
         try:
             return await web_search(q, max_results=10)
@@ -214,20 +303,31 @@ async def conduct_research(
             logger.warning("Search failed for '%s': %s", q[:50], e)
             return []
 
-    search_tasks = [_search(q) for q in search_queries]
-    search_batches = await asyncio.gather(*search_tasks)
+    main_batches, review_batches = await asyncio.gather(
+        asyncio.gather(*[_search(q) for q in main_queries]),
+        asyncio.gather(*[_search(q) for q in review_queries]),
+    )
 
-    # Deduplicate results by URL
-    all_results: list[dict] = []
-    seen_urls: set[str] = set()
-    for batch in search_batches:
-        for r in batch:
-            url = r.get("url", "")
-            if url and url not in seen_urls:
-                seen_urls.add(url)
-                all_results.append(r)
+    # Dedupe each bucket independently — review snippets stay routed
+    # to the review extractor even if they also appeared in a main query
+    def _dedupe(batches: list[list[dict]]) -> list[dict]:
+        seen: set[str] = set()
+        out: list[dict] = []
+        for batch in batches:
+            for r in batch:
+                url = r.get("url", "")
+                if url and url not in seen:
+                    seen.add(url)
+                    out.append(r)
+        return out
 
-    logger.info("Collected %d unique search results from %d queries", len(all_results), len(search_queries))
+    all_results = _dedupe(main_batches)
+    review_results = _dedupe(review_batches)
+
+    logger.info(
+        "Collected %d main + %d review unique results from %d+%d queries",
+        len(all_results), len(review_results), len(main_queries), len(review_queries),
+    )
 
     if not all_results:
         all_results = [{
@@ -237,22 +337,100 @@ async def conduct_research(
             "engine": "fallback",
         }]
 
-    # Step 3: Pass 1 — Extract structured data
-    extraction_prompt = _build_extraction_prompt(
-        request.query, all_results[:30], request.platform
+    # Step 3: Pass 1 (main extraction) + Pass 1b (review extraction) in parallel
+    async def _run_main_extraction() -> dict:
+        raw = await generate_text(
+            system_prompt=_EXTRACTION_PROMPT,
+            user_message=_build_extraction_prompt(
+                request.query, all_results[:30], request.platform
+            ),
+            max_tokens=4096,
+            temperature=0.3,
+        )
+        return _parse_json(raw)
+
+    async def _run_review_extraction() -> dict:
+        if not review_results:
+            return {"pain_points": [], "unmet_needs": [], "deal_breakers": []}
+        try:
+            raw = await generate_text(
+                system_prompt=_REVIEW_EXTRACTION_PROMPT,
+                user_message=_build_review_prompt(request.query, review_results[:25]),
+                max_tokens=2048,
+                temperature=0.2,
+            )
+            return _parse_json(raw)
+        except Exception as e:
+            logger.warning("Review extraction failed: %s", e)
+            return {"pain_points": [], "unmet_needs": [], "deal_breakers": []}
+
+    extracted_data, review_data = await asyncio.gather(
+        _run_main_extraction(), _run_review_extraction()
     )
 
-    raw_extraction = await generate_text(
-        system_prompt=_EXTRACTION_PROMPT,
-        user_message=extraction_prompt,
-        max_tokens=4096,
-        temperature=0.3,
-    )
+    # Merge pain points. The review extractor returns buyer-voice quotes;
+    # the main extractor often returns category-level fluff like "intense
+    # price competition". When review extractor produced enough signal
+    # (>=3), use ONLY those — otherwise fall back to merging both buckets.
+    review_pain = (review_data.get("pain_points") or []) + \
+                  (review_data.get("deal_breakers") or [])
+    main_pain = extracted_data.get("customer_pain_points") or []
+    if len(review_pain) >= 3:
+        merged_pain = list(dict.fromkeys(review_pain))
+    else:
+        merged_pain = list(dict.fromkeys(review_pain + main_pain))
+    extracted_data["customer_pain_points"] = merged_pain
+    extracted_data["unmet_needs"] = review_data.get("unmet_needs") or []
 
-    extracted_data = _parse_json(raw_extraction)
-    logger.info("Extraction pass complete: %d competitors, %d keywords",
+    # Models sometimes fill pricing fields with sentinel strings like
+    # "No prices found" or "N/A" instead of leaving them empty. Treat those
+    # as empty so the retry path actually fires.
+    _PRICING_PLACEHOLDERS = {
+        "", "n/a", "na", "none", "null", "unknown", "not specified",
+        "not available", "no prices found", "no price found", "not found",
+        "tbd", "-",
+    }
+
+    def _is_real_price(v: object) -> bool:
+        if not isinstance(v, str):
+            return bool(v)
+        return v.strip().lower() not in _PRICING_PLACEHOLDERS
+
+    def _scrub_pricing(p: dict) -> dict:
+        return {k: (v if _is_real_price(v) else "") for k, v in (p or {}).items()}
+
+    # Step 3.5: Pricing retry — only if main pass left pricing fields empty
+    pricing = _scrub_pricing(extracted_data.get("pricing_data") or {})
+    pricing_empty = not any(
+        pricing.get(k) for k in ("low", "mid", "high", "sweet_spot")
+    )
+    if pricing_empty:
+        try:
+            raw_pricing = await generate_text(
+                system_prompt=_PRICING_RETRY_PROMPT,
+                user_message=_build_pricing_prompt(request.query, all_results[:40]),
+                max_tokens=1024,
+                temperature=0.2,
+            )
+            pricing_retry = _scrub_pricing(_parse_json(raw_pricing))
+            extracted_data["pricing_data"] = {
+                "low": pricing_retry.get("low", ""),
+                "mid": pricing_retry.get("mid", ""),
+                "high": pricing_retry.get("high", ""),
+                "sweet_spot": pricing_retry.get("sweet_spot", ""),
+            }
+            extracted_data["prices_found"] = pricing_retry.get("prices_found", [])
+            logger.info("Pricing retry: %d prices found",
+                        len(pricing_retry.get("prices_found", []) or []))
+        except Exception as e:
+            logger.warning("Pricing retry failed: %s", e)
+    else:
+        extracted_data["pricing_data"] = pricing
+
+    logger.info("Extraction pass complete: %d competitors, %d keywords, %d pain points",
                 len(extracted_data.get("competitors", [])),
-                len(extracted_data.get("keywords_from_results", [])))
+                len(extracted_data.get("keywords_from_results", [])),
+                len(extracted_data.get("customer_pain_points", [])))
 
     # Step 4: Pass 2 — Strategic analysis
     strategy_prompt = _build_strategy_prompt(
