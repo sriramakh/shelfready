@@ -36,18 +36,17 @@ interface AnalysisSection {
   heading: string;
   body: string;
   icon: typeof TrendingUp;
-  color: string;
 }
 
-const SECTION_ICONS: Record<string, { icon: typeof TrendingUp; color: string }> = {
-  "Executive Summary": { icon: Target, color: "blue" },
-  "Market Analysis": { icon: TrendingUp, color: "emerald" },
-  "Competitive Landscape": { icon: Users, color: "purple" },
-  "Pricing Intelligence": { icon: DollarSign, color: "amber" },
-  "Recommended Positioning": { icon: MapPin, color: "blue" },
-  "Opportunities": { icon: Lightbulb, color: "emerald" },
-  "Threats": { icon: AlertTriangle, color: "amber" },
-  "Action Items": { icon: CheckCircle2, color: "blue" },
+const SECTION_ICONS: Record<string, { icon: typeof TrendingUp }> = {
+  "Executive Summary": { icon: Target },
+  "Market Analysis": { icon: TrendingUp },
+  "Competitive Landscape": { icon: Users },
+  "Pricing Intelligence": { icon: DollarSign },
+  "Recommended Positioning": { icon: MapPin },
+  "Opportunities": { icon: Lightbulb },
+  "Threats": { icon: AlertTriangle },
+  "Action Items": { icon: CheckCircle2 },
 };
 
 function parsePrice(range: string): number | null {
@@ -266,12 +265,11 @@ function parseAnalysisSections(analysis: string): AnalysisSection[] {
 
   const flush = () => {
     if (currentHeading && currentBody.length > 0) {
-      const meta = SECTION_ICONS[currentHeading] || { icon: BarChart3, color: "emerald" };
+      const meta = SECTION_ICONS[currentHeading] || { icon: BarChart3 };
       sections.push({
         heading: currentHeading,
         body: currentBody.join("\n").trim(),
         icon: meta.icon,
-        color: meta.color,
       });
     }
   };
@@ -295,7 +293,6 @@ function parseAnalysisSections(analysis: string): AnalysisSection[] {
       heading: "Analysis",
       body: analysis,
       icon: BarChart3,
-      color: "emerald",
     });
   }
 
@@ -368,21 +365,24 @@ export default function ResearchPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-5">
+    <div className="max-w-[1400px] mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard"
-          className="rounded-lg p-2 hover:bg-surface-alt dark:hover:bg-white/5 transition-colors text-text-muted hover:text-text"
+          className="rounded-lg p-2 hover:bg-surface-alt transition-colors text-text-muted hover:text-text"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
+          <p className="mono-label text-[11px] text-text-muted mb-1">
+            06 · Market research
+          </p>
           <h1 className="text-2xl font-bold text-secondary">
             Competitor Intelligence &amp; Market Insights
           </h1>
-          <p className="text-text-muted mt-0.5 text-sm">
-            Live competitive analysis, keyword gaps, pricing intelligence, and actionable recommendations
+          <p className="text-text-muted mt-1 text-sm leading-relaxed">
+            Live competitive analysis, keyword gaps, pricing intelligence, and actionable recommendations.
           </p>
         </div>
       </div>
@@ -394,7 +394,7 @@ export default function ResearchPage() {
           <Card className="sticky top-20">
             <CardHeader>
               <h2 className="text-base font-semibold text-secondary flex items-center gap-2">
-                <Search className="h-4 w-4 text-emerald-600" />
+                <Search className="h-4 w-4 text-primary" />
                 Research Query
               </h2>
             </CardHeader>
@@ -451,7 +451,7 @@ export default function ResearchPage() {
             }}
             title="Past Research"
             emptyText="No research yet. Start your first query above."
-            accentColor="emerald"
+            accentColor="primary"
           />
         </div>
 
@@ -468,14 +468,14 @@ export default function ResearchPage() {
           {loading && (
             <Card>
               <CardBody className="flex flex-col items-center justify-center py-24">
-                <div className="h-14 w-14 rounded-full border-4 border-emerald-100 border-t-emerald-500 animate-spin" />
+                <div className="h-14 w-14 rounded-full border-4 border-border border-t-primary animate-spin" />
                 <p className="mt-5 text-sm font-semibold text-secondary">
-                  Analyzing market data...
+                  Analyzing market data…
                 </p>
                 <div className="mt-3 space-y-1.5 text-xs text-text-muted text-center max-w-xs">
-                  <p>⟳ Running 11 parallel searches</p>
-                  <p>⟳ Extracting competitors and pricing</p>
-                  <p>⟳ Generating strategic insights</p>
+                  <p>⟳ Running parallel searches across competitors and reviews</p>
+                  <p>⟳ Extracting pricing, keywords, and pain points</p>
+                  <p>⟳ Synthesizing strategic positioning</p>
                 </div>
               </CardBody>
             </Card>
@@ -497,8 +497,11 @@ export default function ResearchPage() {
                 <Card>
                   <CardHeader>
                     <h3 className="text-sm font-semibold text-secondary flex items-center gap-2">
-                      <Users className="h-4 w-4 text-purple-600" />
-                      Competitor Profiles ({result.competitors.length})
+                      <Users className="h-4 w-4 text-primary" />
+                      Competitor Profiles
+                      <span className="ml-1 text-text-muted font-normal">
+                        · {result.competitors.length}
+                      </span>
                     </h3>
                   </CardHeader>
                   <CardBody>
@@ -506,21 +509,21 @@ export default function ResearchPage() {
                       {result.competitors.map((comp, i) => (
                         <div
                           key={i}
-                          className="rounded-lg border border-border dark:bg-surface p-4 hover:shadow-sm transition-shadow"
+                          className="rounded-lg border border-border bg-surface p-4 hover:bg-surface-alt/40 transition-colors"
                         >
-                          <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-start justify-between gap-2 mb-3">
                             <h4 className="text-sm font-semibold text-secondary leading-tight">
                               {comp.name}
                             </h4>
                             {comp.price_range && (
-                              <span className="text-[10px] font-semibold text-text-muted bg-surface-alt dark:bg-white/5 px-2 py-0.5 rounded flex-shrink-0">
+                              <span className="mono-label text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded flex-shrink-0 whitespace-nowrap">
                                 {comp.price_range}
                               </span>
                             )}
                           </div>
                           {comp.strengths && (
-                            <div className="mb-1.5">
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">
+                            <div className="mb-2">
+                              <p className="mono-label text-[10px] text-text-muted mb-1">
                                 Strengths
                               </p>
                               <p className="text-xs text-text leading-relaxed">
@@ -530,8 +533,8 @@ export default function ResearchPage() {
                           )}
                           {comp.weaknesses && (
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-0.5">
-                                Weaknesses
+                              <p className="mono-label text-[10px] text-primary mb-1">
+                                Weaknesses · your opening
                               </p>
                               <p className="text-xs text-text leading-relaxed">
                                 {comp.weaknesses}
@@ -550,8 +553,11 @@ export default function ResearchPage() {
                 <Card>
                   <CardHeader className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-secondary flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-emerald-600" />
-                      Keyword Opportunities ({result.keywords_found.length})
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                      Keyword Opportunities
+                      <span className="ml-1 text-text-muted font-normal">
+                        · {result.keywords_found.length}
+                      </span>
                     </h3>
                     <CopyButton text={result.keywords_found.join(", ")} />
                   </CardHeader>
@@ -560,7 +566,7 @@ export default function ResearchPage() {
                       {result.keywords_found.map((kw, i) => (
                         <span
                           key={i}
-                          className="rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                          className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary"
                         >
                           {typeof kw === "string" ? kw : JSON.stringify(kw)}
                         </span>
@@ -596,10 +602,13 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
 
   return (
     <Card>
-      <CardBody className="p-5 md:p-6">
-        {/* Top meta line */}
-        <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted mb-4">
-          <span>Research · {result.query.slice(0, 60)}{result.query.length > 60 ? "…" : ""}</span>
+      <CardBody className="p-5 md:p-7">
+        {/* Editorial top band — mono uppercase, like landing's section-head */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mono-label text-[10px] text-text-muted mb-4">
+          <span>
+            Research · {result.query.slice(0, 60)}
+            {result.query.length > 60 ? "…" : ""}
+          </span>
           <span>
             {competitors.length} Competitors · {keywords.length} Keywords
           </span>
@@ -607,33 +616,34 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
 
         <div className="h-px bg-border mb-5" />
 
-        {/* Headline */}
-        <h2 className="text-2xl md:text-3xl font-bold text-secondary tracking-tight mb-5 leading-tight">
+        {/* Serif headline — editorial hero */}
+        <h2 className="text-3xl md:text-4xl font-bold text-secondary tracking-tight mb-2 leading-[1.1]">
           {headline}
         </h2>
+        <p className="text-sm text-text-muted mb-7">
+          The opportunity to win this category, in one line.
+        </p>
 
-        {/* KPI tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+        {/* KPI grid — paper editorial style */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-7">
           <KPI
             label="Median Price"
             value={median ?? "—"}
             hint={priceSpread ?? (median ? "Based on listed prices" : "No pricing data")}
-            tone="emerald"
             icon={DollarSign}
           />
           <KPI
             label="Competitors"
             value={String(competitors.length)}
             hint={`${competitors.filter((c) => c.weaknesses).length} with known weaknesses`}
-            tone="purple"
             icon={Users}
           />
           <KPI
             label="Top Unmet Need"
             value={unmet?.phrase ?? "—"}
             hint={unmet?.hint ?? "No clear gap detected"}
-            tone="amber"
             icon={Lightbulb}
+            accent
             small
           />
           <KPI
@@ -644,7 +654,6 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
                 ? `${topStrength.count} competitors emphasize this`
                 : "No shared strength pattern"
             }
-            tone="blue"
             icon={TrendingUp}
             small
           />
@@ -653,18 +662,17 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
             value={String(hotKw)}
             hint={
               hotKw > 0
-                ? `Long-tail targets (≥3 words)`
+                ? "Long-tail targets (≥3 words)"
                 : "No long-tail phrases found"
             }
-            tone="red"
             icon={Target}
           />
         </div>
 
-        {/* Keyword opportunity table */}
+        {/* Keyword opportunity table — matches landing's research-table */}
         {scored.length > 0 && (
           <div>
-            <div className="grid grid-cols-[1fr_80px_100px_90px] gap-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted pb-2 border-b border-border">
+            <div className="grid grid-cols-[1fr_70px_90px_90px] gap-3 mono-label text-[10px] text-text-muted pb-2.5 border-b border-border">
               <span>Keyword</span>
               <span className="text-right">Length</span>
               <span>Difficulty</span>
@@ -673,13 +681,13 @@ function ExecutiveSummary({ result }: { result: ResearchResult }) {
             {scored.map((row, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[1fr_80px_100px_90px] gap-3 py-3 border-b border-border/50 items-center text-sm"
+                className="grid grid-cols-[1fr_70px_90px_90px] gap-3 py-3 border-b border-border/60 items-center text-sm"
               >
                 <span className="text-secondary font-medium truncate">{row.kw}</span>
-                <span className="text-right text-text-muted text-xs">
+                <span className="text-right text-text-muted text-xs font-mono">
                   {row.kw.split(/\s+/).length}w
                 </span>
-                <span className="text-text text-xs">{row.difficulty}</span>
+                <span className="text-text text-xs font-mono">{row.difficulty}</span>
                 <span>
                   <OpportunityBadge level={row.opportunity} />
                 </span>
@@ -696,38 +704,32 @@ function KPI({
   label,
   value,
   hint,
-  tone,
   icon: Icon,
   small,
+  accent,
 }: {
   label: string;
   value: string;
   hint: string;
-  tone: "emerald" | "purple" | "amber" | "blue" | "red";
   icon: typeof TrendingUp;
   small?: boolean;
+  accent?: boolean;
 }) {
-  const tones: Record<string, { text: string; bg: string }> = {
-    emerald: { text: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
-    purple: { text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/30" },
-    amber: { text: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30" },
-    blue: { text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
-    red: { text: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30" },
-  };
-  const c = tones[tone];
+  // Editorial paper KPI — matches landing's research-stat: warm paper card
+  // with mono uppercase label, big serif-friendly value, and a small caption.
+  // `accent` flips the value to clay terracotta for the headline metric.
   const valueSize = small
     ? "text-base md:text-lg"
     : "text-2xl md:text-3xl";
+  const valueColor = accent ? "text-primary" : "text-secondary";
   return (
-    <div className={`rounded-xl border border-border p-4 ${c.bg} flex flex-col min-h-[120px]`}>
+    <div className="rounded-xl border border-border p-4 bg-surface-alt/60 flex flex-col min-h-[120px] hover:bg-surface-alt transition-colors">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-text-muted">
-          {label}
-        </p>
-        <Icon className={`h-3.5 w-3.5 ${c.text}`} />
+        <p className="mono-label text-[10px] text-text-muted">{label}</p>
+        <Icon className="h-3.5 w-3.5 text-text-muted" />
       </div>
       <p
-        className={`${valueSize} font-bold ${c.text} leading-tight tracking-tight ${small ? "line-clamp-2" : "truncate"}`}
+        className={`${valueSize} font-bold ${valueColor} leading-tight tracking-tight ${small ? "line-clamp-2" : "truncate"}`}
         title={value}
       >
         {value}
@@ -740,13 +742,16 @@ function KPI({
 }
 
 function OpportunityBadge({ level }: { level: "HOT" | "WARM" | "COLD" }) {
+  // Matches landing's research-table chips — clay HOT, paper-2 WARM
   const styles: Record<string, string> = {
-    HOT: "bg-red-600 text-white dark:bg-red-500",
-    WARM: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
+    HOT: "bg-primary text-[#FAF6EC]",
+    WARM: "bg-primary/15 text-primary",
     COLD: "bg-surface-alt text-text-muted",
   };
   return (
-    <span className={`inline-block rounded-md px-2.5 py-1 text-[10px] font-bold tracking-wider ${styles[level]}`}>
+    <span
+      className={`inline-block rounded-md px-2.5 py-1 mono-label text-[10px] ${styles[level]}`}
+    >
       {level}
     </span>
   );
@@ -754,27 +759,19 @@ function OpportunityBadge({ level }: { level: "HOT" | "WARM" | "COLD" }) {
 
 function SectionCard({ section }: { section: AnalysisSection }) {
   const Icon = section.icon;
-  const colors: Record<string, { text: string; bg: string; border: string }> = {
-    emerald: { text: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-200 dark:border-emerald-900/50" },
-    blue: { text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-200 dark:border-blue-900/50" },
-    purple: { text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-purple-200 dark:border-purple-900/50" },
-    amber: { text: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-amber-200 dark:border-amber-900/50" },
-  };
-  const c = colors[section.color] || colors.emerald;
-
   return (
     <Card className="h-full">
       <CardBody>
-        <div className="flex items-start justify-between gap-2 mb-3 pb-3 border-b border-border/50">
+        <div className="flex items-start justify-between gap-2 mb-4 pb-3 border-b border-border/60">
           <div className="flex items-center gap-2.5">
-            <div className={`w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center`}>
-              <Icon className={`h-4 w-4 ${c.text}`} />
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Icon className="h-4 w-4 text-primary" />
             </div>
             <h3 className="text-sm font-bold text-secondary">{section.heading}</h3>
           </div>
           <CopyButton text={section.body} />
         </div>
-        <FormattedText text={section.body} accentColor={section.color} />
+        <FormattedText text={section.body} accentColor="primary" />
       </CardBody>
     </Card>
   );

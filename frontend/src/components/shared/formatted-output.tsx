@@ -21,6 +21,7 @@ export function FormattedText({ text, accentColor = "emerald" }: Props) {
   if (!text) return null;
 
   const accentClasses: Record<string, { text: string; bg: string; border: string }> = {
+    primary: { text: "text-primary", bg: "bg-primary/10", border: "border-primary/20" },
     emerald: { text: "text-emerald-700 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-100 dark:border-emerald-900/50" },
     blue: { text: "text-blue-700 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-100 dark:border-blue-900/50" },
     purple: { text: "text-purple-700 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/30", border: "border-purple-100 dark:border-purple-900/50" },
