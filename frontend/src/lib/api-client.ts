@@ -76,13 +76,17 @@ export const api = {
   deleteSocial: (id: string, token: string) =>
     apiFetch(`/social/${id}`, { method: "DELETE", token }),
 
-  // Ads
+  // Ads — copy variants
   generateAds: (data: unknown, token: string) =>
     apiFetch("/ads/generate", { method: "POST", body: JSON.stringify(data), token }),
   getAds: (token: string, page = 1) =>
     apiFetch(`/ads?page=${page}`, { token }),
   deleteAd: (id: string, token: string) =>
     apiFetch(`/ads/${id}`, { method: "DELETE", token }),
+
+  // Ads — visual creatives (history of generated images filtered to ad_creative)
+  getAdCreatives: (token: string, page = 1) =>
+    apiFetch(`/creatives?page=${page}`, { token }),
 
   // Research
   searchResearch: (data: unknown, token: string) =>

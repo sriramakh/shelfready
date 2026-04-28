@@ -3,7 +3,7 @@
 import base64
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ...core.auth import get_current_user
 from ...core.quota import quota_manager
@@ -16,6 +16,43 @@ from ...services.creative_service import AdCreativeRequest, generate_ad_creative
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/creatives", tags=["ad-creatives"])
+
+
+@router.get("")
+async def list_creatives(
+    user: UserProfile = Depends(get_current_user),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(40, ge=1, le=100),
+):
+    """List historical ad creatives for the current user.
+
+    Filters generated_images to image_type='ad_creative' so the ads page
+    doesn't have to wade through every product photo the user generated.
+    """
+    offset = (page - 1) * per_page
+    result = (
+        images_repo.table.select("*")
+        .eq("user_id", str(user.id))
+        .eq("image_type", "ad_creative")
+        .order("created_at", desc=True)
+        .range(offset, offset + per_page - 1)
+        .execute()
+    )
+    items = []
+    for row in (result.data or []):
+        meta = row.get("metadata") or {}
+        items.append({
+            "id": row["id"],
+            "public_url": row.get("public_url", ""),
+            "aspect_ratio": row.get("aspect_ratio", "1:1"),
+            "size": meta.get("size", ""),
+            "product_name": meta.get("product_name", ""),
+            "ad_platform": meta.get("ad_platform", ""),
+            "template_used": meta.get("template_used"),
+            "prompt": row.get("prompt", ""),
+            "created_at": row["created_at"],
+        })
+    return items
 
 
 @router.post("/generate")

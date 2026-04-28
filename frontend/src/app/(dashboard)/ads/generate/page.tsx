@@ -95,6 +95,19 @@ interface AdCreativeResponse {
   created_at: string;
 }
 
+// Persisted ad creative pulled from /creatives — image lives at public_url
+// (Supabase Storage), not as inline base64.
+interface CreativeHistoryItem {
+  id: string;
+  public_url: string;
+  size: string;
+  product_name: string;
+  ad_platform: string;
+  template_used?: string | null;
+  prompt: string;
+  created_at: string;
+}
+
 export default function AdsGeneratePage() {
   const { session } = useAuth();
 
@@ -166,7 +179,26 @@ export default function AdsGeneratePage() {
   const [creativeError, setCreativeError] = useState("");
   const [creativeResult, setCreativeResult] =
     useState<AdCreativeResponse | null>(null);
+  const [creativeHistory, setCreativeHistory] = useState<CreativeHistoryItem[]>([]);
+  const [creativeHistoryLoading, setCreativeHistoryLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load creative history once auth is ready
+  useEffect(() => {
+    if (!session?.access_token) return;
+    (async () => {
+      try {
+        const data = await api.getAdCreatives(session.access_token, 1) as CreativeHistoryItem[] | { items?: CreativeHistoryItem[] };
+        const items = Array.isArray(data) ? data : (data.items || []);
+        setCreativeHistory(items);
+      } catch {
+        // silent — empty state will render
+      } finally {
+        setCreativeHistoryLoading(false);
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
 
   // ── File upload handler ──
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -330,6 +362,14 @@ export default function AdsGeneratePage() {
 
       const data = (await resp.json()) as AdCreativeResponse;
       setCreativeResult(data);
+
+      // Refresh persisted history so the new creatives appear below the
+      // active result (and stay visible after a page reload).
+      try {
+        const refreshed = await api.getAdCreatives(session?.access_token || "", 1) as CreativeHistoryItem[] | { items?: CreativeHistoryItem[] };
+        const items = Array.isArray(refreshed) ? refreshed : (refreshed.items || []);
+        setCreativeHistory(items);
+      } catch {}
     } catch (err) {
       const quotaMsg = getQuotaMessage(err);
       setCreativeError(
@@ -1170,6 +1210,16 @@ export default function AdsGeneratePage() {
               </div>
             </div>
           )}
+
+          {/* ── Past creatives — persisted to Storage, survives reload ── */}
+          <CreativeHistoryGrid
+            items={creativeHistory.filter(
+              (h) =>
+                !creativeResult ||
+                !creativeResult.creatives.some((c) => c.id === h.id),
+            )}
+            loading={creativeHistoryLoading}
+          />
         </div>
       )}
 
@@ -1196,5 +1246,89 @@ export default function AdsGeneratePage() {
         );
       })()}
     </div>
+  );
+}
+
+function CreativeHistoryGrid({
+  items,
+  loading,
+}: {
+  items: CreativeHistoryItem[];
+  loading: boolean;
+}) {
+  if (loading) return null;
+  if (!items.length) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <h3 className="text-sm font-semibold text-secondary flex items-center gap-2">
+          <Camera className="h-4 w-4 text-primary" />
+          Past Creatives
+          <span className="ml-1 text-text-muted font-normal">· {items.length}</span>
+        </h3>
+      </CardHeader>
+      <CardBody>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-lg border border-border bg-surface overflow-hidden hover:bg-surface-alt/40 transition-colors"
+            >
+              {item.public_url ? (
+                <a
+                  href={item.public_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.public_url}
+                    alt={item.product_name || "Ad creative"}
+                    className="w-full h-auto block"
+                    loading="lazy"
+                  />
+                </a>
+              ) : (
+                <div className="aspect-square bg-surface-alt flex items-center justify-center text-xs text-text-muted">
+                  Image unavailable
+                </div>
+              )}
+              <div className="p-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  {item.size && (
+                    <Badge variant="primary" className="text-[10px]">
+                      {item.size}
+                    </Badge>
+                  )}
+                  {item.public_url && (
+                    <a
+                      href={item.public_url}
+                      download={`ad_creative_${item.size || item.id}.png`}
+                    >
+                      <Button variant="outline" size="sm">
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </a>
+                  )}
+                </div>
+                {item.product_name && (
+                  <p className="text-xs text-text-muted leading-tight line-clamp-2">
+                    {item.product_name}
+                  </p>
+                )}
+                <p className="mono-label text-[9px] text-text-muted">
+                  {new Date(item.created_at).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                  {item.ad_platform && ` · ${item.ad_platform}`}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardBody>
+    </Card>
   );
 }
