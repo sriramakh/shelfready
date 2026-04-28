@@ -485,8 +485,9 @@ export default function ResearchPage() {
             <>
               <ExecutiveSummary result={result} />
 
-              {/* Analysis sections grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Analysis sections — single column so long sections aren't
+                  cramped against shorter ones */}
+              <div className="space-y-4">
                 {sections.map((s, i) => (
                   <SectionCard key={i} section={s} />
                 ))}
